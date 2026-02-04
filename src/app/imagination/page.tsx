@@ -200,7 +200,7 @@ export default function ImaginationPage() {
                         transition={{ delay: 0.2 }}
                         className="text-xl md:text-2xl text-white/90 font-light max-w-2xl leading-relaxed drop-shadow-md"
                     >
-                        우리가 모은 작은 정성이 아이들에게는<br />
+                        처음부터 완공까지, 당신의 아이디어로 학교가 지어집니다.<br />
                         세상을 바꾸는 커다란 학교가 됩니다.
                     </motion.p>
                 </div>
@@ -235,67 +235,94 @@ export default function ImaginationPage() {
                     </div>
                 </div>
 
-                {/* Participation Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
-                    {/* Roadmap */}
-                    <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-lg border border-stone-100">
-                        <h3 className="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-2">
-                            <span className="text-3xl">🗺️</span> 상상학교 건립 로드맵
-                        </h3>
-                        {/* Roadmap Content */}
-                        <div className="space-y-6 relative ml-2">
-                            <div className="absolute top-2 bottom-2 left-[11px] w-0.5 bg-stone-200" />
-                            {[
-                                { status: 'done', title: "부지 선정 및 기획", date: "2024.12", desc: "아이들이 가장 행복할 수 있는 공간을 찾았습니다." },
-                                { status: 'current', title: "건축 기금 모금", date: "2025.02 ~", desc: "여러분의 소중한 후원을 기다리고 있습니다." },
-                                { status: 'future', title: "설계 공모 및 확정", date: "2025.06", desc: "아이들의 아이디어가 반영된 설계를 시작합니다." },
-                                { status: 'future', title: "착공 및 공사", date: "2025.09", desc: "안전하고 튼튼하게 학교를 짓습니다." },
-                                { status: 'future', title: "상상학교 개교", date: "2026.03", desc: "아이들의 웃음소리가 울려 퍼지는 날입니다." },
-                            ].map((step, idx) => (
-                                <div key={idx} className="relative pl-10">
-                                    <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-4 flex items-center justify-center bg-white z-10 
-                                        ${step.status === 'done' ? 'border-primary' : step.status === 'current' ? 'border-amber-400 animate-pulse' : 'border-stone-300'}`}>
-                                        {step.status === 'done' && <div className="w-2 h-2 bg-primary rounded-full" />}
-                                        {step.status === 'current' && <div className="w-2 h-2 bg-amber-400 rounded-full" />}
-                                    </div>
-                                    <span className="text-xs font-bold text-stone-400 block mb-1">{step.date}</span>
-                                    <h4 className={`text-lg font-bold ${step.status === 'future' ? 'text-stone-400' : 'text-stone-800'}`}>{step.title}</h4>
-                                    <p className="text-sm text-stone-500">{step.desc}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                {/* Participation Section - Redesigned for Co-creation */}
+                <div className="max-w-4xl mx-auto mb-20">
+                    <div className="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-stone-100 text-center relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 via-rose-400 to-purple-400" />
 
-                    {/* Idea Board */}
-                    <div className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-lg border border-stone-100 flex flex-col">
-                        <h3 className="text-2xl font-bold text-stone-800 mb-6 flex items-center gap-2">
-                            <span className="text-3xl">💡</span> 아이디어 칠판
-                        </h3>
-                        <div className="flex-1 bg-stone-50 rounded-2xl p-6 mb-6 overflow-y-auto max-h-[300px] space-y-4 border border-stone-100">
-                            {ideas.map((idea) => (
-                                <div key={idea.id} className="bg-white p-4 rounded-xl shadow-sm border border-stone-100">
-                                    <p className="text-stone-700 text-sm mb-2">&quot;{idea.content}&quot;</p>
-                                    <div className="flex justify-end text-xs text-stone-400">- {idea.author}</div>
-                                </div>
-                            ))}
-                            {ideas.length === 0 && (
-                                <div className="text-center text-stone-400 py-10">
-                                    첫 번째 아이디어를 남겨주세요!
-                                </div>
-                            )}
+                        <div className="mb-10">
+                            <span className="inline-block px-4 py-1.5 bg-stone-100 text-stone-600 rounded-full text-xs font-bold mb-4 uppercase tracking-wider">
+                                Founding Members Voice
+                            </span>
+                            <h3 className="text-3xl md:text-4xl font-bold text-stone-800 mb-4 font-serif">
+                                우리가 함께 짓는 상상학교
+                            </h3>
+                            <p className="text-stone-500 text-lg leading-relaxed max-w-2xl mx-auto">
+                                상상학교는 설계도부터 완공까지, 여러분의 아이디어로 만들어집니다.<br />
+                                아이들에게 필요한 특별한 공간을 제안해주세요. <b className="text-stone-800">여러분이 바로 이 학교의 설립자입니다.</b>
+                            </p>
                         </div>
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                value={newIdeaContent}
-                                onChange={(e) => setNewIdeaContent(e.target.value)}
-                                placeholder="학교에 바라는 점을 적어주세요!"
-                                className="flex-1 bg-stone-100 border-none rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition-all"
-                            />
-                            <button onClick={handleIdeaSubmit} className="px-6 py-3 bg-stone-800 text-white font-bold rounded-xl text-sm hover:bg-black transition-colors">
-                                등록
+
+                        {/* Idea Board Container */}
+                        <div className="bg-stone-50 rounded-3xl p-6 md:p-8 mb-8 text-left border border-stone-100 relative">
+                            {/* Decorative Blueprint Grid */}
+                            <div className="absolute inset-0 opacity-[0.03]"
+                                style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+                            </div>
+
+                            <div className="relative z-10 space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                                {ideas.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center py-20 text-center opacity-50">
+                                        <Sparkles size={48} className="mb-4 text-amber-400" />
+                                        <p className="font-bold text-stone-400">아직 등록된 아이디어가 없습니다.<br />첫 번째 설계자가 되어주세요!</p>
+                                    </div>
+                                ) : (
+                                    ideas.map((idea) => (
+                                        <div key={idea.id} className="bg-white p-5 rounded-2xl shadow-sm border border-stone-100 hover:shadow-md transition-shadow flex flex-col md:flex-row gap-4 items-start md:items-center justify-between group">
+                                            <div className="flex items-start gap-4">
+                                                <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
+                                                    <span className="text-xl">💡</span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-stone-800 font-medium text-lg leading-snug">&quot;{idea.content}&quot;</p>
+                                                    <p className="text-xs text-stone-400 font-bold mt-1 group-hover:text-primary transition-colors">Proposed by {idea.author}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-1 text-stone-300 text-xs font-bold uppercase tracking-wider shrink-0">
+                                                <Check size={14} className="text-green-500" />
+                                                <span>Under Review</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Input Area */}
+                        <div className="flex flex-col md:flex-row gap-3 bg-white p-2 rounded-2xl border border-stone-200 shadow-sm focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+                            <div className="relative shrink-0 md:w-48">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                                    <User size={18} className="text-stone-400" />
+                                </div>
+                                <input
+                                    type="text"
+                                    value={newIdeaName}
+                                    onChange={(e) => setNewIdeaName(e.target.value)}
+                                    placeholder="작성자 (선택)"
+                                    className="w-full h-full pl-11 pr-4 py-3 bg-transparent border-none outline-none text-sm font-bold text-stone-800 placeholder:text-stone-400"
+                                />
+                            </div>
+                            <div className="hidden md:block w-px bg-stone-200 my-2" />
+                            <div className="relative flex-1">
+                                <input
+                                    type="text"
+                                    value={newIdeaContent}
+                                    onChange={(e) => setNewIdeaContent(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleIdeaSubmit()}
+                                    placeholder="예: 운동장에 우주선 미끄럼틀을 만들어주세요!"
+                                    className="w-full h-full px-4 py-3 bg-transparent border-none outline-none text-sm text-stone-800 placeholder:text-stone-400"
+                                />
+                            </div>
+                            <button
+                                onClick={handleIdeaSubmit}
+                                className="px-8 py-3 bg-stone-900 text-white font-bold rounded-xl text-sm hover:bg-black transition-all shadow-lg shadow-stone-900/20 active:scale-95 whitespace-nowrap"
+                            >
+                                아이디어 제안
                             </button>
                         </div>
+                        <p className="text-xs text-stone-400 mt-4 font-medium">
+                            * 채택된 아이디어는 실제 학교 설계에 반영되며, 제안자의 이름이 학교 벽면에 새겨집니다.
+                        </p>
                     </div>
                 </div>
 
