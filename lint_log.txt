@@ -1,0 +1,240 @@
+
+> gachitalker@0.1.0 lint
+> eslint
+
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx
+  118:9   error    Error: Cannot access variable before it is declared
+
+`loadSessions` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:118:9
+  116 |
+  117 |     useEffect(() => {
+> 118 |         loadSessions();
+      |         ^^^^^^^^^^^^ `loadSessions` accessed before it is declared
+  119 |     }, []);
+  120 |
+  121 |     const loadSessions = async () => {
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:121:5
+  119 |     }, []);
+  120 |
+> 121 |     const loadSessions = async () => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 122 |         const data = await getAllCounseling();
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 123 |         setSessions(data);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 124 |     };
+      | ^^^^^^^ `loadSessions` is declared here
+  125 |
+  126 |     const handleSendReply = async (session: CounselingSession) => {
+  127 |         if (!replyContent.trim()) return;                                                                                                                                                                                                                                                                                                                                         react-hooks/immutability
+  134:24  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:134:24
+  132 |             adminReply: replyContent,
+  133 |             status: 'replied',
+> 134 |             repliedAt: Date.now()
+      |                        ^^^^^^^^^^ Cannot call impure function
+  135 |         };
+  136 |
+  137 |         await setCounseling(updated);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/purity
+  247:42  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+  280:9   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:280:9
+  278 |             }
+  279 |         ];
+> 280 |         setOrders(dummyOrders);
+      |         ^^^^^^^^^ Avoid calling setState() directly within an effect
+  281 |         setIsLoading(false);
+  282 |     }, []);
+  283 |                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/set-state-in-effect
+  395:39  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+  402:23  error    Error: Cannot access variable before it is declared
+
+`loadData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:402:23
+  400 |     const [isSaving, setIsSaving] = useState(false);
+  401 |
+> 402 |     useEffect(() => { loadData(); }, [book.id]);
+      |                       ^^^^^^^^ `loadData` accessed before it is declared
+  403 |
+  404 |     const loadData = async () => {
+  405 |         // Load PDF
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:404:5
+  402 |     useEffect(() => { loadData(); }, [book.id]);
+  403 |
+> 404 |     const loadData = async () => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 405 |         // Load PDF
+      | ^^^^^^^^^^^^^^^^^^^
+> 406 |         const file = await getBookFile(book.id);
+      …
+      | ^^^^^^^^^^^^^^^^^^^
+> 418 |         setIsLoading(false);
+      | ^^^^^^^^^^^^^^^^^^^
+> 419 |     };
+      | ^^^^^^^ `loadData` is declared here
+  420 |
+  421 |     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  422 |         const file = e.target.files?.[0];                                                                                                                                                                                                                      react-hooks/immutability
+  402:38  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+  574:62  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react/no-unescaped-entities
+  574:67  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react/no-unescaped-entities
+  626:45  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+  632:9   error    Error: Cannot access variable before it is declared
+
+`loadData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:632:9
+  630 |
+  631 |     useEffect(() => {
+> 632 |         loadData();
+      |         ^^^^^^^^ `loadData` accessed before it is declared
+  633 |     }, [video.id]);
+  634 |
+  635 |     const loadData = async () => {
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:635:5
+  633 |     }, [video.id]);
+  634 |
+> 635 |     const loadData = async () => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 636 |         const data = await getProductMetadata(video.id);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 637 |         if (data) setMeta(data);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 638 |
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 639 |         const imgBlob = await getProductDetailImage(video.id);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 640 |         if (imgBlob) setDetailImage(URL.createObjectURL(imgBlob));
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 641 |     };
+      | ^^^^^^^ `loadData` is declared here
+  642 |
+  643 |     const handleSaveMeta = async () => {
+  644 |         setIsSaving(true);  react-hooks/immutability
+  633:8   warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/exhaustive-deps
+  787:20  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/admin/page.tsx:787:20
+  785 |     useEffect(() => {
+  786 |         const saved = localStorage.getItem('cafe24_config');
+> 787 |         if (saved) setConfig(JSON.parse(saved));
+      |                    ^^^^^^^^^ Avoid calling setState() directly within an effect
+  788 |     }, []);
+  789 |
+  790 |     const handleSave = () => {                                                                                                                                                                                                                                                                                                                                           react-hooks/set-state-in-effect
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/app/healing/page.tsx
+    5:32  warning  'Wind' is defined but never used                                 @typescript-eslint/no-unused-vars
+    5:38  warning  'X' is defined but never used                                    @typescript-eslint/no-unused-vars
+  195:45  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  195:52  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  232:44  warning  'content' is defined but never used                              @typescript-eslint/no-unused-vars
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/curations/VideoModal.tsx
+   6:26  warning  'ChevronRight' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   7:10  warning  'CURATIONS' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  11:12  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  24:13  error    Error: Cannot access variable before it is declared
+
+`loadCustomData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/curations/VideoModal.tsx:24:13
+  22 |     useEffect(() => {
+  23 |         if (isOpen && video) {
+> 24 |             loadCustomData();
+     |             ^^^^^^^^^^^^^^ `loadCustomData` accessed before it is declared
+  25 |         }
+  26 |     }, [isOpen, video]);
+  27 |
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/curations/VideoModal.tsx:28:5
+  26 |     }, [isOpen, video]);
+  27 |
+> 28 |     const loadCustomData = async () => {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 29 |         const data = await getProductMetadata(video.id);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 30 |         if (data) {
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 45 |         }
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 46 |     };
+     | ^^^^^^^ `loadCustomData` is declared here
+  47 |
+  48 |     if (!isOpen || !video) return null;
+  49 |  react-hooks/immutability
+  26:8   warning  React Hook useEffect has a missing dependency: 'loadCustomData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   react-hooks/exhaustive-deps
+  83:34  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/home/QuantumHero.tsx
+    7:10   warning  'Bot' is defined but never used                                  @typescript-eslint/no-unused-vars
+    7:15   warning  'BookOpen' is defined but never used                             @typescript-eslint/no-unused-vars
+    7:25   warning  'Video' is defined but never used                                @typescript-eslint/no-unused-vars
+   65:45   warning  'i' is defined but never used                                    @typescript-eslint/no-unused-vars
+  273:91   error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  273:94   error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  353:159  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  353:166  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  367:86   error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  367:114  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/legacy-ai/BookGenerator.ts
+  37:9   error  'cleanedText' is never reassigned. Use 'const' instead     prefer-const
+  78:27  error  Unexpected any. Specify a different type                   @typescript-eslint/no-explicit-any
+  85:13  error  'currentFillers' is never reassigned. Use 'const' instead  prefer-const
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/legacy-ai/ChatInterface.tsx
+  232:88  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  334:83  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/legacy-ai/TableOfContents.tsx
+  13:12  warning  'activeChapter' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/originals/ProductCard.tsx
+  11:47  error    Unexpected any. Specify a different type                                                                         @typescript-eslint/no-explicit-any
+  21:8   warning  React Hook useEffect has a missing dependency: 'loadMetadata'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/originals/PurchaseModal.tsx
+   18:11  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                @typescript-eslint/no-explicit-any
+   49:32  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/celinajung/Documents/내가 1인기업대표야/src/components/originals/PurchaseModal.tsx:49:32
+  47 |
+  48 |     if (isFinished) {
+> 49 |         const orderId = `ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+     |                                ^^^^^^^^^^^^^ Cannot call impure function
+  50 |         return (
+  51 |             <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  52 |                 <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />  react-hooks/purity
+  228:33  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @next/next/no-img-element
+  235:33  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @next/next/no-img-element
+
+✖ 46 problems (30 errors, 16 warnings)
+  2 errors and 0 warnings potentially fixable with the `--fix` option.
+

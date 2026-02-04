@@ -1,0 +1,196 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* Brand Colors */
+  /* Primary: Deep Forest Green #1A3C34 */
+  /* Background: Cream Beige #F9F9F2 */
+  /* Accent: Antique Gold #D4AF37 */
+
+  --background: #F9F9F2;
+  --foreground: #1A3C34;
+  /* Text is Deep Forest Green */
+
+  --card: #FFFFFF;
+  --card-foreground: #1A3C34;
+
+  --popover: #FFFFFF;
+  --popover-foreground: #1A3C34;
+
+  --primary: #1A3C34;
+  --primary-foreground: #F9F9F2;
+
+  --secondary: #F0F0E8;
+  --secondary-foreground: #1A3C34;
+
+  --muted: #E4E4D9;
+  --muted-foreground: #5A7C74;
+
+  --accent: #D4AF37;
+  --accent-foreground: #1A3C34;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #E4E4D9;
+  --input: #E4E4D9;
+  --ring: #1A3C34;
+
+  --chart-1: #1A3C34;
+  --chart-2: #D4AF37;
+  --chart-3: #5A7C74;
+  --chart-4: #F0F0E8;
+  --chart-5: #E4E4D9;
+
+  --sidebar: #1A3C34;
+  --sidebar-foreground: #F9F9F2;
+  --sidebar-primary: #D4AF37;
+  --sidebar-primary-foreground: #1A3C34;
+  --sidebar-accent: #2A4C44;
+  --sidebar-accent-foreground: #F9F9F2;
+  --sidebar-border: #2A4C44;
+  --sidebar-ring: #D4AF37;
+}
+
+.dark {
+  --background: #0D1F1B;
+  /* Darker than primary */
+  --foreground: #F9F9F2;
+
+  --card: #1A3C34;
+  --card-foreground: #F9F9F2;
+
+  --popover: #1A3C34;
+  --popover-foreground: #F9F9F2;
+
+  --primary: #D4AF37;
+  /* Gold becomes primary */
+  --primary-foreground: #1A3C34;
+
+  --secondary: #2A4C44;
+  --secondary-foreground: #F9F9F2;
+
+  --muted: #2A4C44;
+  --muted-foreground: #A0B0A8;
+
+  --accent: #D4AF37;
+  --accent-foreground: #1A3C34;
+
+  --destructive: #7f1d1d;
+  --destructive-foreground: #ffffff;
+
+  --border: #2A4C44;
+  --input: #2A4C44;
+  --ring: #D4AF37;
+
+  --chart-1: #D4AF37;
+  --chart-2: #F9F9F2;
+  --chart-3: #A0B0A8;
+  --chart-4: #2A4C44;
+  --chart-5: #1A3C34;
+
+  --sidebar: #0A1916;
+  --sidebar-foreground: #F9F9F2;
+  --sidebar-primary: #D4AF37;
+  --sidebar-primary-foreground: #1A3C34;
+  --sidebar-accent: #1A3C34;
+  --sidebar-accent-foreground: #F9F9F2;
+  --sidebar-border: #1A3C34;
+  --sidebar-ring: #D4AF37;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  animation: gradient 6s linear infinite;
+}
