@@ -15,12 +15,16 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Mock Login Logic
-        if (email && password) {
-            login(email, "Cosmic Traveler");
-            router.push('/mypage');
+        try {
+            if (email && password) {
+                await login(email, password);
+                router.push('/mypage');
+            }
+        } catch (error) {
+            console.error("Login failed", error);
+            alert("이메일 또는 비밀번호를 확인해주세요.");
         }
     };
 

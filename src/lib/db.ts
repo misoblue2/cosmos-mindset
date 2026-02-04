@@ -37,6 +37,7 @@ export interface Product {
 export interface User {
     id: string;
     email: string;
+    password?: string; // [NEW] Added for local auth simulation
     name: string;
     phone?: string;
     address?: string;
@@ -94,6 +95,20 @@ export async function setUser(user: User) {
 export async function getUser(userId: string): Promise<User | undefined> {
     if (typeof window === 'undefined') return undefined;
     return await get<User>(`${USER_PREFIX}${userId}`);
+}
+
+export async function getUserByEmail(email: string): Promise<User | undefined> {
+    if (typeof window === 'undefined') return undefined;
+    const allKeys = await keys();
+    const userKeys = allKeys.filter(k => typeof k === 'string' && k.startsWith(USER_PREFIX));
+
+    for (const key of userKeys) {
+        const user = await get<User>(key as string);
+        if (user && user.email === email) {
+            return user;
+        }
+    }
+    return undefined;
 }
 
 export async function setOrder(order: Order) {

@@ -8,10 +8,15 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function SignupPage() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { signup } = useAuth();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    // Form States
+    const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [email, setEmail] = useState("");
+    const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -19,15 +24,29 @@ export default function SignupPage() {
     const isPasswordMismatch = confirmPassword && password !== confirmPassword;
     const passwordErrorText = isPasswordMismatch ? "비밀번호가 일치하지 않습니다." : "";
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (password !== confirmPassword) {
             alert("비밀번호가 일치하지 않습니다.");
             return;
         }
-        // Mock signup success & Auto-login
-        login("new_user@cosmos.com", "New Traveler");
-        router.push('/mypage');
+
+        try {
+            await signup({
+                id: `user-${Date.now()}`,
+                email,
+                password,
+                name,
+                phone,
+                address,
+                createdAt: Date.now()
+            });
+            alert("회원가입이 완료되었습니다! 환영합니다.");
+            router.push('/mypage');
+        } catch (error) {
+            console.error("Signup failed", error);
+            alert("회원가입 중 오류가 발생했습니다.");
+        }
     };
 
     return (
@@ -55,14 +74,28 @@ export default function SignupPage() {
                                     <label className="text-[10px] font-black text-white/50 uppercase ml-1 tracking-widest">Full Name</label>
                                     <div className="relative group">
                                         <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-purple-400 transition-colors" size={17} />
-                                        <input type="text" placeholder="성함" className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-purple-500/50 outline-none transition-all font-medium text-sm text-white placeholder:text-white/20" required />
+                                        <input
+                                            type="text"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            placeholder="성함"
+                                            className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-purple-500/50 outline-none transition-all font-medium text-sm text-white placeholder:text-white/20"
+                                            required
+                                        />
                                     </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-white/50 uppercase ml-1 tracking-widest">Phone Number</label>
                                     <div className="relative group">
                                         <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-purple-400 transition-colors" size={17} />
-                                        <input type="tel" placeholder="010-0000-0000" className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-purple-500/50 outline-none transition-all font-medium text-sm text-white placeholder:text-white/20" required />
+                                        <input
+                                            type="tel"
+                                            value={phone}
+                                            onChange={(e) => setPhone(e.target.value)}
+                                            placeholder="010-0000-0000"
+                                            className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-purple-500/50 outline-none transition-all font-medium text-sm text-white placeholder:text-white/20"
+                                            required
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -71,7 +104,14 @@ export default function SignupPage() {
                                 <label className="text-[10px] font-black text-white/50 uppercase ml-1 tracking-widest">Email Address</label>
                                 <div className="relative group">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-purple-400 transition-colors" size={17} />
-                                    <input type="email" placeholder="name@company.com" className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-purple-500/50 outline-none transition-all font-medium text-sm text-white placeholder:text-white/20" required />
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="name@company.com"
+                                        className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-purple-500/50 outline-none transition-all font-medium text-sm text-white placeholder:text-white/20"
+                                        required
+                                    />
                                 </div>
                             </div>
 
@@ -79,7 +119,14 @@ export default function SignupPage() {
                                 <label className="text-[10px] font-black text-white/50 uppercase ml-1 tracking-widest">Shipping Address</label>
                                 <div className="relative group">
                                     <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-purple-400 transition-colors" size={17} />
-                                    <input type="text" placeholder="도서 배송을 위한 정확한 주소" className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-purple-500/50 outline-none transition-all font-medium text-sm text-white placeholder:text-white/20" required />
+                                    <input
+                                        type="text"
+                                        value={address}
+                                        onChange={(e) => setAddress(e.target.value)}
+                                        placeholder="도서 배송을 위한 정확한 주소"
+                                        className="w-full pl-11 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl focus:ring-2 focus:ring-purple-500/50 outline-none transition-all font-medium text-sm text-white placeholder:text-white/20"
+                                        required
+                                    />
                                 </div>
                             </div>
 
