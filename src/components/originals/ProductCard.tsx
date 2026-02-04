@@ -119,7 +119,7 @@ export const ProductCard = ({ book }: { book: any }) => {
                                 className="py-4 px-3 bg-secondary text-secondary-foreground font-black rounded-xl hover:bg-secondary/80 transition-all active:scale-95 text-xs flex flex-col items-center justify-center gap-1.5 border border-border/50"
                             >
                                 <Book size={16} />
-                                <span>{meta?.buyUrl ? "종이책 구매하기" : "실물 도서 알림"}</span>
+                                <span>실물도서 구매하기</span>
                             </button>
                         </div>
 

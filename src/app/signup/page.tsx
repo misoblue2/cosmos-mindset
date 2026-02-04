@@ -3,13 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MessageCircle, User, Mail, Lock, Phone, MapPin, ArrowRight, ShieldCheck, Eye, EyeOff, Check, X } from 'lucide-react';
+import { User, Mail, Lock, Phone, MapPin, ArrowRight, ShieldCheck, Eye, EyeOff, Check, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function SignupPage() {
     const router = useRouter();
     const { login } = useAuth();
-    const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -19,14 +18,6 @@ export default function SignupPage() {
     // Derived state for password mismatch
     const isPasswordMismatch = confirmPassword && password !== confirmPassword;
     const passwordErrorText = isPasswordMismatch ? "비밀번호가 일치하지 않습니다." : "";
-
-    const handleKakaoSignup = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            login("kakao_new@cosmos.com", "Kakao Newbie");
-            router.push('/mypage');
-        }, 1500);
-    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -57,25 +48,6 @@ export default function SignupPage() {
 
                 <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-8 md:p-10 shadow-2xl">
                     <div className="space-y-6">
-                        {/* Social Signup */}
-                        <button
-                            onClick={handleKakaoSignup}
-                            disabled={isLoading}
-                            className="w-full py-4 bg-[#FEE500] text-[#3c1e1e] font-black rounded-2xl hover:bg-[#FEE500]/90 transition-all flex items-center justify-center gap-3 shadow-lg hover:shadow-[#FEE500]/20 hover:scale-[1.02] active:scale-[0.98]"
-                        >
-                            <MessageCircle size={20} fill="currentColor" />
-                            {isLoading ? "우주정거장 연결 중..." : "카카오톡으로 3초만에 가입하기"}
-                        </button>
-
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-white/10" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-transparent px-4 text-white/40 font-bold tracking-widest">OR</span>
-                            </div>
-                        </div>
-
                         {/* Signup Form */}
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div className="grid grid-cols-2 gap-4">

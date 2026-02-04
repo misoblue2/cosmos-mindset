@@ -271,7 +271,7 @@ export function PurchaseModal({ isOpen, onClose, book, type, onDownload }: Purch
                             <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
                             <>
-                                <span>{paymentMethod === 'naver' ? '네이버페이로 결제' : paymentMethod === 'kakao' ? '카카오페이로 결제' : (type === 'pdf' ? 'PDF 구매 및 다운로드' : '종이책 주문하기')}</span>
+                                <span>{paymentMethod === 'naver' ? '네이버페이로 결제' : paymentMethod === 'kakao' ? '카카오페이로 결제' : (type === 'pdf' ? 'PDF 구매 및 다운로드' : '실물도서 주문하기')}</span>
                                 <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
                             </>
                         )}

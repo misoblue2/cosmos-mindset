@@ -3,27 +3,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { MessageCircle, Mail, Lock, ArrowRight, ShieldCheck, Eye, EyeOff, HelpCircle, X } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ShieldCheck, Eye, EyeOff, HelpCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
     const router = useRouter();
     const { login } = useAuth();
-    const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showRecovery, setShowRecovery] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-    const handleKakaoLogin = () => {
-        setIsLoading(true);
-        // Simulate Kakao OAuth redirect and login
-        setTimeout(() => {
-            login("kakao_user@cosmos.com", "Kakao Guest");
-            router.push('/mypage');
-        }, 1500);
-    };
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,26 +42,7 @@ export default function LoginPage() {
 
                 <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] p-8 md:p-10 shadow-2xl">
                     <div className="space-y-6">
-                        {/* Social Login */}
-                        <button
-                            onClick={handleKakaoLogin}
-                            disabled={isLoading}
-                            className="w-full py-4 bg-[#FEE500] text-[#3c1e1e] font-black rounded-2xl hover:bg-[#FEE500]/90 transition-all flex items-center justify-center gap-3 shadow-lg hover:shadow-[#FEE500]/20 hover:scale-[1.02] active:scale-[0.98]"
-                        >
-                            <MessageCircle size={20} fill="currentColor" />
-                            {isLoading ? "우주정거장 연결 중..." : "카카오톡으로 1초 시작하기"}
-                        </button>
-
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <span className="w-full border-t border-white/10" />
-                            </div>
-                            <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-transparent px-4 text-white/40 font-bold tracking-widest">OR</span>
-                            </div>
-                        </div>
-
-                        {/* Email Login Form */}
+                        {/* Login Form */}
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-white/50 uppercase ml-1 tracking-widest">Email Address</label>
