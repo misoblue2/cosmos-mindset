@@ -22,9 +22,15 @@ export default function LoginPage() {
                 await login(email, password);
                 router.push('/mypage');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Login failed", error);
-            alert("이메일 또는 비밀번호를 확인해주세요.");
+            if (error.message === "User not found") {
+                alert("가입되지 않은 이메일입니다.");
+            } else if (error.message === "Password mismatch") {
+                alert("비밀번호가 일치하지 않습니다.");
+            } else {
+                alert("로그인 중 오류가 발생했습니다.");
+            }
         }
     };
 

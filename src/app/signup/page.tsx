@@ -43,9 +43,14 @@ export default function SignupPage() {
             });
             alert("회원가입이 완료되었습니다! 환영합니다.");
             router.push('/mypage');
-        } catch (error) {
+        } catch (error: any) {
             console.error("Signup failed", error);
-            alert("회원가입 중 오류가 발생했습니다.");
+            if (error.message === "이미 가입된 이메일입니다.") {
+                alert("이미 가입된 이메일입니다. 로그인해주세요.");
+                router.push('/login');
+            } else {
+                alert("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+            }
         }
     };
 

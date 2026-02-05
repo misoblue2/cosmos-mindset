@@ -66,6 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const signup = async (userData: User) => {
+        // 1. Check for duplicates
+        const existingUser = await getUserByEmail(userData.email);
+        if (existingUser) {
+            throw new Error("이미 가입된 이메일입니다.");
+        }
+
+        // 2. Save to DB
         await setUserDB(userData);
 
         const userProfile: UserProfile = {
