@@ -4,154 +4,138 @@ import { useState } from 'react';
 import {
     Sparkles,
     Download,
-    Film,
-    Clapperboard,
+    BookOpen,
     PenTool,
-    RotateCcw
+    RotateCcw,
+    Lock
 } from 'lucide-react';
 import { generateBookPDF } from './BookGenerator';
-import { generateScenario } from '@/lib/scenarioGenerator'; // Import the new generator
+import { generateScenario } from '@/lib/scenarioGenerator';
 
-export function ChatInterface() { // Keeping component name strictly as requested for minimal impact, though behavior changed
-    const [keywords, setKeywords] = useState<string[]>([]);
-    const [input, setInput] = useState('');
-    const [generatedScript, setGeneratedScript] = useState('');
+export function ChatInterface() {
+    const [storyInput, setStoryInput] = useState('');
+    const [targetPages, setTargetPages] = useState<number>(50);
+    const [generatedBook, setGeneratedBook] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
-
-    // Customization logic integrated directly
-    const [title, setTitle] = useState('');
-
-    const handleAddKeyword = () => {
-        if (input.trim() && keywords.length < 5) {
-            setKeywords([...keywords, input.trim()]);
-            setInput('');
-        }
-    };
+    const [isPaid, setIsPaid] = useState(false); // Mock payment status
 
     const handleGenerate = async () => {
-        if (keywords.length === 0) return;
+        if (!storyInput.trim()) return;
         setIsGenerating(true);
 
-        // Simulate "Creative Process"
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Simulate AI "Thinking" and "Expanding" time
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
-        const script = generateScenario(keywords);
-        setGeneratedScript(script);
+        const bookContent = generateScenario(storyInput, targetPages);
+        setGeneratedBook(bookContent);
         setIsGenerating(false);
     };
 
     const handleReset = () => {
-        setKeywords([]);
-        setGeneratedScript('');
-        setTitle('');
+        setStoryInput('');
+        setGeneratedBook('');
+        setIsPaid(false);
     };
 
     const handleDownload = async () => {
-        if (!generatedScript) return;
-        await generateBookPDF(generatedScript, 10, { title: title || "나의 시나리오", coverStyle: "Classic" });
+        if (!isPaid) {
+            const confirmed = confirm("PDF 다운로드는 입금 확인 후 가능합니다.\n(테스트 모드: '확인'을 누르면 입금 처리된 것으로 간주합니다.)");
+            if (confirmed) {
+                setIsPaid(true);
+                alert("입금이 확인되었습니다! 다운로드를 시작합니다.");
+            } else {
+                return;
+            }
+        }
+        await generateBookPDF(generatedBook, targetPages, { title: "나의 자서전", coverStyle: "Classic" });
     };
 
     return (
         <div className="max-w-4xl mx-auto px-4">
-            {!generatedScript ? (
+            {!generatedBook ? (
                 // Input Mode
                 <div className="bg-white rounded-[2.5rem] shadow-xl border border-stone-100 p-8 md:p-12 text-center animate-in fade-in zoom-in-95 duration-500">
                     <div className="mb-8">
                         <div className="w-20 h-20 bg-stone-900 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-stone-900/20">
-                            <Clapperboard className="text-white" size={32} />
+                            <BookOpen className="text-white" size={32} />
                         </div>
                         <h2 className="text-3xl font-serif font-bold text-stone-800 mb-3">
-                            당신의 인생을 영화처럼
+                            당신의 이야기, 세상 단 하나뿐인 책으로
                         </h2>
                         <p className="text-stone-500 max-w-lg mx-auto leading-relaxed">
-                            기억에 남는 단어들을 들려주세요.<br />
-                            AI가 당신의 이야기를 한 편의 영화 시나리오로 각색해드립니다.
+                            어린 시절의 추억, 삶의 결정적 순간들을 들려주세요.<br />
+                            AI가 당신의 이야기를 풍성하게 다듬어 한 권의 자서전으로 완성해드립니다.
                         </p>
                     </div>
 
-                    <div className="max-w-md mx-auto space-y-6">
-                        {/* Keyword Chips */}
-                        <div className="flex flex-wrap gap-2 justify-center min-h-[40px]">
-                            {keywords.map((k, i) => (
-                                <span key={i} className="px-4 py-2 bg-stone-100 text-stone-700 rounded-full text-sm font-bold flex items-center gap-2 animate-in fade-in zoom-in duration-300">
-                                    #{k}
-                                    <button onClick={() => setKeywords(keywords.filter((_, idx) => idx !== i))} className="hover:text-red-500">×</button>
-                                </span>
-                            ))}
+                    <div className="max-w-2xl mx-auto space-y-6">
+                        {/* Story Input Field */}
+                        <div className="relative">
+                            <textarea
+                                value={storyInput}
+                                onChange={(e) => setStoryInput(e.target.value)}
+                                maxLength={1000}
+                                placeholder="예: 무더운 여름날, 골목길에서 친구들과 뛰놀던 기억이 납니다. 해가 질 때까지 술래잡기를 하다가..."
+                                className="w-full h-48 px-6 py-6 bg-stone-50 border-2 border-stone-100 rounded-2xl focus:outline-none focus:border-stone-400 focus:bg-white transition-all text-base font-medium leading-relaxed resize-none placeholder:text-stone-400"
+                            />
+                            <div className="absolute bottom-4 right-4 text-xs font-bold text-stone-400">
+                                {storyInput.length} / 1000자
+                            </div>
                         </div>
 
-                        {/* Input Field */}
-                        <div className="relative">
-                            <input
-                                type="text"
-                                value={input}
-                                onChange={(e) => setInput(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleAddKeyword()}
-                                placeholder={keywords.length >= 5 ? "최대 5개까지 입력 가능합니다" : "키워드 입력 (예: 첫사랑, 자전거)"}
-                                disabled={keywords.length >= 5}
-                                className="w-full px-6 py-4 bg-stone-50 border-2 border-stone-100 rounded-2xl focus:outline-none focus:border-stone-400 focus:bg-white transition-all text-center text-lg font-bold placeholder:font-medium placeholder:text-stone-400"
-                            />
-                            <button
-                                onClick={handleAddKeyword}
-                                disabled={!input.trim() || keywords.length >= 5}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-stone-200 text-stone-500 rounded-xl hover:bg-stone-800 hover:text-white disabled:opacity-0 transition-all"
-                            >
-                                <PenTool size={18} />
-                            </button>
+                        {/* Options */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 text-left">
+                                <label className="text-xs font-bold text-stone-500 uppercase mb-2 block">목표 분량</label>
+                                <select
+                                    value={targetPages}
+                                    onChange={(e) => setTargetPages(Number(e.target.value))}
+                                    className="w-full bg-transparent font-bold text-stone-800 outline-none cursor-pointer"
+                                >
+                                    <option value={50}>50페이지 (에세이 분량)</option>
+                                    <option value={100}>100페이지 (문고본 분량)</option>
+                                    <option value={200}>200페이지 (단행본 분량)</option>
+                                </select>
+                            </div>
+                            <div className="p-4 bg-stone-50 rounded-2xl border border-stone-100 text-left flex items-center justify-between">
+                                <div>
+                                    <label className="text-xs font-bold text-stone-500 uppercase mb-1 block">예상 소요 시간</label>
+                                    <span className="font-bold text-stone-800">약 30초 ~ 1분</span>
+                                </div>
+                                <Sparkles size={20} className="text-amber-400" />
+                            </div>
                         </div>
 
                         <button
                             onClick={handleGenerate}
-                            disabled={keywords.length === 0 || isGenerating}
+                            disabled={!storyInput.trim() || isGenerating}
                             className="w-full py-5 bg-stone-900 text-white font-bold rounded-2xl shadow-xl shadow-stone-900/20 hover:bg-black hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {isGenerating ? (
                                 <>
                                     <Sparkles size={20} className="animate-spin text-amber-400" />
-                                    <span>시나리오 집필 중...</span>
+                                    <span>AI 작가가 집필 중입니다...</span>
                                 </>
                             ) : (
                                 <>
-                                    <Film size={20} />
-                                    <span>시나리오 생성하기</span>
+                                    <PenTool size={20} />
+                                    <span>자서전 완성하기</span>
                                 </>
                             )}
                         </button>
                     </div>
                 </div>
             ) : (
-                // Output Mode (Script View)
+                // Output Mode (Book Preview)
                 <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    <div className="bg-[#f0f0e0] rounded-t-[2rem] p-8 md:p-12 shadow-2xl relative min-h-[600px] border-b-[16px] border-stone-800/5 paper-texture">
-                        {/* Paper Holes imitation */}
-                        <div className="absolute left-4 top-0 bottom-0 w-8 flex flex-col justify-evenly opacity-10 pointer-events-none">
-                            <div className="w-4 h-4 rounded-full bg-black/50" />
-                            <div className="w-4 h-4 rounded-full bg-black/50" />
-                            <div className="w-4 h-4 rounded-full bg-black/50" />
-                        </div>
-
-                        <div className="max-w-3xl mx-auto pl-8 md:pl-16 font-mono text-stone-800 leading-relaxed whitespace-pre-wrap">
-                            {/* Script Header */}
-                            <div className="text-center mb-12 border-b-2 border-stone-300 pb-8">
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="UNTITLED SCREENPLAY"
-                                    className="bg-transparent border-none text-center text-3xl font-black font-courier text-stone-900 placeholder:text-stone-400 focus:outline-none w-full uppercase tracking-widest"
-                                />
-                                <p className="text-sm font-bold text-stone-500 mt-2 uppercase tracking-widest">Written by You & AI</p>
-                            </div>
-
-                            {/* Script Content */}
-                            <div className="font-courier text-sm md:text-base">
-                                {generatedScript}
-                            </div>
+                    <div className="bg-[#fffbf0] rounded-t-[2rem] p-8 md:p-16 shadow-2xl relative min-h-[600px] border-b-[16px] border-stone-800/5 paper-texture">
+                        <div className="max-w-3xl mx-auto font-serif text-stone-800 leading-loose whitespace-pre-wrap text-lg text-justify">
+                            {generatedBook}
                         </div>
                     </div>
 
                     {/* Action Bar */}
-                    <div className="bg-stone-900 text-white p-6 rounded-b-[2.5rem] flex items-center justify-between shadow-2xl mx-4 -mt-2 relative z-10">
+                    <div className="bg-stone-900 text-white p-6 rounded-b-[2.5rem] flex flex-col md:flex-row items-center justify-between shadow-2xl mx-4 -mt-2 relative z-10 gap-4">
                         <button
                             onClick={handleReset}
                             className="flex items-center gap-2 px-6 py-3 rounded-xl hover:bg-white/10 text-stone-400 hover:text-white transition-colors font-bold text-sm"
@@ -160,21 +144,31 @@ export function ChatInterface() { // Keeping component name strictly as requeste
                             다시 쓰기
                         </button>
 
-                        <button
-                            onClick={handleDownload}
-                            className="flex items-center gap-3 px-8 py-3 bg-white text-stone-900 rounded-xl font-bold hover:bg-stone-200 transition-colors shadow-lg shadow-black/20"
-                        >
-                            <Download size={20} />
-                            PDF로 소장하기
-                        </button>
+                        <div className="flex items-center gap-4">
+                            {!isPaid && (
+                                <p className="text-xs text-stone-400 hidden md:block">
+                                    <Lock size={12} className="inline mr-1" />
+                                    다운로드는 입금 확인 후 가능합니다
+                                </p>
+                            )}
+                            <button
+                                onClick={handleDownload}
+                                className={`flex items-center gap-3 px-8 py-3 rounded-xl font-bold transition-all shadow-lg text-stone-900 ${isPaid
+                                    ? "bg-amber-400 hover:bg-amber-300 shadow-amber-900/20"
+                                    : "bg-white hover:bg-stone-200 shadow-black/20"
+                                    }`}
+                            >
+                                {isPaid ? <Download size={20} /> : <Lock size={20} />}
+                                {isPaid ? "PDF 다운로드" : "입금 확인 및 다운로드"}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
-
             <style jsx global>{`
                 @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
-                .font-courier {
-                    font-family: 'Courier Prime', 'Courier New', monospace;
+                .paper-texture {
+                    background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
                 }
             `}</style>
         </div>

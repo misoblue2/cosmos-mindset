@@ -114,13 +114,26 @@ export const ProductCard = ({ book }: { book: any }) => {
                                 ) : <Download size={16} />}
                                 <span>PDF 즉시 다운로드</span>
                             </button>
-                            <button
-                                onClick={() => handleAction('physical')}
-                                className="py-4 px-3 bg-secondary text-secondary-foreground font-black rounded-xl hover:bg-secondary/80 transition-all active:scale-95 text-xs flex flex-col items-center justify-center gap-1.5 border border-border/50"
-                            >
-                                <Book size={16} />
-                                <span>실물도서 구매하기</span>
-                            </button>
+
+                            {meta?.buyUrl ? (
+                                <a
+                                    href={meta.buyUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="py-4 px-3 bg-secondary text-secondary-foreground font-black rounded-xl hover:bg-secondary/80 transition-all active:scale-95 text-xs flex flex-col items-center justify-center gap-1.5 border border-border/50"
+                                >
+                                    <Book size={16} />
+                                    <span>실물도서 구매하기</span>
+                                </a>
+                            ) : (
+                                <button
+                                    onClick={() => handleAction('physical')}
+                                    className="py-4 px-3 bg-secondary text-secondary-foreground font-black rounded-xl hover:bg-secondary/80 transition-all active:scale-95 text-xs flex flex-col items-center justify-center gap-1.5 border border-border/50"
+                                >
+                                    <Book size={16} />
+                                    <span>실물도서 구매하기</span>
+                                </button>
+                            )}
                         </div>
 
                         {meta?.buyUrl && (
