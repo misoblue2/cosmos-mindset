@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Heart, School, ArrowRight, User, Check, BrickWall, Coins, Building, Crown, Play, Rocket, Star, Moon } from 'lucide-react';
 import { getTotalFund, addDonation, addIdea, getIdeas, type Idea } from '@/lib/db';
+import { DonationModal } from '@/components/common/DonationModal';
 
 export default function ImaginationPage() {
     const [totalFund, setTotalFund] = useState(0);
@@ -73,10 +74,8 @@ export default function ImaginationPage() {
         setPaymentModalOpen(true);
     };
 
-    const handlePayment = async (method: 'card' | 'trans' | 'kakaopay') => {
-        // Mock Success
+    const handlePaymentConfirm = async () => {
         setPaymentModalOpen(false);
-        alert(`[테스트] ${method}로 ${selectedAmount.toLocaleString()}원 결제가 완료되었습니다.`);
         await new Promise(resolve => setTimeout(resolve, 500));
         await addDonation(selectedAmount);
         await loadData();
@@ -150,45 +149,15 @@ export default function ImaginationPage() {
                 )}
             </AnimatePresence>
 
-            {/* Payment Modal */}
-            <AnimatePresence>
-                {paymentModalOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
-                        onClick={() => setPaymentModalOpen(false)}
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.9, y: 20 }}
-                            className="bg-[#1a1a2e] border border-white/10 rounded-[2rem] shadow-2xl max-w-md w-full overflow-hidden relative"
-                            onClick={e => e.stopPropagation()}
-                        >
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-500" />
-                            <div className="p-8 text-center bg-gradient-to-b from-white/5 to-transparent">
-                                <h3 className="text-xl font-bold text-white mb-2">미래의 별들에게 후원하기</h3>
-                                <div className="mt-8 relative">
-                                    <span className="text-white/40 text-sm font-bold block mb-1">{selectedLabel}</span>
-                                    <span className="text-4xl font-black text-white tracking-tight">{selectedAmount.toLocaleString()}<span className="text-lg text-white/50 ml-1">원</span></span>
-                                    <div className="absolute -inset-4 bg-purple-500/20 blur-xl -z-10 rounded-full" />
-                                </div>
-                            </div>
-                            <div className="p-8 space-y-3">
-                                <div className="grid grid-cols-2 gap-3">
-                                    <button onClick={() => handlePayment('card')} className="py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-white hover:bg-white/10 transition-colors">신용카드</button>
-                                    <button onClick={() => handlePayment('trans')} className="py-4 bg-white/5 border border-white/10 rounded-xl font-bold text-white hover:bg-white/10 transition-colors">계좌이체</button>
-                                </div>
-                                <button onClick={() => handlePayment('kakaopay')} className="w-full py-4 bg-[#FAE100] text-[#371D1E] font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-[#FADB00] transition-colors">
-                                    카카오페이
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {/* Donation Modal (Unified) */}
+            <DonationModal
+                isOpen={paymentModalOpen}
+                onClose={() => setPaymentModalOpen(false)}
+                onConfirm={handlePaymentConfirm}
+                title="미래의 별들에게 후원하기"
+                description={`${selectedLabel}\n${selectedAmount.toLocaleString()}원을 후원합니다.\n\n아래 계좌로 입금 후 확인 버튼을 눌러주세요.`}
+                confirmText="후원금 입금 완료"
+            />
 
             <div className="container mx-auto px-4 max-w-5xl py-12 relative z-10">
                 {/* Header Section */}

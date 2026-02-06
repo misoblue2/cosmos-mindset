@@ -18,12 +18,10 @@ interface PurchaseModalProps {
     isOpen: boolean;
     onClose: () => void;
     book: any;
-    type: 'pdf' | 'physical';
-    onDownload?: () => void;
 }
 
-export function PurchaseModal({ isOpen, onClose, book, type, onDownload }: PurchaseModalProps) {
-    const [mode, setMode] = useState<'login' | 'guest' | 'signup'>('login');
+export function PurchaseModal({ isOpen, onClose, book }: PurchaseModalProps) {
+    const [mode, setMode] = useState<'login' | 'guest' | 'signup'>('guest');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<'card' | 'naver' | 'kakao'>('card');
@@ -53,9 +51,8 @@ export function PurchaseModal({ isOpen, onClose, book, type, onDownload }: Purch
         setIsFinished(true);
 
         // Trigger download in background if PDF
-        if (type === 'pdf' && onDownload) {
-            onDownload();
-        }
+        // Simulate Email Sending
+        console.log(`Email Sent to User for book: ${book.title}`);
     };
 
     if (isFinished) {
@@ -66,9 +63,10 @@ export function PurchaseModal({ isOpen, onClose, book, type, onDownload }: Purch
                     <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircle2 className="text-primary" size={32} />
                     </div>
-                    <h3 className="text-2xl font-bold mb-1 text-center font-serif">주문에 감사드립니다!</h3>
+                    <h3 className="text-2xl font-bold mb-1 text-center font-serif">결제 및 발송 완료!</h3>
                     <p className="text-muted-foreground text-sm mb-8 text-center leading-relaxed">
-                        성공적으로 주문이 접수되었습니다.
+                        입력하신 이메일로 PDF 파일이 발송되었습니다.<br />
+                        메일함을 확인해주세요.
                     </p>
 
                     <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 flex items-center gap-3 mb-6 animate-in fade-in slide-in-from-bottom-2 delay-300">
@@ -94,17 +92,10 @@ export function PurchaseModal({ isOpen, onClose, book, type, onDownload }: Purch
                             <span className="text-muted-foreground font-medium uppercase tracking-wider">진행 상태</span>
                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-500/10 text-blue-500 rounded-full font-bold">
                                 <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                                {type === 'pdf' ? '다운로드 준비완료' : '상품 준비 중'}
+                                {'다운로드 링크 발송 완료'}
                             </span>
                         </div>
-                        {type === 'physical' && (
-                            <div className="pt-4 border-t border-border/50 flex items-start gap-3">
-                                <Truck size={14} className="text-muted-foreground mt-0.5" />
-                                <p className="text-[10px] text-muted-foreground leading-normal">
-                                    영업일 기준 **3일 내**에 출고되어 운송장 번호가 휴대전화로 전송될 예정입니다.
-                                </p>
-                            </div>
-                        )}
+
                     </div>
 
                     <div className="space-y-3">
@@ -133,12 +124,12 @@ export function PurchaseModal({ isOpen, onClose, book, type, onDownload }: Purch
 
                 <div className="flex items-center gap-3 mb-8">
                     <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-                        {type === 'pdf' ? <Download className="text-primary" size={24} /> : <Truck className="text-primary" size={24} />}
+                        <Download className="text-primary" size={24} />
                     </div>
                     <div className="text-left">
                         <h3 className="text-xl font-bold font-serif">{book.title}</h3>
                         <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">
-                            {type === 'pdf' ? 'Digital PDF Edition' : 'Physical Book Edition'}
+                            Digital PDF Edition
                         </p>
                     </div>
                 </div>
@@ -220,8 +211,8 @@ export function PurchaseModal({ isOpen, onClose, book, type, onDownload }: Purch
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-muted-foreground uppercase ml-1">배송 주소 (실물 도서 선택 시)</label>
-                                <input type="text" placeholder="주소를 입력해주세요" className="w-full px-5 py-3.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" required={type === 'physical'} />
+                                <label className="text-xs font-bold text-muted-foreground uppercase ml-1">이메일 (파일을 받으실 주소)</label>
+                                <input type="email" placeholder="your@email.com" className="w-full px-5 py-3.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none transition-all" required />
                             </div>
                             <div className="p-4 bg-muted/30 rounded-xl flex gap-3 items-start">
                                 <Shield className="text-blue-500 shrink-0 mt-0.5" size={16} />
@@ -232,46 +223,38 @@ export function PurchaseModal({ isOpen, onClose, book, type, onDownload }: Purch
                         </div>
                     )}
 
-                    <div className="space-y-3">
-                        <label className="text-xs font-bold text-muted-foreground uppercase ml-1">결제 수단 선택</label>
-                        <div className="grid grid-cols-3 gap-3">
-                            <button
-                                type="button"
-                                onClick={() => setPaymentMethod('card')}
-                                className={`py-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${paymentMethod === 'card' ? 'border-primary bg-primary/5' : 'border-border bg-background hover:border-muted-foreground/30'}`}
-                            >
-                                <span className="text-[10px] font-black uppercase">일반 결제</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setPaymentMethod('naver')}
-                                className={`py-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${paymentMethod === 'naver' ? 'border-[#03C75A] bg-[#03C75A]/5' : 'border-border bg-background hover:border-[#03C75A]/30'}`}
-                            >
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/ba/Naver_Pay_Logo.png" alt="Naver Pay" className="h-3 md:h-4" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setPaymentMethod('kakao')}
-                                className={`py-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${paymentMethod === 'kakao' ? 'border-[#FAE100] bg-[#FAE100]/5' : 'border-border bg-background hover:border-[#FAE100]/30'}`}
-                            >
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/KakaoPay_logo.svg/1024px-KakaoPay_logo.svg.png" alt="Kakao Pay" className="h-3 md:h-4" />
-                            </button>
+                    <div className="space-y-4">
+                        <label className="text-xs font-bold text-muted-foreground uppercase ml-1">결제 내역 (계좌이체 / QR)</label>
+
+                        {/* Bank Transfer */}
+                        <div className="bg-muted/50 rounded-xl p-4 border border-border">
+                            <span className="block text-[10px] font-black text-muted-foreground mb-1 uppercase tracking-wider">무통장 입금 계좌</span>
+                            <div className="flex items-center justify-between mb-1">
+                                <span className="font-bold text-lg text-primary select-all">신한 110-513-646297</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground font-medium">예금주: 정겨운</div>
+                        </div>
+
+                        {/* Kakao QR */}
+                        <div className="bg-[#FAE100] rounded-xl p-4 flex items-center justify-between shadow-sm hover:bg-[#FADB00] transition-colors cursor-pointer" onClick={() => window.open("https://qr.kakaopay.com/Ej7qNKGFs", "_blank")}>
+                            <div className="flex flex-col">
+                                <span className="text-[10px] font-black text-[#371D1E]/60 uppercase tracking-wider mb-1">KAKAOPAY</span>
+                                <span className="font-bold text-[#371D1E] text-sm">QR코드로 결제하기</span>
+                            </div>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/KakaoPay_logo.svg/1024px-KakaoPay_logo.svg.png" alt="Kakao Pay" className="h-6 opacity-80" />
                         </div>
                     </div>
 
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className={`w-full py-5 font-black rounded-2xl transition-all shadow-xl flex items-center justify-center gap-2 group ${paymentMethod === 'naver' ? 'bg-[#03C75A] text-white shadow-[#03C75A]/20' :
-                            paymentMethod === 'kakao' ? 'bg-[#FAE100] text-[#3c1e1e] shadow-[#FAE100]/20' :
-                                'bg-primary text-primary-foreground shadow-primary/20'
-                            }`}
+                        className="w-full py-5 bg-primary text-primary-foreground font-black rounded-2xl transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2 group hover:scale-[1.02] active:scale-[0.98]"
                     >
                         {isSubmitting ? (
                             <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
                             <>
-                                <span>{paymentMethod === 'naver' ? '네이버페이로 결제' : paymentMethod === 'kakao' ? '카카오페이로 결제' : (type === 'pdf' ? 'PDF 구매 및 다운로드' : '실물도서 주문하기')}</span>
+                                <span>입금 완료 / PDF 다운로드</span>
                                 <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
                             </>
                         )}

@@ -104,6 +104,14 @@ export default function AdminPage() {
                             <CreditCard size={16} />
                             결제 연동
                         </button>
+                        <a
+                            href="/imagination/admin"
+                            target="_blank"
+                            className="px-4 py-2 rounded-lg text-sm font-bold text-muted-foreground hover:text-purple-500 transition-all flex items-center gap-2 whitespace-nowrap border-l border-border ml-2 pl-4"
+                        >
+                            <MessageCircleHeart size={16} />
+                            상상학교 소통
+                        </a>
                     </div>
                 </header>
 
@@ -123,78 +131,48 @@ function PaymentGuide() {
             <div className="bg-card border border-border rounded-2xl p-8 shadow-sm">
                 <h2 className="text-2xl font-bold flex items-center gap-2 mb-4">
                     <CreditCard className="text-primary" />
-                    결제 시스템 연동 가이드 (PortOne)
+                    결제 관리 가이드 (무통장/QR)
                 </h2>
                 <p className="text-muted-foreground leading-relaxed mb-6">
-                    가장 간편하게 <strong>카드결제, 네이버페이, 카카오페이</strong>를 한 번에 연동할 수 있는 <strong>포트원(PortOne, 구 아임포트)</strong> 연동 방법을 안내해 드립니다.<br />
-                    개발 지식이 없어도 아래 단계를 차근차근 따라하시면 1시간 내에 결제 기능을 붙일 수 있습니다.
+                    현재 모든 결제는 <strong>계좌이체(무통장)</strong> 및 <strong>카카오페이 QR송금</strong>으로 통합되었습니다.<br />
+                    별도의 PG사 계약이나 복잡한 연동 없이, 입금 내역을 확인하고 주문 상태를 '결제 완료'로 변경해주시면 됩니다.
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div className="p-6 bg-blue-50 border border-blue-100 rounded-xl">
-                        <h3 className="font-black text-blue-700 mb-2">1. 관리자 가입</h3>
-                        <p className="text-sm text-blue-600/80">포트원 사이트에 접속하여 관리자 계정을 생성하고, '테스트 모드'로 채널을 개설합니다.</p>
-                        <a href="https://portone.io/korea/ko" target="_blank" className="mt-4 inline-block text-xs font-bold px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700">포트원 이동하기 →</a>
+                        <h3 className="font-black text-blue-700 mb-2">1. 입금 확인</h3>
+                        <p className="text-sm text-blue-600/80 mb-2">고객이 아래 계좌로 입금했는지 뱅킹 앱을 통해 확인하세요.</p>
+                        <div className="bg-white p-3 rounded-lg border border-blue-100 text-sm font-mono text-blue-800">
+                            신한은행 110-513-646297 (예금주: 정겨운)
+                        </div>
                     </div>
-                    <div className="p-6 bg-green-50 border border-green-100 rounded-xl">
-                        <h3 className="font-black text-green-700 mb-2">2. PG사 계약 (선택)</h3>
-                        <p className="text-sm text-green-600/80">실제 결제를 받으려면 PG사(NHN KCP, 토스페이먼츠 등)와 전자계약을 맺어야 합니다. (테스트는 계약 없이 가능)</p>
-                    </div>
-                    <div className="p-6 bg-purple-50 border border-purple-100 rounded-xl">
-                        <h3 className="font-black text-purple-700 mb-2">3. 코드 적용</h3>
-                        <p className="text-sm text-purple-600/80">제공된 '식별코드'와 'API Key'를 복사하여 프로젝트 코드에 붙여넣기만 하면 끝입니다.</p>
+                    <div className="p-6 bg-[#FAE100] border border-[#FADB00] rounded-xl">
+                        <h3 className="font-black text-[#371D1E] mb-2">2. 카카오페이 QR 확인</h3>
+                        <p className="text-sm text-[#371D1E]/80">카카오페이 머니 내역에서 송금자명과 금액을 대조하세요.</p>
                     </div>
                 </div>
 
                 <div className="space-y-6">
                     <div className="border border-border rounded-xl overflow-hidden">
                         <div className="bg-muted px-4 py-2 border-b border-border font-mono text-xs font-bold text-muted-foreground">
-                            Step 1. SDK 스크립트 추가 (src/app/layout.tsx)
+                            주문 처리 프로세스
                         </div>
-                        <div className="bg-[#1e1e1e] p-4 overflow-x-auto">
-                            <code className="text-xs font-mono text-white">
-                                <span className="text-gray-500">// &lt;head&gt; 태그 내에 추가하거나 Script 컴포넌트 사용</span><br />
-                                &lt;Script src="https://cdn.iamport.kr/v1/iamport.js" /&gt;
-                            </code>
-                        </div>
-                    </div>
-
-                    <div className="border border-border rounded-xl overflow-hidden">
-                        <div className="bg-muted px-4 py-2 border-b border-border font-mono text-xs font-bold text-muted-foreground">
-                            Step 2. 결제 요청 함수 예시 (PurchaseModal.tsx 등)
-                        </div>
-                        <div className="bg-[#1e1e1e] p-4 overflow-x-auto">
-                            <code className="text-xs font-mono text-white">
-                                <span className="text-purple-400">const</span> requestPayment = () =&gt; &#123;<br />
-                                &nbsp;&nbsp;<span className="text-blue-400">const</span> IMP = window.IMP;<br />
-                                &nbsp;&nbsp;IMP.init(<span className="text-green-400">"imp00000000"</span>); <span className="text-gray-500">// 관리자 페이지에서 발급받은 '가맹점 식별코드'</span><br /><br />
-                                &nbsp;&nbsp;IMP.request_pay(&#123;<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;pg: <span className="text-green-400">"kcp"</span>, <span className="text-gray-500">// NHN KCP 설정</span><br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;pay_method: <span className="text-green-400">"card"</span>, <span className="text-gray-500">// 카드 결제 ('trans': 실시간계좌이체, 'vbank': 가상계좌, 'phone': 휴대폰소액결제)</span><br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;merchant_uid: <span className="text-green-400">`ORD-${"$"}{new Date().getTime()}`</span>, <span className="text-gray-500">// 주문 번호</span><br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;name: <span className="text-green-400">"프리미엄 멤버십"</span>,<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;amount: 1000,<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;buyer_email: <span className="text-green-400">"customer@example.com"</span>,<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;buyer_name: <span className="text-green-400">"홍길동"</span>,<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;buyer_tel: <span className="text-green-400">"010-1234-5678"</span><br />
-                                &nbsp;&nbsp;&#125;, <span className="text-blue-400">function</span> (rsp) &#123;<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;<span className="text-purple-400">if</span> (rsp.success) &#123;<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(<span className="text-green-400">"결제가 완료되었습니다!"</span>);<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span className="text-gray-500">// 결제 성공 후 서버로 데이터 전송 or 페이지 이동</span><br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;&#125; <span className="text-purple-400">else</span> &#123;<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;alert(<span className="text-green-400">`결제에 실패하였습니다. 에러 내용: ${"$"}{"{"}rsp.error_msg{"}"}`</span>);<br />
-                                &nbsp;&nbsp;&nbsp;&nbsp;&#125;<br />
-                                &nbsp;&nbsp;&#125;);<br />
-                                &#125;;
-                            </code>
+                        <div className="p-6 bg-card space-y-4">
+                            <ol className="list-decimal list-inside space-y-2 text-sm text-foreground">
+                                <li>고객이 주문을 완료하면 <strong>[주문/배송]</strong> 탭에 <code>대기 중(Pending)</code> 상태로 접수됩니다.</li>
+                                <li>관리자가 입금 내역(은행 앱 알림 등)을 확인합니다.</li>
+                                <li>입금이 확인되면 해당 주문의 상태를 <strong>[배송 준비 중]</strong> 또는 <strong>[배송 완료]</strong>(PDF의 경우)로 변경합니다.</li>
+                            </ol>
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-8 p-4 bg-amber-50 border border-amber-100 rounded-xl text-amber-800 text-sm">
-                    <strong>💡 팁: 네이버페이 / 카카오페이 연동</strong><br />
-                    PG사를 'NHN KCP'로 선택하시면 일반 신용카드뿐만 아니라 네이버페이, 카카오페이 결제창도 자동으로 지원됩니다.<br />
-                    별도의 복잡한 개발 없이 위 코드 하나로 모든 주요 결제 수단을 지원할 수 있습니다.
+                <div className="mt-8 p-4 bg-amber-50 border border-amber-100 rounded-xl text-amber-800 text-sm flex items-start gap-3">
+                    <span className="text-xl">💡</span>
+                    <div>
+                        <strong>자동화 팁</strong><br />
+                        추후 입금 알림 봇(텔레그램 등)을 연동하거나, 뱅킹 API를 사용하면 입금 확인 절차를 자동화할 수 있습니다.
+                    </div>
                 </div>
             </div>
         </div>
@@ -615,10 +593,10 @@ function BookEditor({ book }: { book: any }) {
 
     const handleDeleteFile = async () => {
         if (!bookFile) return;
-        if (confirm("정말 이 파일을 삭제하시겠습니까?")) {
+        if (confirm("정말 이 파일을 삭제하시겠습니까? (복구 불가)")) {
             await deleteBookFile(book.id);
             loadData();
-            alert("파일이 삭제되었습니다.");
+            alert("파일이 영구적으로 삭제되었습니다.");
         }
     };
 

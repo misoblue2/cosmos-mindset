@@ -290,19 +290,19 @@ export default function HealingPage() {
 
                         <div className="bg-white/50 backdrop-blur-md border border-amber-900/10 p-8 rounded-2xl shadow-xl max-w-md w-full transform rotate-1 hover:rotate-0 transition-transform duration-500 mb-10">
                             <div className="flex justify-between items-center text-xs text-amber-900/40 uppercase tracking-widest mb-6 border-b border-amber-900/10 pb-4">
-                                <span>Receipt from Universe</span>
+                                <span>우주에서 온 영수증</span>
                                 <span>{new Date().toLocaleDateString()}</span>
                             </div>
 
                             <div className="space-y-4 text-left mb-8">
                                 <div>
-                                    <span className="text-xs text-amber-900/40 block mb-1">REQ (Your Worry)</span>
+                                    <span className="text-xs text-amber-900/40 block mb-1">맡기신 무거운 짐 (고민)</span>
                                     <p className="text-sm line-through text-stone-400">{worryText.substring(0, 30)}...</p>
                                 </div>
                                 <div>
-                                    <span className="text-xs text-amber-900/40 block mb-1">RES (Transmuted Reality)</span>
+                                    <span className="text-xs text-amber-900/40 block mb-1">해결된 마음 (새로운 현실)</span>
                                     <p className="text-lg font-serif font-bold text-amber-700">
-                                        Solution & Abundance
+                                        해결됨 & 풍요로움 (Completed)
                                     </p>
                                 </div>
                             </div>

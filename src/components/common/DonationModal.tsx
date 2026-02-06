@@ -21,27 +21,17 @@ export function DonationModal({
     description = "여러분의 소중한 후원이 더 나은 세상을 만듭니다.",
     confirmText = "후원 완료했어요"
 }: DonationModalProps) {
-    const [copied, setCopied] = useState(false);
-
-    const handleCopy = () => {
-        navigator.clipboard.writeText("110513646297");
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-    };
-
-    const handleKakaoPay = () => {
-        window.open("https://qr.kakaopay.com/Ej7qNKGFs", "_blank");
-    };
-
-    const handleConfirm = () => {
-        if (onConfirm) {
-            onConfirm();
-        } else {
-            onClose();
-        }
-    };
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     if (!isOpen) return null;
+
+    const handleConfirm = async () => {
+        setIsSubmitting(true);
+        // Simulate network request
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsSubmitting(false);
+        onConfirm?.();
+    };
 
     return (
         <AnimatePresence>
@@ -54,86 +44,79 @@ export function DonationModal({
                         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                         onClick={onClose}
                     />
-
                     <motion.div
-                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        initial={{ scale: 0.95, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                        className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
+                        exit={{ scale: 0.95, opacity: 0, y: 20 }}
+                        className="relative bg-card border border-border w-full max-w-md rounded-3xl shadow-2xl overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="relative p-8 pb-6 text-center border-b border-stone-100">
+                        <div className="p-6 pb-0 flex justify-between items-start">
+                            <div>
+                                <h3 className="text-xl font-bold text-foreground">{title}</h3>
+                                <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{description}</p>
+                            </div>
                             <button
                                 onClick={onClose}
-                                className="absolute top-4 right-4 p-2 text-stone-400 hover:text-stone-800 transition-colors"
+                                className="p-2 hover:bg-muted rounded-full transition-colors"
                             >
-                                <X size={20} />
+                                <X size={20} className="text-muted-foreground" />
                             </button>
-                            <h3 className="text-2xl font-serif font-bold text-stone-800 mb-2">{title}</h3>
-                            <p className="text-stone-500 text-sm whitespace-pre-line">{description}</p>
                         </div>
 
-                        {/* Content */}
-                        <div className="p-8 space-y-6">
-                            {/* Bank Transfer */}
-                            <div className="bg-stone-50 rounded-2xl p-5 border border-stone-100">
-                                <span className="block text-xs font-bold text-stone-400 mb-2 uppercase tracking-wider">Bank Transfer</span>
-                                <div className="flex items-center justify-between mb-1">
-                                    <div className="font-bold text-stone-800">신한은행 110-513-646297</div>
+                        {/* Body */}
+                        <div className="p-6 space-y-6">
+                            {/* Bank Account */}
+                            <div className="bg-muted/50 rounded-2xl p-5 border border-border space-y-3">
+                                <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                                    <span className="w-2 h-2 rounded-full bg-primary" />
+                                    Bank Transfer
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-lg font-black text-primary font-mono tracking-tight">신한 110-513-646297</span>
                                     <button
-                                        onClick={handleCopy}
-                                        className="text-stone-400 hover:text-primary transition-colors"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText("110513646297");
+                                            alert("계좌번호가 복사되었습니다.");
+                                        }}
+                                        className="p-2 hover:bg-background rounded-lg text-muted-foreground hover:text-primary transition-colors"
                                     >
-                                        {copied ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+                                        <Copy size={16} />
                                     </button>
                                 </div>
-                                <div className="text-sm text-stone-500">예금주: 정겨운</div>
+                                <div className="text-sm font-bold text-foreground">예금주: 정겨운</div>
                             </div>
 
-                            {/* KakaoPay Section */}
-                            <div className="bg-[#FAE100] rounded-2xl p-5 shadow-sm">
-                                <span className="block text-xs font-bold text-[#371D1E]/60 mb-3 uppercase tracking-wider flex items-center gap-2">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#371D1E]"></span> KAKAOPAY
-                                </span>
-
-                                <div className="flex flex-col md:flex-row items-center gap-4">
-                                    {/* QR Code for Desktop/Scan */}
-                                    <div className="bg-white p-2 rounded-xl shadow-inner shrink-0">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                            src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://qr.kakaopay.com/Ej7qNKGFs"
-                                            alt="KakaoPay QR"
-                                            className="w-20 h-20 md:w-24 md:h-24 object-contain"
-                                        />
-                                    </div>
-
-                                    <div className="flex-1 text-center md:text-left space-y-2">
-                                        <p className="text-xs text-[#371D1E]/80 leading-relaxed font-bold">
-                                            <span className="md:hidden">버튼을 눌러 결제해주세요.</span>
-                                            <span className="hidden md:inline">휴대폰 카메라로 QR코드를 스캔하거나<br />버튼을 눌러 결제해주세요.</span>
-                                        </p>
-                                        <button
-                                            onClick={handleKakaoPay}
-                                            className="w-full py-2.5 bg-[#371D1E] text-white rounded-lg text-sm font-bold hover:opacity-90 transition-opacity whitespace-nowrap"
-                                        >
-                                            카카오페이 열기
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Manual Confirm / Close */}
+                            {/* Kakao QR */}
                             <button
-                                onClick={handleConfirm}
-                                className="w-full py-4 bg-stone-900 hover:bg-black text-white rounded-xl font-bold transition-transform active:scale-95"
+                                onClick={() => window.open("https://qr.kakaopay.com/Ej7qNKGFs", "_blank")}
+                                className="w-full flex items-center justify-between p-4 bg-[#FAE100] hover:bg-[#FADB00] transition-colors rounded-2xl group shadow-sm"
                             >
-                                {confirmText}
+                                <div className="flex flex-col items-start">
+                                    <span className="text-[10px] font-black text-[#371D1E]/60 uppercase tracking-wider mb-0.5">Kakaopay</span>
+                                    <span className="text-sm font-bold text-[#371D1E]">QR코드로 송금하기</span>
+                                </div>
+                                <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/KakaoPay_logo.svg/1024px-KakaoPay_logo.svg.png" alt="Kakao" className="w-4 opacity-80" />
+                                </div>
                             </button>
 
-                            <p className="text-[11px] text-center text-stone-400 leading-relaxed">
-                                * 보내주신 마음은 전액 목적에 맞게 투명하게 사용됩니다.<br />
-                                별도의 영수증 발급이 필요하시면 문의해주세요.
-                            </p>
+                            {/* Confirm Button */}
+                            <button
+                                onClick={handleConfirm}
+                                disabled={isSubmitting}
+                                className="w-full py-4 bg-primary text-primary-foreground font-bold rounded-2xl shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                            >
+                                {isSubmitting ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <>
+                                        {confirmText}
+                                        <Check size={18} />
+                                    </>
+                                )}
+                            </button>
                         </div>
                     </motion.div>
                 </div>

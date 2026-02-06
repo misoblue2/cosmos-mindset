@@ -10,7 +10,7 @@ import { PurchaseModal } from './PurchaseModal';
 export const ProductCard = ({ book }: { book: any }) => {
     const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
     const [isPurchaseOpen, setIsPurchaseOpen] = useState(false);
-    const [purchaseType, setPurchaseType] = useState<'pdf' | 'physical'>('pdf');
+    // const [purchaseType, setPurchaseType] = useState<'pdf' | 'physical'>('pdf'); // Deprecated
     const [isDownloading, setIsDownloading] = useState(false);
     const [meta, setMeta] = useState<ProductMetadata | null>(null);
     const [customCoverUrl, setCustomCoverUrl] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export const ProductCard = ({ book }: { book: any }) => {
     const displayPrice = meta?.price || book.price;
 
     const handleAction = (type: 'pdf' | 'physical') => {
-        setPurchaseType(type);
+        // setPurchaseType(type); // Deprecated
         setIsPurchaseOpen(true);
     };
 
@@ -112,31 +112,21 @@ export const ProductCard = ({ book }: { book: any }) => {
                                 {isDownloading ? (
                                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : <Download size={16} />}
-                                <span>PDF 즉시 다운로드</span>
+                                <span>PDF 구매하기</span>
                             </button>
 
-                            {meta?.buyUrl ? (
-                                <a
-                                    href={meta.buyUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="py-4 px-3 bg-secondary text-secondary-foreground font-black rounded-xl hover:bg-secondary/80 transition-all active:scale-95 text-xs flex flex-col items-center justify-center gap-1.5 border border-border/50"
-                                >
-                                    <Book size={16} />
-                                    <span>실물도서 구매하기</span>
-                                </a>
-                            ) : (
-                                <button
-                                    onClick={() => handleAction('physical')}
-                                    className="py-4 px-3 bg-secondary text-secondary-foreground font-black rounded-xl hover:bg-secondary/80 transition-all active:scale-95 text-xs flex flex-col items-center justify-center gap-1.5 border border-border/50"
-                                >
-                                    <Book size={16} />
-                                    <span>실물도서 구매하기</span>
-                                </button>
-                            )}
+                            <a
+                                href={meta?.buyUrl || book.buyUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="py-4 px-3 bg-secondary text-secondary-foreground font-black rounded-xl hover:bg-secondary/80 transition-all active:scale-95 text-xs flex flex-col items-center justify-center gap-1.5 border border-border/50"
+                            >
+                                <Book size={16} />
+                                <span>실물도서 구매하기</span>
+                            </a>
                         </div>
 
-                        {meta?.buyUrl && (
+                        {(meta?.buyUrl || book.buyUrl) && (
                             <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60 font-bold uppercase tracking-wider mt-2">
                                 <ExternalLink size={10} />
                                 <span>교보문고(Kyobo) 공식 판매처 연결됨</span>
@@ -156,8 +146,6 @@ export const ProductCard = ({ book }: { book: any }) => {
                 isOpen={isPurchaseOpen}
                 onClose={() => setIsPurchaseOpen(false)}
                 book={book}
-                type={purchaseType}
-                onDownload={handleDownload}
             />
         </>
     );

@@ -57,7 +57,8 @@ export const BOOKS = [
     formats: ['physical', 'pdf'],
     cover: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&q=80',
     price: '22,000원',
-    description: '우리가 놓치고 있던 일상의 진실을 탐구하는 인문학 에세이. 종이책과 디지털 판본 모두 구매 가능합니다.'
+    description: '우리가 놓치고 있던 일상의 진실을 탐구하는 인문학 에세이. 종이책과 디지털 판본 모두 구매 가능합니다.',
+    buyUrl: 'https://pod.kyobobook.co.kr/'
   },
   {
     id: 'b2',
@@ -65,7 +66,8 @@ export const BOOKS = [
     formats: ['physical', 'pdf'],
     cover: 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=600&q=80',
     price: '25,000원',
-    description: '디지털 노마드를 위한 실전 지침서. 당신의 가능성을 깨우는 통찰이 담겨 있습니다.'
+    description: '디지털 노마드를 위한 실전 지침서. 당신의 가능성을 깨우는 통찰이 담겨 있습니다.',
+    buyUrl: 'https://pod.kyobobook.co.kr/'
   },
   {
     id: 'b3',
@@ -73,7 +75,8 @@ export const BOOKS = [
     formats: ['physical', 'pdf'],
     cover: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=80',
     price: '29,000원',
-    description: '현실의 경계에서 마주하는 새로운 차원의 통찰. 지은이 가치토커.'
+    description: '현실의 경계에서 마주하는 새로운 차원의 통찰. 지은이 가치토커.',
+    buyUrl: 'https://pod.kyobobook.co.kr/'
   }
 ];
 
