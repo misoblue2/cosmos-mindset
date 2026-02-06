@@ -194,37 +194,7 @@ export default function ImaginationPage() {
                     </motion.p>
                 </div>
 
-                {/* Donation Area */}
-                <div className="mb-24">
-                    <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4 px-4">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-purple-500/10 rounded-xl">
-                                <Rocket className="text-purple-400" />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-white">건축 보급품 지원하기</h2>
-                                <p className="text-xs text-white/40">아이들의 꿈을 위한 연료가 되어주세요</p>
-                            </div>
-                        </div>
-                        <button
-                            onClick={() => setIsAnonymous(!isAnonymous)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${isAnonymous ? 'bg-purple-500/20 border-purple-500/50 text-purple-200' : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'}`}
-                        >
-                            <div className={`w-4 h-4 rounded-full flex items-center justify-center border ${isAnonymous ? 'bg-purple-500 border-transparent' : 'border-current'}`}>
-                                {isAnonymous && <Check size={10} className="text-white" />}
-                            </div>
-                            <span className="text-xs font-bold">익명 사령관으로 참여</span>
-                        </button>
-                    </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                        <DonationTier amount={10000} label="작은 별똥별" icon={Star} color="yellow" />
-                        <DonationTier amount={50000} label="달의 조각" icon={Moon} color="indigo" />
-                        <DonationTier amount={100000} label="탐사선 벽돌" icon={BrickWall} color="orange" />
-                        <DonationTier amount={500000} label="우주 실험실" icon={School} color="blue" />
-                        <DonationTier amount={1000000} label="관제탑 이름표" icon={Crown} color="purple" />
-                    </div>
-                </div>
 
                 {/* Participation Section - Galactic Blueprint */}
                 <div className="max-w-4xl mx-auto mb-24">
