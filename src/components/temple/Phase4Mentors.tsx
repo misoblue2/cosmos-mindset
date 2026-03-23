@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, ChevronRight } from "lucide-react";
+import { Send, ChevronRight, Download, Loader2 } from "lucide-react";
 
 const MENTORS = [
     { id: 1, name: "소크라테스", emoji: "🏛️", era: "고대 그리스", specialty: "자기 성찰 · 철학적 탐구", bio: "너 자신을 알라. 진정한 지혜는 자신의 무지를 아는 것에서 시작된다." },
@@ -26,29 +26,32 @@ const REACTIONS = [
 
 const SCENARIOS = [
     {
-        type: "현상 유지",
-        icon: "🔄",
-        color: "from-gray-600/30 to-slate-600/20",
-        border: "border-gray-500/30",
-        textColor: "text-gray-300",
+        type: "단단한 뿌리 내리기",
+        icon: "🌱",
+        color: "from-emerald-600/30 to-teal-600/20",
+        border: "border-emerald-500/30",
+        textColor: "text-emerald-300",
+        bgUrl: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1080&h=1920&fit=crop"
     },
     {
-        type: "과감한 혁신",
-        icon: "🚀",
+        type: "상식을 깨는 결단",
+        icon: "⚡",
         color: "from-blue-600/30 to-indigo-600/20",
         border: "border-blue-400/30",
         textColor: "text-blue-300",
+        bgUrl: "https://images.unsplash.com/photo-1543857778-c4a1a3e0b2eb?w=1080&h=1920&fit=crop"
     },
     {
-        type: "내면 성찰",
-        icon: "🌸",
+        type: "완전한 비움과 통찰",
+        icon: "🌌",
         color: "from-purple-600/30 to-violet-600/20",
         border: "border-purple-400/30",
         textColor: "text-purple-300",
+        bgUrl: "https://images.unsplash.com/photo-1518774780512-4fb37a912165?w=1080&h=1920&fit=crop"
     },
 ];
 
-function generateAdvice(mentor: (typeof MENTORS)[0], concern: string): string {
+function generateAdvice(mentor: (typeof MENTORS)[0]): string {
     const templates: Record<number, string[]> = {
         1: [
             `그 고민에 대해 먼저 물어봐야 합니다 — 당신은 정말 그것을 원하는가, 아니면 두려움으로부터 도망치는 것인가? 참된 자아를 탐구하면 답을 찾을 것입니다.`,
@@ -95,25 +98,22 @@ function generateAdvice(mentor: (typeof MENTORS)[0], concern: string): string {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function generateScenario(type: string, concern: string): { timeline: string; metaphor: string; description: string } {
-    const scenarios: Record<string, { timeline: string; metaphor: string; description: string }> = {
-        "현상 유지": {
-            timeline: "6개월 ~ 1년",
-            metaphor: "🌊 잔잔한 강물처럼",
-            description: `지금의 사고방식과 행동을 유지한다면, 말씀하신 상황은 시간이 지남에 따라 서서히 안정화될 것입니다. 큰 변화 없이 무난하게 흘러가며, 안전하지만 폭발적인 성장의 속도는 기대하기 어려울 수 있습니다.`,
+function generateScenario(type: string): { metaphor: string; description: string } {
+    const scenarios: Record<string, { metaphor: string; description: string }> = {
+        "단단한 뿌리 내리기": {
+            metaphor: "🧱 매일 벽돌 한 장을 쌓듯",
+            description: `거창한 목표에 압도되지 말고, 오늘 당장 실천할 수 있는 가장 작은 행동 하나에 집중하세요. 현실의 제약을 인정하고, 그 안에서 무리 없이 실행 가능한 것부터 차근차근 해결해나가는 것이 지금 가장 빠르고 확실한 길입니다.`,
         },
-        "과감한 혁신": {
-            timeline: "3~6개월",
-            metaphor: "🚀 로켓처럼 도약하다",
-            description: `두려움을 밀어내고 평소 직관에 반하는 과감한 행동을 선택한다면, 이 상황은 3개월 내 극적인 전환점을 맞이할 것입니다. 처음엔 엄청난 저항감과 혼란이 따르지만, 6개월 후엔 목표하시던 전혀 다른 차원의 성취가 펼쳐집니다.`,
+        "상식을 깨는 결단": {
+            metaphor: "🚀 중력의 궤도를 벗어나는 로켓처럼",
+            description: `지금까지 유지해온 안전한 방식과 남들의 견해에서 완전히 벗어나세요. 가슴 속에서 가장 두려워하면서도 끌리는 그 '미친 생각'을 실행할 때입니다. 과감한 결단만이 현재의 교착 상태를 뚫고 퀀텀 점프를 만들어냅니다.`,
         },
-        "내면 성찰": {
-            timeline: "1~3개월",
-            metaphor: "🌸 꽃망울이 피어나듯",
-            description: `외부의 해결책을 찾기보다 조용히 내면으로 돌아와 진정한 동기를 바라보면, 1개월 안에 명확한 깨달음과 통찰이 찾아옵니다. 서두르지 말고 자기 자신과의 대화를 통해 근본적인 해답을 발견하게 될 것입니다.`,
+        "완전한 비움과 통찰": {
+            metaphor: "🪞 고요한 호수 수면처럼",
+            description: `애써 정답을 찾으려는 모든 노력을 멈추고 내면을 비워내세요. 통제하고 해결해야 한다는 억지스러운 집착을 내려놓을 때, 텅 빈 무의식의 공간으로 전혀 예상치 못한 기발한 영감과 본질적인 해답이 선명하게 떠오르게 될 것입니다.`,
         },
     };
-    return scenarios[type] || scenarios["내면 성찰"];
+    return scenarios[type] || scenarios["완전한 비움과 통찰"];
 }
 
 export default function Phase4Mentors() {
@@ -123,10 +123,10 @@ export default function Phase4Mentors() {
     const [activeMentor, setActiveMentor] = useState<(typeof MENTORS)[0] | null>(null);
     const [mentorReaction, setMentorReaction] = useState(0);
     const [advice, setAdvice] = useState("");
+    const [downloadingScenario, setDownloadingScenario] = useState<string | null>(null);
 
     const handleSubmit = () => {
         if (!concern.trim()) return;
-        // Pick 3 random mentors (weighted by concern keywords)
         const shuffled = [...MENTORS].sort(() => Math.random() - 0.5);
         setRecommendedMentors(shuffled.slice(0, 3));
         setSubmitted(true);
@@ -134,10 +134,128 @@ export default function Phase4Mentors() {
 
     const handleMentorClick = (mentor: typeof MENTORS[0]) => {
         setActiveMentor(mentor);
-        setMentorReaction(1); // thinking
-        setTimeout(() => setMentorReaction(2), 1200); // nodding
-        setTimeout(() => setMentorReaction(3), 2400); // smiling
-        setAdvice(generateAdvice(mentor, concern));
+        setMentorReaction(1);
+        setTimeout(() => setMentorReaction(2), 1200);
+        setTimeout(() => setMentorReaction(3), 2400);
+        setAdvice(generateAdvice(mentor));
+    };
+
+    const downloadScenarioFrame = async (s: typeof SCENARIOS[0], sc: { metaphor: string; description: string }) => {
+        setDownloadingScenario(s.type);
+        try {
+            const canvas = document.createElement("canvas");
+            canvas.width = 1080;
+            canvas.height = 1920; 
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            // Background Collage Image
+            const bgImg = new window.Image();
+            bgImg.crossOrigin = "anonymous";
+            bgImg.src = s.bgUrl; 
+            
+            await new Promise((res) => {
+                bgImg.onload = res;
+                bgImg.onerror = res; 
+            });
+
+            if (bgImg.width > 0) {
+                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.fillStyle = "#EAE6DF";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Darken overlay
+            ctx.fillStyle = "rgba(10, 15, 25, 0.4)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Passpartout Mat (White Frame)
+            const margin = 80;
+            const pmWidth = canvas.width - margin * 2;
+            const pmHeight = canvas.height - margin * 2;
+            
+            ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+            ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+            ctx.shadowBlur = 40;
+            ctx.shadowOffsetX = 10;
+            ctx.shadowOffsetY = 20;
+            ctx.fillRect(margin, margin, pmWidth, pmHeight);
+            ctx.shadowColor = "transparent";
+
+            // Inner Goldline
+            ctx.strokeStyle = "#D4AF37"; 
+            ctx.lineWidth = 4;
+            ctx.strokeRect(margin + 20, margin + 20, pmWidth - 40, pmHeight - 40);
+
+            // Text Setup
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#222222";
+            
+            ctx.font = "80px sans-serif";
+            ctx.fillText(s.icon, canvas.width / 2, margin + 250);
+            
+            ctx.font = "bold 60px 'Pretendard', 'Malgun Gothic', 'Noto Sans KR', sans-serif";
+            ctx.fillText(s.type, canvas.width / 2, margin + 380);
+            
+            ctx.font = "italic 38px 'Pretendard', 'Malgun Gothic', 'Noto Sans KR', sans-serif";
+            ctx.fillStyle = "#666666";
+            ctx.fillText(sc.metaphor, canvas.width / 2, margin + 480);
+
+            // Line Separator
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 120, margin + 580);
+            ctx.lineTo(canvas.width / 2 + 120, margin + 580);
+            ctx.strokeStyle = "#D4AF37";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Word wrap description
+            ctx.font = "38px 'Pretendard', 'Malgun Gothic', 'Noto Sans KR', sans-serif";
+            ctx.fillStyle = "#444444";
+            const words = sc.description.split(" ");
+            let line = "";
+            let y = margin + 740;
+            const lineHeight = 65;
+            const maxWidth = pmWidth - 140;
+
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + " ";
+                const metrics = ctx.measureText(testLine);
+                if (metrics.width > maxWidth && i > 0) {
+                    ctx.fillText(line, canvas.width / 2, y);
+                    line = words[i] + " ";
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, canvas.width / 2, y);
+
+            // Footer / Logo Space
+            ctx.font = "bold 32px 'Pretendard', sans-serif";
+            ctx.fillStyle = "#A38634";
+            ctx.fillText("✨ Temple of Wisdom", canvas.width / 2, canvas.height - margin - 140);
+            ctx.font = "24px 'Pretendard', sans-serif";
+            ctx.fillStyle = "#BBBBBB";
+            ctx.fillText("Guidance that moves your heart", canvas.width / 2, canvas.height - margin - 80);
+
+            // Trigger Download
+            const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", 0.95));
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `Wisdom_Guidance_${s.type.replace(/\s+/g, "_")}.jpg`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        } catch(e) {
+            console.error(e);
+            alert("액자 이미지 생성 중 오류가 발생했습니다.");
+        } finally {
+            setDownloadingScenario(null);
+        }
     };
 
     return (
@@ -148,7 +266,6 @@ export default function Phase4Mentors() {
                 <p className="text-indigo-200/70 text-sm">동서양 10대 현자들이 당신의 고민을 들어드립니다</p>
             </div>
 
-            {/* All 10 Mentors Display */}
             <div className="grid grid-cols-5 gap-2">
                 {MENTORS.map((m) => (
                     <motion.div key={m.id} whileHover={{ scale: 1.05 }}
@@ -159,7 +276,6 @@ export default function Phase4Mentors() {
                 ))}
             </div>
 
-            {/* Concern Input */}
             {!submitted ? (
                 <div className="space-y-3">
                     <textarea
@@ -171,7 +287,7 @@ export default function Phase4Mentors() {
                     />
                     <button onClick={handleSubmit} disabled={!concern.trim()}
                         className="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 disabled:opacity-40 rounded-xl text-white font-bold flex items-center justify-center gap-2 transition-all">
-                        <Send size={18} /> 현자들에게 질문하기
+                        <Send size={18} /> 현자들에게 조언 구하기
                     </button>
                 </div>
             ) : (
@@ -180,9 +296,8 @@ export default function Phase4Mentors() {
                         💬 &quot;{concern}&quot;
                     </div>
 
-                    {/* Recommended 3 Mentors */}
                     <div className="space-y-2">
-                        <p className="text-indigo-300 text-xs font-bold uppercase tracking-wide">✨ 추천 현자 3인</p>
+                        <p className="text-indigo-300 text-xs font-bold uppercase tracking-wide">✨ 당신을 위한 맞춤 추천 현자 3인</p>
                         <div className="grid gap-3">
                             {recommendedMentors.map((mentor) => (
                                 <motion.button key={mentor.id} onClick={() => handleMentorClick(mentor)}
@@ -211,7 +326,6 @@ export default function Phase4Mentors() {
                         </div>
                     </div>
 
-                    {/* Mentor Advice */}
                     <AnimatePresence>
                         {activeMentor && advice && (
                             <motion.div
@@ -232,28 +346,38 @@ export default function Phase4Mentors() {
                         )}
                     </AnimatePresence>
 
-                    {/* 3 Future Scenarios */}
-                    <div className="space-y-3">
-                        <p className="text-white/60 text-xs font-bold uppercase tracking-wide">🔭 3가지 미래 시나리오</p>
+                    {/* 3 Actionable Scenarios */}
+                    <div className="space-y-3 pt-4 border-t border-white/10">
+                        <p className="text-white/90 text-sm font-bold tracking-wide">💡 제안하는 행동 솔루션 3가지</p>
+                        <p className="text-white/50 text-xs mb-2">가장 마음에 와닿는 해답 하나를 선택해 액자 카드로 소장하세요.</p>
                         {SCENARIOS.map((s) => {
-                            const sc = generateScenario(s.type, concern);
+                            const sc = generateScenario(s.type);
+                            const isDownloading = downloadingScenario === s.type;
                             return (
-                                <div key={s.type} className={`bg-gradient-to-r ${s.color} border ${s.border} rounded-2xl p-4 space-y-2`}>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xl">{s.icon}</span>
-                                        <span className={`font-bold text-sm ${s.textColor}`}>{s.type}</span>
-                                        <span className="ml-auto text-white/40 text-xs">{sc.timeline}</span>
+                                <button key={s.type} 
+                                    onClick={() => downloadScenarioFrame(s, sc)}
+                                    disabled={isDownloading}
+                                    className={`w-full text-left bg-gradient-to-r hover:brightness-110 ${s.color} border ${s.border} rounded-2xl p-5 space-y-3 group transition-all`}>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-2xl">{s.icon}</span>
+                                        <div>
+                                            <span className={`block font-bold text-[15px] ${s.textColor}`}>{s.type}</span>
+                                            <span className="text-white/60 text-[11px]">{sc.metaphor}</span>
+                                        </div>
+                                        <div className="ml-auto flex items-center gap-1 bg-white/10 px-3 py-1.5 rounded-full text-white/80 group-hover:bg-white/20 transition-all text-xs">
+                                            {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                            저장
+                                        </div>
                                     </div>
-                                    <p className="text-white/50 text-xs">{sc.metaphor}</p>
-                                    <p className="text-white/75 text-xs leading-relaxed">{sc.description}</p>
-                                </div>
+                                    <p className="text-white/80 text-[13px] leading-relaxed font-medium">{sc.description}</p>
+                                </button>
                             );
                         })}
                     </div>
 
                     <button onClick={() => { setSubmitted(false); setConcern(""); setActiveMentor(null); setAdvice(""); }}
-                        className="w-full py-2 text-white/40 hover:text-white/70 text-sm transition-colors">
-                        ← 다른 고민 상담하기
+                        className="w-full py-4 text-white/40 hover:text-white/70 text-sm transition-colors font-semibold">
+                        ← 새로운 고민 질문하기
                     </button>
                 </div>
             )}
