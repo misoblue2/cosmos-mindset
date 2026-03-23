@@ -137,12 +137,12 @@ const DURATIONS = [
 
 
 const BGM_OPTIONS = [
-    { id: "none", label: "🔇 배경음악 없음", url: null },
-    { id: "bgm1", label: "🌊 파도 소리 (잔잔)", url: "https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg" },
-    { id: "bgm2", label: "🌧️ 차분한 빗소리", url: "https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg" },
-    { id: "bgm3", label: "🌲 숲 속의 아침", url: "https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg" },
-    { id: "bgm4", label: "🔔 명상의 시간", url: "https://actions.google.com/sounds/v1/ambiences/meditation_bell.ogg" },
-    { id: "bgm5", label: "💧 맑은 시냇물", url: "https://actions.google.com/sounds/v1/water/stream_water.ogg" },
+    { id: "none", label: "🔇 배경음악 없음", url: "" },
+    { id: "bgm1", label: "🌊 고요한 호수 (잔잔)", url: "/bgm/bgm1.mp3" },
+    { id: "bgm2", label: "🌧️ 차분한 명상", url: "/bgm/bgm2.mp3" },
+    { id: "bgm3", label: "🌲 숲 속의 아침", url: "/bgm/bgm3.mp3" },
+    { id: "bgm4", label: "🔔 내면의 평화", url: "/bgm/bgm4.mp3" },
+    { id: "bgm5", label: "💧 은은한 시냇물", url: "/bgm/bgm5.mp3" },
 ];
 
 const EXPORT_DURATIONS = [
@@ -477,7 +477,7 @@ export default function Phase2Affirmations() {
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="pt-6 border-t border-purple-400/20 text-left space-y-4">
                         <div className="space-y-2">
                             <h4 className="text-white/80 text-sm font-semibold flex items-center gap-2">
-                                <Music size={16} className="text-pink-400" /> 배경 음악 선택 (잔잔한 합성용)
+                                <Music size={16} className="text-pink-400" /> 배경 음악 선택 (미리듣기 지원)
                             </h4>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                 {BGM_OPTIONS.map(bgm => (
@@ -492,6 +492,20 @@ export default function Phase2Affirmations() {
                                     </button>
                                 ))}
                             </div>
+                            
+                            {/* Audio Preview for BGM */}
+                            {selectedBgm.url && (
+                                <div className="mt-3 bg-black/20 p-3 rounded-xl border border-white/5 flex flex-col items-center gap-2 animation-fade-in">
+                                    <p className="text-xs text-pink-300/80 w-full text-center">🎧 위에서 선택하신 배경음악 미리듣기</p>
+                                    <audio 
+                                        controls 
+                                        autoPlay
+                                        src={selectedBgm.url} 
+                                        className="h-9 w-full max-w-[300px] outline-none" 
+                                        style={{ filter: "invert(0.9) hue-rotate(180deg) opacity(0.8)" }} 
+                                    />
+                                </div>
+                            )}
                         </div>
 
                         <div className="space-y-2">
