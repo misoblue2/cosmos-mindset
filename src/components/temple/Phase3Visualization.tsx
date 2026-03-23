@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Grid, Star } from "lucide-react";
+import { Search, CheckCircle2, Grid, Star, Download, Loader2 } from "lucide-react";
+
+const DOWNLOAD_SIZES = [
+    { label: "A4 크기 (출력용)", width: 2480, height: 3508 },
+    { label: "A3 크기 (포스터용)", width: 3508, height: 4960 },
+    { label: '8x10" (탁상/액자용)', width: 2400, height: 3000 },
+    { label: '11x14" (소형 포스터)', width: 3300, height: 4200 },
+    { label: '16x20" (대형 포스터)', width: 4800, height: 6000 },
+    { label: "📱 스마트폰 바탕화면", width: 1080, height: 1920 },
+];
 
 const KEYWORD_IMAGES: Record<string, { url: string; label: string }[]> = {
     성공: [
@@ -74,6 +83,113 @@ export default function Phase3Visualization() {
     const [activeKeyword, setActiveKeyword] = useState<string | null>(null);
     const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
     const [showBoard, setShowBoard] = useState(false);
+    const [isDownloading, setIsDownloading] = useState(false);
+
+    const downloadVisionBoard = async (width: number, height: number, label: string) => {
+        setIsDownloading(true);
+        try {
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, "#2e1065"); 
+            gradient.addColorStop(1, "#831843"); 
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+            ctx.font = `bold ${Math.floor(width * 0.05)}px sans-serif`;
+            ctx.textAlign = "center";
+            ctx.fillText("My Vision Board", width / 2, height * 0.12);
+
+            const images = await Promise.all(
+                [...selectedImages].map(url => {
+                    return new Promise<HTMLImageElement>((resolve) => {
+                        const img = new Image();
+                        img.crossOrigin = "anonymous";
+                        img.onload = () => resolve(img);
+                        img.onerror = () => {
+                            const fallback = new Image();
+                            fallback.crossOrigin = "anonymous";
+                            fallback.onload = () => resolve(fallback);
+                            fallback.src = "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80"; 
+                        };
+                        img.src = url;
+                    });
+                })
+            );
+
+            const padding = width * 0.05;
+            const topOffset = height * 0.18;
+            const availableWidth = width - padding * 2;
+            const availableHeight = height - padding - topOffset;
+
+            const count = images.length;
+            const cols = Math.ceil(Math.sqrt(count));
+            const rows = Math.ceil(count / cols);
+
+            const gap = width * 0.02;
+            const cellW = (availableWidth - gap * (cols - 1)) / cols;
+            const cellH = (availableHeight - gap * (rows - 1)) / rows;
+
+            images.forEach((img, i) => {
+                const c = i % cols;
+                const r = Math.floor(i / cols);
+                const dx = padding + c * (cellW + gap);
+                const dy = topOffset + r * (cellH + gap);
+
+                const imgRatio = img.width / img.height;
+                const cellRatio = cellW / cellH;
+                
+                let sx = 0, sy = 0, sw = img.width, sh = img.height;
+                if (imgRatio > cellRatio) {
+                    sh = img.height;
+                    sw = img.height * cellRatio;
+                    sx = (img.width - sw) / 2;
+                } else {
+                    sw = img.width;
+                    sh = img.width / cellRatio;
+                    sy = (img.height - sh) / 2;
+                }
+
+                ctx.save();
+                const radius = width * 0.02;
+                ctx.beginPath();
+                ctx.moveTo(dx + radius, dy);
+                ctx.lineTo(dx + cellW - radius, dy);
+                ctx.quadraticCurveTo(dx + cellW, dy, dx + cellW, dy + radius);
+                ctx.lineTo(dx + cellW, dy + cellH - radius);
+                ctx.quadraticCurveTo(dx + cellW, dy + cellH, dx + cellW - radius, dy + cellH);
+                ctx.lineTo(dx + radius, dy + cellH);
+                ctx.quadraticCurveTo(dx, dy + cellH, dx, dy + cellH - radius);
+                ctx.lineTo(dx, dy + radius);
+                ctx.quadraticCurveTo(dx, dy, dx + radius, dy);
+                ctx.closePath();
+                ctx.clip();
+
+                ctx.drawImage(img, sx, sy, sw, sh, dx, dy, cellW, cellH);
+                ctx.restore();
+            });
+
+            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, "image/jpeg", 0.9));
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `VisionBoard.jpg`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("비전보드 생성 중 오류가 발생했습니다.");
+        } finally {
+            setIsDownloading(false);
+        }
+    };
 
     const images = activeKeyword ? (KEYWORD_IMAGES[activeKeyword] || KEYWORD_IMAGES["성공"]) : [];
 
@@ -161,7 +277,7 @@ export default function Phase3Visualization() {
                                         }`}
                                 >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={img.url} alt={img.label} className="w-full h-full object-cover" />
+                                    <img src={img.url} alt={img.label} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80" }} crossOrigin="anonymous" />
                                     <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-colors" />
                                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1">
                                         <span className="text-white text-xs">{img.label}</span>
@@ -195,11 +311,34 @@ export default function Phase3Visualization() {
                             {[...selectedImages].map((url, i) => (
                                 <div key={i} className="aspect-square rounded-xl overflow-hidden">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={url} alt="" className="w-full h-full object-cover" />
+                                    <img src={url} alt="" crossOrigin="anonymous" onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=400&q=80" }} className="w-full h-full object-cover" />
                                 </div>
                             ))}
                         </div>
-                        <p className="text-center text-pink-200/60 text-xs italic">
+                        
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mt-4 text-center space-y-3">
+                            <h4 className="text-white/80 text-sm font-bold flex items-center justify-center gap-2">
+                                <Download size={16} className="text-pink-400" />
+                                비전보드 다운로드 (출력 및 배경화면용)
+                            </h4>
+                            <p className="text-pink-200/50 text-xs">원하는 품질과 사이즈를 선택해 기기에 저장하세요</p>
+                            
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2">
+                                {DOWNLOAD_SIZES.map(s => (
+                                    <button
+                                        key={s.label}
+                                        onClick={() => downloadVisionBoard(s.width, s.height, s.label)}
+                                        disabled={isDownloading}
+                                        className="py-2.5 px-2 bg-pink-500/20 hover:bg-pink-500/40 border border-pink-400/30 hover:border-pink-400/60 rounded-xl text-pink-200 text-xs transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                    >
+                                        {isDownloading ? <Loader2 size={12} className="animate-spin" /> : null}
+                                        {s.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <p className="text-center text-pink-200/60 text-xs italic pt-2">
                             ✨ 이 비전들은 이미 당신의 현실 속에서 펼쳐지고 있습니다
                         </p>
                     </motion.div>

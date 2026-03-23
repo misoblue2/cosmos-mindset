@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Play, Plus, X, CheckCircle2, Clock, Square, Volume2 } from "lucide-react";
+import { Mic, Play, Plus, X, CheckCircle2, Clock, Square, Volume2, Download } from "lucide-react";
 
 const CATEGORIES = [
     { id: "wealth", label: "💰 부 & 풍요", color: "from-yellow-500 to-amber-400" },
@@ -421,6 +421,20 @@ export default function Phase2Affirmations() {
                             {isPlaying ? `재생 중단` : audioUrl ? "내 목소리로 듣기" : "기본 음성으로 듣기"}
                         </span>
                     </button>
+                    {audioUrl && (
+                        <a
+                            href={audioUrl}
+                            download="my_affirmation.webm"
+                            className="flex flex-col items-center gap-2 group"
+                        >
+                            <div className="w-16 h-16 rounded-full border-2 bg-yellow-500/20 border-yellow-400/50 group-hover:border-yellow-400 flex items-center justify-center transition-all">
+                                <Download size={28} className="text-yellow-400" />
+                            </div>
+                            <span className="text-xs text-white/60">
+                                녹음 파일 저장
+                            </span>
+                        </a>
+                    )}
                 </div>
                 <p className="text-purple-200/60 text-xs leading-relaxed">
                     🎧 {audioUrl ? "녹음된 확언이 백그라운드에서 반복 재생됩니다" : "마이크 버튼을 눌러 직접 녹음해보세요.\n직접 녹음하지 않아도 AI 음성을 통해 확언을 들을 수 있습니다."}
