@@ -145,10 +145,10 @@ export default function ImaginationPage() {
                             </p>
                         </div>
                         <Link
-                            href="/contact"
-                            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-blue-50 transition-colors"
+                            href="/imagination/ideas"
+                            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-blue-50 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transform hover:scale-105"
                         >
-                            입학 문의하기 <ExternalLink size={16} />
+                            상상학교 아이디어 제안하기 <ExternalLink size={16} />
                         </Link>
                     </div>
                 </div>
