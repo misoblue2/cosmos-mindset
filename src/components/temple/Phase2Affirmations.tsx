@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Play, Plus, X, CheckCircle2, Clock, Square, Volume2, Download } from "lucide-react";
+import { Mic, Play, Plus, X, CheckCircle2, Clock, Square, Volume2, Download, Music, Loader2 } from "lucide-react";
+import { mixAudioToWav } from "@/utils/audioExport";
 
 const CATEGORIES = [
     { id: "wealth", label: "💰 부 & 풍요", color: "from-yellow-500 to-amber-400" },
@@ -134,6 +135,22 @@ const DURATIONS = [
     { label: "12시간", value: 720 },
 ];
 
+
+const BGM_OPTIONS = [
+    { id: "none", label: "🔇 배경음악 없음", url: null },
+    { id: "bgm1", label: "🌊 파도 소리 (잔잔)", url: "https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg" },
+    { id: "bgm2", label: "🌧️ 차분한 빗소리", url: "https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg" },
+    { id: "bgm3", label: "🌲 숲 속의 아침", url: "https://actions.google.com/sounds/v1/ambiences/forest_morning.ogg" },
+    { id: "bgm4", label: "🔔 명상의 시간", url: "https://actions.google.com/sounds/v1/ambiences/meditation_bell.ogg" },
+    { id: "bgm5", label: "💧 맑은 시냇물", url: "https://actions.google.com/sounds/v1/water/stream_water.ogg" },
+];
+
+const EXPORT_DURATIONS = [
+    { label: "5분", value: 5 },
+    { label: "15분", value: 15 },
+    { label: "30분 (저장권장)", value: 30 },
+];
+
 export default function Phase2Affirmations() {
     const [activeCategory, setActiveCategory] = useState("wealth");
     const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -142,6 +159,35 @@ export default function Phase2Affirmations() {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const [selectedBgm, setSelectedBgm] = useState(BGM_OPTIONS[0]);
+    const [exportDuration, setExportDuration] = useState(15);
+    const [isMixing, setIsMixing] = useState(false);
+    const [mixProgress, setMixProgress] = useState(0);
+
+    const handleMixAndDownload = async () => {
+        if (!audioUrl) return;
+        setIsMixing(true);
+        setMixProgress(0);
+        try {
+            const finalUrl = await mixAudioToWav(
+                audioUrl, 
+                selectedBgm.url, 
+                exportDuration, 
+                (p) => setMixProgress(p)
+            );
+            const a = document.createElement("a");
+            a.href = finalUrl;
+            a.download = `My_Affirmations_${exportDuration}min.wav`;
+            a.click();
+            URL.revokeObjectURL(finalUrl);
+        } catch (e) {
+            console.error("Mix Error:", e);
+            alert("오디오 파일 생성 중 오류가 발생했습니다.");
+        } finally {
+            setIsMixing(false);
+            setMixProgress(0);
+        }
+    };
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const audioChunksRef = useRef<Blob[]>([]);
@@ -421,24 +467,76 @@ export default function Phase2Affirmations() {
                             {isPlaying ? `재생 중단` : audioUrl ? "내 목소리로 듣기" : "기본 음성으로 듣기"}
                         </span>
                     </button>
-                    {audioUrl && (
-                        <a
-                            href={audioUrl}
-                            download="my_affirmation.webm"
-                            className="flex flex-col items-center gap-2 group"
-                        >
-                            <div className="w-16 h-16 rounded-full border-2 bg-yellow-500/20 border-yellow-400/50 group-hover:border-yellow-400 flex items-center justify-center transition-all">
-                                <Download size={28} className="text-yellow-400" />
-                            </div>
-                            <span className="text-xs text-white/60">
-                                녹음 파일 저장
-                            </span>
-                        </a>
-                    )}
                 </div>
                 <p className="text-purple-200/60 text-xs leading-relaxed">
-                    🎧 {audioUrl ? "녹음된 확언이 백그라운드에서 반복 재생됩니다" : "마이크 버튼을 눌러 직접 녹음해보세요.\n직접 녹음하지 않아도 AI 음성을 통해 확언을 들을 수 있습니다."}
+                    🎧 {audioUrl ? "녹음이 완료되었습니다. 내 목소리로 듣기 버튼을 눌러 반복 재생할 수 있습니다." : "마이크 버튼을 눌러 확언을 직접 녹음해보세요.\n직접 녹음하지 않아도 AI 음성을 통해 확언을 들을 수 있습니다."}
                 </p>
+                
+                {/* Export / Mixing UI */}
+                {audioUrl && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="pt-6 border-t border-purple-400/20 text-left space-y-4">
+                        <div className="space-y-2">
+                            <h4 className="text-white/80 text-sm font-semibold flex items-center gap-2">
+                                <Music size={16} className="text-pink-400" /> 배경 음악 선택 (잔잔한 합성용)
+                            </h4>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                {BGM_OPTIONS.map(bgm => (
+                                    <button 
+                                        key={bgm.id}
+                                        onClick={() => setSelectedBgm(bgm)}
+                                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
+                                            selectedBgm.id === bgm.id ? "bg-pink-500/20 border-pink-400 text-pink-300" : "bg-white/5 border-white/10 text-white/60 hover:border-white/30"
+                                        }`}
+                                    >
+                                        {bgm.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <h4 className="text-white/80 text-sm font-semibold flex items-center gap-2">
+                                <Download size={16} className="text-yellow-400" /> 저장 시간 선택 (반복 길이)
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                                {EXPORT_DURATIONS.map(d => (
+                                    <button 
+                                        key={d.value}
+                                        onClick={() => setExportDuration(d.value)}
+                                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                                            exportDuration === d.value ? "bg-yellow-500/20 border-yellow-400 text-yellow-300" : "bg-white/5 border-white/10 text-white/60 hover:border-white/30"
+                                        }`}
+                                    >
+                                        {d.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="pt-2">
+                            <button 
+                                onClick={handleMixAndDownload}
+                                disabled={isMixing}
+                                className="w-full py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 rounded-xl text-yellow-950 font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                            >
+                                {isMixing ? (
+                                    <>
+                                        <Loader2 size={18} className="animate-spin" />
+                                        음원 합성 중... ({mixProgress}%)
+                                    </>
+                                ) : (
+                                    <>
+                                        <Download size={18} />
+                                        나만의 자동 암시 MP3 저장하기 ({exportDuration}분 반복)
+                                    </>
+                                )}
+                            </button>
+                            <p className="text-[10px] text-purple-200/40 text-center mt-2">
+                                * 브라우저 메모리 한계로 인해 모바일/PC 상관없이 쾌적한 최대 30분까지만 저장을 지원합니다. 스마트폰의 '한 곡 반복' 기능을 활용하면 12시간 연속 재생이 가능합니다.
+                            </p>
+                        </div>
+                    </motion.div>
+                )}
             </div>
         </div>
     );
