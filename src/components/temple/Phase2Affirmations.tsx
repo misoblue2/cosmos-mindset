@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mic, Play, Plus, X, CheckCircle2, Clock } from "lucide-react";
+import { Mic, Play, Plus, X, CheckCircle2, Clock, Square, Volume2 } from "lucide-react";
 
 const CATEGORIES = [
     { id: "wealth", label: "💰 부 & 풍요", color: "from-yellow-500 to-amber-400" },
@@ -140,6 +140,26 @@ export default function Phase2Affirmations() {
     const [customText, setCustomText] = useState("");
     const [duration, setDuration] = useState(60);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioChunksRef = useRef<Blob[]>([]);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+    const isPlayingRef = useRef(false);
+
+    useEffect(() => {
+        isPlayingRef.current = isPlaying;
+    }, [isPlaying]);
+
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+            window.speechSynthesis.cancel();
+        };
+    }, []);
 
     const toggleSelect = (text: string) => {
         setSelected(prev => {
@@ -154,6 +174,98 @@ export default function Phase2Affirmations() {
         if (customText.trim() && selected.size < 10) {
             setSelected(prev => new Set([...prev, customText.trim()]));
             setCustomText("");
+        }
+    };
+
+    const handleRecord = async () => {
+        if (isRecording) {
+            if (mediaRecorderRef.current) {
+                mediaRecorderRef.current.stop();
+            }
+            setIsRecording(false);
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const mediaRecorder = new MediaRecorder(stream);
+            mediaRecorderRef.current = mediaRecorder;
+            audioChunksRef.current = [];
+
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+                const url = URL.createObjectURL(audioBlob);
+                setAudioUrl(url);
+            };
+
+            mediaRecorder.start();
+            setIsRecording(true);
+        } catch (error) {
+            console.error("Mic error:", error);
+            alert("마이크 권한을 허용해주세요!");
+        }
+    };
+
+    const handlePlay = () => {
+        if (isPlaying) {
+            if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+            window.speechSynthesis.cancel();
+            setIsPlaying(false);
+            return;
+        }
+
+        setIsPlaying(true);
+        isPlayingRef.current = true;
+        const durationMs = duration * 60 * 1000;
+        const startTime = Date.now();
+
+        if (audioUrl) {
+            if (!audioRef.current) {
+                audioRef.current = new Audio(audioUrl);
+            } else {
+                audioRef.current.src = audioUrl;
+            }
+            audioRef.current.loop = true;
+            audioRef.current.play();
+
+            const checkTime = setInterval(() => {
+                if (!isPlayingRef.current || Date.now() - startTime >= durationMs) {
+                    if (audioRef.current) {
+                        audioRef.current.pause();
+                        audioRef.current.currentTime = 0;
+                    }
+                    setIsPlaying(false);
+                    clearInterval(checkTime);
+                }
+            }, 1000);
+        } else {
+            const speak = () => {
+                if (!isPlayingRef.current) return;
+                if (Date.now() - startTime >= durationMs) {
+                    setIsPlaying(false);
+                    return;
+                }
+                const text = Array.from(selected).join(". ");
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = "ko-KR";
+                utterance.rate = 0.8;
+                utterance.onend = () => {
+                    if (isPlayingRef.current) {
+                        setTimeout(speak, 1500);
+                    }
+                };
+                window.speechSynthesis.speak(utterance);
+            };
+            speak();
         }
     };
 
@@ -272,29 +384,46 @@ export default function Phase2Affirmations() {
             {/* Record & Play UI */}
             <div className="bg-gradient-to-br from-purple-900/40 to-blue-900/30 border border-purple-400/30 rounded-2xl p-6 space-y-4 text-center">
                 <div className="flex justify-center gap-6">
-                    <button className="flex flex-col items-center gap-2 group">
-                        <div className="w-16 h-16 rounded-full bg-red-500/20 border-2 border-red-400/50 group-hover:border-red-400 flex items-center justify-center transition-all">
-                            <Mic size={28} className="text-red-400" />
+                    <button 
+                        onClick={handleRecord}
+                        className="flex flex-col items-center gap-2 group"
+                    >
+                        <div className={`w-16 h-16 rounded-full border-2 flex items-center justify-center transition-all ${
+                            isRecording ? "bg-red-500/40 border-red-400 animate-pulse" : 
+                            audioUrl ? "bg-purple-500/20 border-purple-400/50 group-hover:border-purple-400" :
+                            "bg-red-500/10 border-red-400/30 group-hover:border-red-400/80"
+                        }`}>
+                            {isRecording ? <Square size={24} fill="currentColor" className="text-red-400" /> : 
+                             audioUrl ? <Mic size={28} className="text-purple-400" /> :
+                             <Mic size={28} className="text-red-400" />}
                         </div>
-                        <span className="text-xs text-white/60">내 목소리 녹음</span>
+                        <span className="text-xs text-white/60">
+                            {isRecording ? "녹음 중지" : audioUrl ? "다시 녹음하기" : "내 목소리 녹음"}
+                        </span>
                     </button>
+                    
                     <button
-                        onClick={() => setIsPlaying(!isPlaying)}
-                        disabled={selected.size === 0}
+                        onClick={handlePlay}
+                        disabled={selected.size === 0 && !audioUrl}
                         className="flex flex-col items-center gap-2 group disabled:opacity-40"
                     >
                         <div className={`w-16 h-16 rounded-full border-2 flex items-center justify-center transition-all ${isPlaying
                                 ? "bg-green-500/30 border-green-400 animate-pulse"
                                 : "bg-green-500/10 border-green-400/40 group-hover:border-green-400"
                             }`}>
-                            <Play size={28} className="text-green-400" fill={isPlaying ? "currentColor" : "none"} />
+                            {isPlaying ? (
+                                <Square size={24} fill="currentColor" className="text-green-400" />
+                            ) : (
+                                audioUrl ? <Play size={28} className="text-green-400" fill="currentColor" /> : <Volume2 size={28} className="text-blue-400" />
+                            )}
                         </div>
-                        <span className="text-xs text-white/60">{isPlaying ? `재생 중 (${duration}분)` : "재생 시작"}</span>
+                        <span className="text-xs text-white/60">
+                            {isPlaying ? `재생 중단` : audioUrl ? "내 목소리로 듣기" : "기본 음성으로 듣기"}
+                        </span>
                     </button>
                 </div>
                 <p className="text-purple-200/60 text-xs leading-relaxed">
-                    🎧 당신의 목소리 + 바이노럴 비트가 결합되어<br />
-                    잠재의식의 저항을 뛰어넘어 긍정 프로그래밍을 시작합니다
+                    🎧 {audioUrl ? "녹음된 확언이 백그라운드에서 반복 재생됩니다" : "마이크 버튼을 눌러 직접 녹음해보세요.\n직접 녹음하지 않아도 AI 음성을 통해 확언을 들을 수 있습니다."}
                 </p>
             </div>
         </div>
