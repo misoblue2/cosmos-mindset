@@ -30,6 +30,21 @@ export default function Phase5Thermometer({
     const [notificationTime, setNotificationTime] = useState("07:00");
     const [animatedLevels, setAnimatedLevels] = useState(RESILIENCE_DATA.map(() => 0));
 
+    const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [isSubscribed, setIsSubscribed] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleSubscribe = () => {
+        if (!name.trim() || !phone.trim()) return;
+        setIsSubmitting(true);
+        // Simulate API call scheduling
+        setTimeout(() => {
+            setIsSubmitting(false);
+            setIsSubscribed(true);
+        }, 1200);
+    };
+
     useEffect(() => {
         const interval = setInterval(() => {
             setWisdomIndex((prev) => (prev + 1) % MORNING_WISDOMS.length);
@@ -162,20 +177,68 @@ export default function Phase5Thermometer({
                 </div>
 
                 {notificationsEnabled && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-3">
-                        <div className="flex items-center gap-3">
-                            <span className="text-white/60 text-sm">알림 시간</span>
-                            <input
-                                type="time"
-                                value={notificationTime}
-                                onChange={e => setNotificationTime(e.target.value)}
-                                className="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:border-yellow-400/60"
-                            />
-                        </div>
-                        <div className="bg-yellow-400/10 border border-yellow-400/20 rounded-xl px-4 py-3 text-yellow-200/80 text-xs leading-relaxed">
-                            📱 {notificationTime}에 알림을 전송하도록 설정되었습니다.<br />
-                            (실제 푸시 알림은 브라우저 허용 설정이 필요합니다)
-                        </div>
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-4 pt-2 border-t border-white/10">
+                        {isSubscribed ? (
+                            <div className="bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-4 text-center space-y-2">
+                                <div className="text-2xl">✅</div>
+                                <h3 className="text-green-400 font-bold text-sm">알림 예약 완료!</h3>
+                                <p className="text-green-200/80 text-xs leading-relaxed">
+                                    {name}님, 내일부터 매일 {notificationTime}에<br/>
+                                    입력해주신 번호({phone})로 아침 지혜 문자가 발송됩니다.
+                                </p>
+                                <button 
+                                    onClick={() => setIsSubscribed(false)}
+                                    className="mt-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-white/50 hover:text-white/80 text-xs transition-colors"
+                                >
+                                    알림 설정 변경하기
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-1">
+                                        <label className="text-white/60 text-xs ml-1">이름</label>
+                                        <input
+                                            type="text"
+                                            value={name}
+                                            onChange={e => setName(e.target.value)}
+                                            placeholder="홍길동"
+                                            className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:border-yellow-400/60"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-white/60 text-xs ml-1">알림 시간</label>
+                                        <input
+                                            type="time"
+                                            value={notificationTime}
+                                            onChange={e => setNotificationTime(e.target.value)}
+                                            className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-400/60"
+                                            style={{ colorScheme: 'dark' }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-white/60 text-xs ml-1">휴대폰 번호</label>
+                                    <input
+                                        type="tel"
+                                        value={phone}
+                                        onChange={e => setPhone(e.target.value)}
+                                        placeholder="010-0000-0000"
+                                        className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:border-yellow-400/60"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleSubscribe}
+                                    disabled={!name.trim() || !phone.trim() || isSubmitting}
+                                    className="w-full py-3 bg-yellow-500/80 hover:bg-yellow-500 disabled:opacity-40 disabled:hover:bg-yellow-500/80 rounded-xl text-yellow-950 font-bold flex items-center justify-center gap-2 transition-all mt-2"
+                                >
+                                    {isSubmitting ? "예약 처리 중..." : "매일 아침 문자 알림 예약하기"}
+                                </button>
+                                <p className="text-center text-white/30 text-[10px] mt-1">
+                                    입력하신 정보는 알림 발송 목적 외에는 사용되지 않습니다.
+                                </p>
+                            </>
+                        )}
                     </motion.div>
                 )}
             </div>
