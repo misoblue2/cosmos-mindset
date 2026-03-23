@@ -55,7 +55,8 @@ export function VideoGrid() {
             </div>
 
             <VideoModal
-                video={selectedVideo}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                video={selectedVideo as any}
                 isOpen={!!selectedVideo}
                 onClose={() => setSelectedVideo(null)}
             />

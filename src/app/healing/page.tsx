@@ -1,44 +1,55 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, RefreshCw, CheckCircle2, XCircle } from 'lucide-react';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Send, PenTool, Mail, RefreshCcw } from 'lucide-react';
 import { setCounseling, type CounselingSession } from '@/lib/db';
-import { DonationModal } from '@/components/common/DonationModal';
 
 // ----------------------------------------------------------------------
-// Constants & Data (The Alchemy Dictionary)
+// AI Simulation Logic (Mock)
 // ----------------------------------------------------------------------
 
-const CATEGORIES = [
-    { id: 'money', label: '돈 / 경제적 문제', color: 'text-amber-500', question: "어떤 금전적 문제가 당신을 무겁게 하나요?" },
-    { id: 'love', label: '사랑 / 관계', color: 'text-rose-500', question: "누구와의 관계가 당신을 아프게 하나요?" },
-    { id: 'career', label: '진로 / 커리어', color: 'text-blue-500', question: "앞길이 어떻게 막막한가요?" },
-    { id: 'health', label: '건강 / 육체', color: 'text-emerald-500', question: "몸의 어디가 불편한가요?" },
-    { id: 'self', label: '자아 / 멘탈', color: 'text-purple-500', question: "어떤 부정적인 생각이 드나요?" },
-];
+const generateReply = (receiver: string, _story: string): string => {
+    const r = receiver.trim();
+    // Simple tone detection based on standard Korean relational terms
+    const isMom = /엄마|어머니|모친|맘/.test(r);
+    const isDad = /아빠|아버지|부친|대디/.test(r);
+    const isGrand = /할머니|할아버지|조부모/.test(r);
+    const isFriend = /친구|지인|동기/.test(r);
+    const isLover = /애인|남친|여친|아내|남편/.test(r);
 
-const ALCHEMY_SCRIPTS: Record<string, { reframe: string; affirmation: string }> = {
-    money: {
-        reframe: "당신이 받은 그 고지서는 '청구서'가 아니라 '영수증'입니다. 당신은 이미 그만큼의 가치를 누렸고, 지불할 능력이 있음을 우주가 증명한 것입니다.",
-        affirmation: "나는 내게 온 모든 풍요에 감사합니다. 나의 지출은 더 큰 부가 되어 돌아옵니다."
-    },
-    love: {
-        reframe: "지금의 갈등은 이별의 신호가 아니라, 두 우주가 서로를 더 깊이 이해하기 위해 충돌하는 '빅뱅'입니다. 이 과정을 통해 관계는 더 단단해집니다.",
-        affirmation: "모든 갈등은 사랑의 또 다른 표현입니다. 나는 이미 그 사람과 완벽하게 화해했습니다."
-    },
-    career: {
-        reframe: "지금의 막막함은 길이 없는 것이 아니라, 당신이 갈 수 있는 길이 너무나 많아서 잠시 멈춘 '가능성의 상태'입니다. 당신은 이미 성공한 미래에 도착해 있습니다.",
-        affirmation: "나는 내가 원하는 곳에 이미 도달해 있습니다. 지금은 그저 그 과정을 즐길 뿐입니다."
-    },
-    health: {
-        reframe: "통증은 몸이 잘못된 것이 아니라, 당신에게 '휴식'과 '사랑'을 요청하는 몸의 간절한 대화입니다. 몸은 스스로 치유할 힘을 가지고 있습니다.",
-        affirmation: "내 몸의 모든 세포는 매 순간 건강한 상태로 재생되고 있습니다. 나는 건강합니다."
-    },
-    self: {
-        reframe: "불안과 의심은 당신이 성장하고 있다는 증거입니다. 안주하는 사람은 불안해하지 않습니다. 그 감정을 거부하지 말고, 더 큰 나로 나아가는 연료로 쓰세요.",
-        affirmation: "나는 나의 모든 감정을 환영합니다. 모든 경험은 나를 최고의 버전으로 이끌어줍니다."
+    let intro = "";
+    let body = "";
+    let outro = "";
+
+    if (isMom) {
+        intro = `사랑하는 우리 딸, 우리 아들... ${r}야.`;
+        body = "네가 어릴 적 그 순간을 이렇게 기억하고 있다니, 마음이 뭉클하구나. 엄마는 그때 너를 보며 항상 더 해주지 못해 미안한 마음뿐이었단다. 네가 겪은 그 시간들이 널 이렇게 단단하게 만들었구나.";
+        outro = "언제나 너는 나의 자랑이자 기쁨이란다. 힘들 땐 언제든 엄마 품으로 오렴. 사랑한다, 내 강아지.";
+    } else if (isDad) {
+        intro = `그래, 아빠다.`;
+        body = "네 이야기를 듣는데 코끝이 찡해지는구나. 그 시절, 아빠가 너에게 든든한 산이 되어주었어야 했는데... 네가 그 작은 어깨로 세상을 마주하던 모습이 눈에 선하구나. 참 잘 자라주었어.";
+        outro = "너는 아빠보다 훨씬 훌륭한 사람이다. 세상이 너를 힘들게 해도 기죽지 마라. 아빠가 항상 뒤에서 지켜보고 있으마.";
+    } else if (isGrand) {
+        intro = `아이고, 우리 예쁜 강아지 왔구나.`;
+        body = "할미(할비)는 네가 꼬물꼬물거리던 게 엊그제 같은데, 벌써 이렇게 커서 옛날 이야기를 다 하고... 기특하기도 하지. 네가 그때 느꼈던 마음, 내가 다 안다. 짠하고 대견해.";
+        outro = "밥은 잘 먹고 다니지? 아프지 말고, 항상 웃으며 살거라. 네 행복이 내 행복이란다.";
+    } else if (isFriend) {
+        intro = `안녕! 나야, 네 친구.`;
+        body = "야, 너 그 얘기 진짜 오랜만이다. 너 그때 진짜 그랬었잖아. 네 편지를 읽는데 우리 어릴 때 생각나서 피식 웃음이 나더라. 그때의 우리는 참 서툴고, 순수했지? 네가 그런 생각을 하고 있었는지 몰랐어.";
+        outro = "우리가 어른이 되어서도 이렇게 서로의 마음을 나눌 수 있어서 좋다. 언제나 네 편이 되어줄게. 술 한잔 하자!";
+    } else if (isLover) {
+        intro = `사랑하는 사람아.`;
+        body = "당신의 어린 시절 이야기를 들으니, 내가 모르는 당신의 시간을 함께 여행한 기분이야. 그때의 작은 아이가 자라서 지금 내 곁에 있는 당신이 되었다는 게 새삼 고맙고 신비로워. 그 시절 당신을 안아주고 싶다.";
+        outro = "당신의 모든 시간, 모든 모습을 사랑해. 앞으로 만들어갈 추억들은 내가 함께할게. 사랑해.";
+    } else {
+        // Default / General
+        intro = `${r}(으)로부터의 답장입니다.`;
+        body = "오랜 시간 마음속에 담아두었던 너의 이야기를 들려주어서 고마워. 너의 기억 속 그 장면들이 모여 지금의 빛나는 네가 되었단다. 그때의 너도, 지금의 너도 참 소중하고 애틋하구나.";
+        outro = "네 마음속의 그 어린아이가 이제는 편안하게 웃을 수 있기를 바라. 너는 충분히 사랑받아 마땅한 사람이란다.";
     }
+
+    return `${intro}\n\n${body}\n\n${outro}`;
 };
 
 // ----------------------------------------------------------------------
@@ -46,286 +57,189 @@ const ALCHEMY_SCRIPTS: Record<string, { reframe: string; affirmation: string }> 
 // ----------------------------------------------------------------------
 
 export default function HealingPage() {
-    const [step, setStep] = useState<'category' | 'worry' | 'shift' | 'reality'>('category');
-    const [category, setCategory] = useState<string>('');
-    const [worryText, setWorryText] = useState('');
-    const [isShifting, setIsShifting] = useState(false);
-    const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
+    const [step, setStep] = useState<'input' | 'sending' | 'reading'>('input');
+    const [receiver, setReceiver] = useState('');
+    const [story, setStory] = useState('');
+    const [generatedReply, setGeneratedReply] = useState('');
 
-    // Initial Atmosphere (Dark/Shadow Mode)
-    // As steps progress, we will lighten the mood properly in the 'reality' step.
+    const handleSubmit = async () => {
+        if (!receiver.trim() || !story.trim()) {
+            alert("답장 받을 사람과 이야기를 모두 입력해주세요.");
+            return;
+        }
 
-    const handleCategorySelect = (id: string) => {
-        setCategory(id);
-        setStep('worry');
+        setStep('sending');
+
+        // AI Simulation Delay
+        setTimeout(async () => {
+            const reply = generateReply(receiver, story);
+            setGeneratedReply(reply);
+
+            // Save to DB
+            const session: CounselingSession = {
+                id: crypto.randomUUID(),
+                userId: 'anonymous',
+                userName: receiver.trim(),
+                mood: 'letter-from-past',
+                content: `[To]: ${receiver}\n[Story]: ${story}`,
+                status: 'completed',
+                createdAt: Date.now(),
+                aiReply: reply,
+                isRead: false
+            };
+            await setCounseling(session);
+
+            setStep('reading');
+        }, 3000);
     };
 
-    const handleWorrySubmit = () => {
-        if (!worryText.trim()) return;
-        setIsShifting(true);
-        setTimeout(() => {
-            setIsShifting(false);
-            setStep('shift');
-        }, 1500); // "Burning" delay
-    };
-
-    const handleShiftConfirm = async () => {
-        setIsShifting(true);
-
-        // Save to DB (Log the transition)
-        const session: CounselingSession = {
-            id: crypto.randomUUID(),
-            userId: 'anonymous',
-            userName: 'Cosmic Traveler',
-            mood: category,
-            content: `[WORRY]: ${worryText}\n[SHIFT]: ${ALCHEMY_SCRIPTS[category]?.affirmation}`,
-            status: 'completed',
-            createdAt: Date.now(),
-            aiReply: "Your reality has been shifted.",
-            isRead: false
-        };
-        await setCounseling(session);
-
-        setTimeout(() => {
-            setIsShifting(false);
-            setStep('reality');
-        }, 3000); // "Materializing" delay
-    };
-
-    const resetJourney = () => {
-        setCategory('');
-        setWorryText('');
-        setStep('category');
+    const handleReset = () => {
+        setReceiver('');
+        setStory('');
+        setGeneratedReply('');
+        setStep('input');
     };
 
     return (
-        <main className={`min-h-screen relative overflow-hidden transition-colors duration-1000 ${step === 'reality' ? 'bg-[#FFFBF0] text-amber-950' : 'bg-[#050505] text-stone-300'
-            }`}>
-            {/* Background Effects */}
-            <div className="fixed inset-0 pointer-events-none transition-opacity duration-1000">
-                {step === 'reality' ? (
-                    // Light/Gold Mode Background
-                    <>
-                        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-amber-200/40 blur-[150px] rounded-full animate-pulse" />
-                        <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-rose-200/40 blur-[150px] rounded-full animate-pulse delay-700" />
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light" />
-                    </>
-                ) : (
-                    // Dark/Shadow Mode Background
-                    <>
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-stone-900/40 blur-[100px] rounded-full" />
-                        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05]" />
-                    </>
-                )}
-            </div>
+        <div className="min-h-screen bg-[#FDF6E3] text-[#4A4A4A] relative overflow-hidden font-serif selection:bg-orange-200">
+            {/* Background Texture - Paper feel */}
+            <div className="fixed inset-0 pointer-events-none opacity-50 mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]"></div>
 
-            <AnimatePresence mode="wait">
+            <div className="container mx-auto px-4 py-12 md:py-20 relative z-10 max-w-4xl">
 
-                {/* 1. SELECT CATEGORY (The Shadow Realm) */}
-                {step === 'category' && (
+                {step === 'input' && (
                     <motion.div
-                        key="category"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="relative z-10 container mx-auto px-6 py-20 min-h-screen flex flex-col justify-center items-center"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="space-y-12"
                     >
-                        <header className="text-center mb-16 max-w-2xl">
-                            <motion.span
-                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-                                className="text-xs font-bold text-stone-600 uppercase tracking-[0.3em] mb-4 block"
-                            >
-                                Reality Shifter
-                            </motion.span>
-                            <h1 className="text-3xl md:text-5xl font-serif text-stone-200 mb-6 leading-tight">
-                                무엇이 당신의 현실을<br />가로막고 있나요?
-                            </h1>
-                            <p className="text-stone-500 font-light">
-                                부정적인 감정을 거부하지 마세요.<br />그것을 마주하는 순간, 변화는 시작됩니다.
+                        <header className="text-center space-y-4 mb-16">
+                            <div className="inline-block p-3 rounded-full bg-orange-100/50 mb-4">
+                                <Mail className="text-orange-600" size={32} />
+                            </div>
+                            <h1 className="text-3xl md:text-5xl font-bold text-orange-950 tracking-tight">추억의 우체통</h1>
+                            <p className="text-lg text-orange-800/60 max-w-xl mx-auto leading-relaxed">
+                                어린 시절, 하지 못했던 말이나 가슴 속에 묻어두었던 이야기를 꺼내보세요.<br />
+                                <span className="font-bold text-orange-700">그 시절 그 사람</span>이, 지금의 당신에게 답장을 보냅니다.
                             </p>
                         </header>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-4xl">
-                            {CATEGORIES.map((cat) => (
-                                <button
-                                    key={cat.id}
-                                    onClick={() => handleCategorySelect(cat.id)}
-                                    className="group relative p-8 border border-stone-800 bg-stone-900/30 hover:bg-stone-900 hover:border-stone-700 transition-all duration-300 rounded-xl text-left"
-                                >
-                                    <h3 className={`text-xl font-bold mb-2 group-hover:text-white transition-colors ${cat.id === 'money' ? 'text-amber-700' : 'text-stone-400'}`}>
-                                        {cat.label}
-                                    </h3>
-                                    <div className="absolute bottom-8 right-8 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                        <ArrowRight className="text-stone-500" />
-                                    </div>
-                                </button>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
+                        <div className="bg-white/80 backdrop-blur-sm p-8 md:p-12 rounded-[2rem] shadow-xl border border-orange-100 space-y-8 relative">
+                            {/* Decorative Stamp */}
+                            <div className="absolute top-8 right-8 hidden md:block opacity-20 rotate-12 pointer-events-none">
+                                <div className="border-4 border-orange-900 rounded-full w-24 h-24 flex items-center justify-center">
+                                    <span className="text-orange-900 font-black uppercase text-xs tracking-widest text-center">Cosmic<br />Post</span>
+                                </div>
+                            </div>
 
-                {/* 2. WORRY INPUT (Acceptance) */}
-                {step === 'worry' && (
-                    <motion.div
-                        key="worry"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 1.05 }}
-                        className="relative z-10 container mx-auto px-6 py-20 min-h-screen flex flex-col justify-center max-w-2xl"
-                    >
-                        <button onClick={() => setStep('category')} className="absolute top-10 left-0 text-stone-600 hover:text-stone-400 transition-colors">
-                            ← 뒤로
-                        </button>
+                            <div className="space-y-4">
+                                <label className="block text-sm font-bold text-orange-900/50 uppercase tracking-widest">To. 누구에게 답장을 받고 싶나요?</label>
+                                <input
+                                    type="text"
+                                    value={receiver}
+                                    onChange={(e) => setReceiver(e.target.value)}
+                                    placeholder="예: 엄마, 아빠, 돌아가신 할머니, 어린 시절의 단짝친구..."
+                                    className="w-full bg-transparent border-b-2 border-orange-200 py-4 text-2xl md:text-3xl font-bold text-orange-950 placeholder:text-orange-900/20 focus:outline-none focus:border-orange-500 transition-colors"
+                                />
+                            </div>
 
-                        <h2 className="text-2xl md:text-3xl font-serif text-stone-200 mb-8 leading-relaxed">
-                            {CATEGORIES.find(c => c.id === category)?.question}
-                        </h2>
+                            <div className="space-y-4">
+                                <label className="block text-sm font-bold text-orange-900/50 uppercase tracking-widest flex items-center gap-2">
+                                    <PenTool size={14} />
+                                    그 시절, 당신의 기억을 적어주세요 (1000자 이내)
+                                </label>
+                                <textarea
+                                    value={story}
+                                    onChange={(e) => setStory(e.target.value.slice(0, 1000))}
+                                    placeholder="어린 시절의 기억, 서운했던 점, 그리운 순간들...&#13;&#10;솔직한 마음을 편하게 적어보세요."
+                                    className="w-full h-64 bg-orange-50/50 rounded-xl p-6 text-lg leading-relaxed text-orange-900 placeholder:text-orange-900/30 resize-none focus:ring-2 focus:ring-orange-200 outline-none transition-all"
+                                />
+                                <div className="text-right text-xs text-orange-900/40 font-medium">
+                                    {story.length} / 1000
+                                </div>
+                            </div>
 
-                        <div className="relative mb-8">
-                            <textarea
-                                value={worryText}
-                                onChange={(e) => setWorryText(e.target.value)}
-                                placeholder="예: 카드값이 200만원이나 나왔어요. 어떻게 갚아야 할지 막막해요."
-                                className="w-full h-64 bg-transparent border-b border-stone-800 text-xl md:text-2xl font-light text-stone-300 placeholder:text-stone-800 resize-none focus:outline-none focus:border-stone-600 transition-colors leading-relaxed"
-                            />
-                        </div>
-
-                        <div className="flex justify-end">
                             <button
-                                onClick={handleWorrySubmit}
-                                disabled={!worryText.trim() || isShifting} // Disabled while animating
-                                className={`
-                                    flex items-center gap-3 px-8 py-4 rounded-full font-bold transition-all
-                                    ${worryText.trim()
-                                        ? 'bg-stone-100 text-stone-900 hover:scale-105'
-                                        : 'bg-stone-900 text-stone-600 cursor-not-allowed'}
-                                `}
+                                onClick={handleSubmit}
+                                disabled={!receiver || !story}
+                                className="w-full py-5 bg-orange-600 text-white font-bold text-lg rounded-xl hover:bg-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2 group"
                             >
-                                {isShifting ? (
-                                    <span className="flex items-center gap-2">
-                                        <RefreshCw className="animate-spin" size={16} />
-                                        분해하는 중...
-                                    </span>
-                                ) : (
-                                    <span>이 현실 직시하기</span>
-                                )}
+                                <span>편지 부치기</span>
+                                <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                             </button>
                         </div>
                     </motion.div>
                 )}
 
-                {/* 3. THE SHIFT (Alchemy) */}
-                {step === 'shift' && (
+                {step === 'sending' && (
                     <motion.div
-                        key="shift"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="relative z-10 container mx-auto px-6 py-20 min-h-screen flex flex-col justify-center items-center max-w-3xl text-center"
+                        className="flex flex-col items-center justify-center min-h-[60vh] text-center"
                     >
                         <motion.div
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.8 }}
-                            className="mb-12"
+                            animate={{
+                                y: [-10, 10, -10],
+                                rotate: [0, 5, -5, 0]
+                            }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                            className="text-orange-400 mb-8"
                         >
-                            <h3 className="text-stone-500 font-bold uppercase tracking-widest mb-6">Perspective Shift</h3>
-                            <p className="text-xl md:text-2xl font-serif text-stone-200 leading-relaxed mb-8">
-                                "{worryText}"
-                            </p>
-                            <div className="w-px h-12 bg-stone-800 mx-auto mb-8" />
-                            <p className="text-lg md:text-xl text-amber-200/80 leading-relaxed font-light italic">
-                                "{ALCHEMY_SCRIPTS[category]?.reframe}"
-                            </p>
+                            <Mail size={80} />
                         </motion.div>
-
-                        <div className="bg-stone-900/50 border border-stone-800 rounded-2xl p-8 w-full backdrop-blur-sm">
-                            <p className="text-stone-400 text-sm mb-4">아래 문장을 마음으로 읽고, 동의한다면 버튼을 누르세요.</p>
-                            <p className="text-xl md:text-2xl font-bold text-white mb-8">
-                                {ALCHEMY_SCRIPTS[category]?.affirmation}
-                            </p>
-                            <button
-                                onClick={handleShiftConfirm}
-                                disabled={isShifting}
-                                className="w-full py-4 bg-amber-600 hover:bg-amber-500 text-white rounded-xl font-bold transition-all shadow-lg hover:shadow-amber-900/20 active:scale-95 disabled:opacity-50 disabled:cursor-wait"
-                            >
-                                {isShifting ? "현실 재구성 중..." : "나는 이 새로운 현실을 선택합니다"}
-                            </button>
-                        </div>
-                    </motion.div>
-                )}
-
-                {/* 4. REALITY (Living in the End) */}
-                {step === 'reality' && (
-                    <motion.div
-                        key="reality"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 1.5 }}
-                        className="relative z-10 container mx-auto px-6 py-20 min-h-screen flex flex-col justify-center items-center text-center"
-                    >
-                        <DonationModal
-                            isOpen={isDonationModalOpen}
-                            onClose={() => setIsDonationModalOpen(false)}
-                            title="우주에 마음 보내기"
-                            description={`당신의 변화된 에너지를 우주와 나누세요.\n보내주신 후원금은 또 다른 이의 치유를 위해 사용됩니다.`}
-                        />
-
-                        <motion.div
-                            initial={{ scale: 0, rotate: -180 }}
-                            animate={{ scale: 1, rotate: 0 }}
-                            transition={{ duration: 1, type: "spring" }}
-                            className="w-24 h-24 rounded-full bg-amber-400 text-white flex items-center justify-center mb-8 shadow-2xl shadow-amber-400/50"
-                        >
-                            <CheckCircle2 size={48} strokeWidth={3} />
-                        </motion.div>
-
-                        <h1 className="text-4xl md:text-6xl font-serif text-amber-900 mb-6 tracking-tight">
-                            It is Done.
-                        </h1>
-                        <p className="text-xl text-amber-900/60 font-light mb-12 max-w-xl leading-relaxed">
-                            이미 이루어졌습니다. 당신의 의식이 변했기에, 현실은 자연스럽게 그 뒤를 따를 것입니다.<br />
-                            지금 이 평온함과 충만함을 기억하세요.
+                        <h2 className="text-2xl font-bold text-orange-900 mb-4 animate-pulse">시공간을 넘어 편지를 전달하고 있습니다...</h2>
+                        <p className="text-orange-800/60 font-medium">
+                            <span className="font-bold underlineDecoration">{receiver}</span> 님에게 당신의 마음이 닿고 있습니다.
                         </p>
-
-                        <div className="bg-white/50 backdrop-blur-md border border-amber-900/10 p-8 rounded-2xl shadow-xl max-w-md w-full transform rotate-1 hover:rotate-0 transition-transform duration-500 mb-10">
-                            <div className="flex justify-between items-center text-xs text-amber-900/40 uppercase tracking-widest mb-6 border-b border-amber-900/10 pb-4">
-                                <span>우주에서 온 영수증</span>
-                                <span>{new Date().toLocaleDateString()}</span>
-                            </div>
-
-                            <div className="space-y-4 text-left mb-8">
-                                <div>
-                                    <span className="text-xs text-amber-900/40 block mb-1">맡기신 무거운 짐 (고민)</span>
-                                    <p className="text-sm line-through text-stone-400">{worryText.substring(0, 30)}...</p>
-                                </div>
-                                <div>
-                                    <span className="text-xs text-amber-900/40 block mb-1">해결된 마음 (새로운 현실)</span>
-                                    <p className="text-lg font-serif font-bold text-amber-700">
-                                        해결됨 & 풍요로움 (Completed)
-                                    </p>
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={() => setIsDonationModalOpen(true)}
-                                className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-lg shadow-amber-500/30 active:scale-95 transition-all flex items-center justify-center gap-2"
-                            >
-                                <Sparkles size={16} />
-                                우주에 감사 표시하기 (자율후원)
-                            </button>
-                        </div>
-
-                        <button
-                            onClick={resetJourney}
-                            className="text-amber-900/40 hover:text-amber-700 transition-colors text-sm underline underline-offset-4"
-                        >
-                            다른 현실도 변화시키기
-                        </button>
                     </motion.div>
                 )}
 
-            </AnimatePresence>
-        </main>
+                {step === 'reading' && (
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.8 }}
+                        className="max-w-3xl mx-auto perspective-1000"
+                    >
+                        <div className="bg-[#fff9f0] p-8 md:p-16 rounded shadow-2xl relative overflow-hidden transform rotate-1 border border-stone-200">
+                            {/* Paper Texture Overlay */}
+                            <div className="absolute inset-0 opacity-40 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
+
+                            <div className="relative z-10">
+                                <div className="flex justify-between items-start mb-12 border-b border-stone-200 pb-8">
+                                    <div>
+                                        <div className="text-xs text-stone-500 font-bold uppercase tracking-widest mb-1">From</div>
+                                        <div className="text-2xl font-serif font-bold text-stone-800">{receiver}</div>
+                                    </div>
+                                    <div className="opacity-50">
+                                        <Mail className="text-stone-400" size={24} />
+                                    </div>
+                                </div>
+
+                                <div className="leading-loose text-lg text-stone-700 whitespace-pre-wrap font-serif mb-16">
+                                    {generatedReply}
+                                </div>
+
+                                <div className="text-center pt-8 border-t border-stone-200">
+                                    <p className="text-stone-400 text-sm italic mb-8">
+                                        이 편지가 당신에게 작은 위로가 되었기를.
+                                    </p>
+
+                                    <button
+                                        onClick={handleReset}
+                                        className="inline-flex items-center gap-2 px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-full font-bold text-sm transition-colors"
+                                    >
+                                        <RefreshCcw size={16} />
+                                        다른 편지 쓰기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+            </div>
+        </div>
     );
 }

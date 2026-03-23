@@ -14,23 +14,30 @@ export default function LoginPage() {
     const [showRecovery, setShowRecovery] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(''); // Assuming error state is needed based on the instruction's snippet
+    const [isLoading, setIsLoading] = useState(false); // Assuming isLoading state is needed
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError('');
+        setIsLoading(true);
         try {
             if (email && password) {
                 await login(email, password);
                 router.push('/mypage');
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Login failed", error);
             if (error.message === "User not found") {
-                alert("가입되지 않은 이메일입니다.");
+                setError("가입되지 않은 이메일입니다.");
             } else if (error.message === "Password mismatch") {
-                alert("비밀번호가 일치하지 않습니다.");
+                setError("비밀번호가 일치하지 않습니다.");
             } else {
-                alert("로그인 중 오류가 발생했습니다.");
+                setError("로그인 중 오류가 발생했습니다.");
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -91,8 +98,13 @@ export default function LoginPage() {
                             </div>
 
                             <div className="flex justify-end">
+                                {error && (
+                                    <p className="text-red-400 text-xs font-bold mr-auto self-center animate-in slide-in-from-left-1">
+                                        {error}
+                                    </p>
+                                )}
                                 <button
-                                    type="button"
+                                    type="submit"
                                     onClick={() => setShowRecovery(true)}
                                     className="text-xs text-white/40 font-bold hover:text-purple-400 transition-colors flex items-center gap-1.5"
                                 >

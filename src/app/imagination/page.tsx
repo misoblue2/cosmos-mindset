@@ -2,124 +2,62 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Heart, School, ArrowRight, User, Check, BrickWall, Coins, Building, Crown, Play, Rocket, Star, Moon } from 'lucide-react';
-import { getTotalFund, addDonation, addIdea, getIdeas, type Idea } from '@/lib/db';
+import { Sparkles, Rocket, Star, ExternalLink, Zap } from 'lucide-react';
+import Link from 'next/link';
 import { DonationModal } from '@/components/common/DonationModal';
 
 export default function ImaginationPage() {
-    const [totalFund, setTotalFund] = useState(0);
-    const [isAnonymous, setIsAnonymous] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
-    const [ideas, setIdeas] = useState<Idea[]>([]);
+    const [progress, setProgress] = useState(0);
 
-    // Idea Board State
-    const [newIdeaName, setNewIdeaName] = useState('');
-    const [newIdeaContent, setNewIdeaContent] = useState('');
-
-    // Goal: 100,000,000 KRW for the first school
-    const GOAL_AMOUNT = 100000000;
-    const progress = Math.min((totalFund / GOAL_AMOUNT) * 100, 100);
-
-    const loadData = async () => {
-        const fund = await getTotalFund();
-        setTotalFund(fund);
-        const storedIdeas = await getIdeas();
-        setIdeas(storedIdeas);
-    };
-
-    useEffect(() => {
-        loadData();
-        const interval = setInterval(loadData, 5000);
-        return () => clearInterval(interval);
-    }, []);
-
-    const handleIdeaSubmit = async () => {
-        if (!newIdeaContent.trim()) {
-            alert("내용을 입력해주세요!");
-            return;
-        }
-
-        const idea: Idea = {
-            id: `idea-${Date.now()}`,
-            author: newIdeaName.trim() || "익명의 우주비행사",
-            content: newIdeaContent,
-            createdAt: Date.now()
-        };
-
-        setIdeas(prev => [idea, ...prev]);
-        setNewIdeaName('');
-        setNewIdeaContent('');
-        await addIdea(idea);
-    };
-
-    // PortOne SDK Type Definition (Mock)
-    interface PortOneParam {
-        pg: string;
-        pay_method: string;
-        merchant_uid: string;
-        name: string;
-        amount: number;
-        buyer_email?: string;
-        buyer_name?: string;
-        buyer_tel?: string;
-    }
-
+    // Donation State
     const [paymentModalOpen, setPaymentModalOpen] = useState(false);
     const [selectedAmount, setSelectedAmount] = useState(0);
-    const [selectedLabel, setSelectedLabel] = useState('');
+    const [selectedLabel, setSelectedLabel] = useState("");
 
-    const openPaymentModal = (amount: number, label: string) => {
+    const handleSupportClick = (amount: number, label: string) => {
         setSelectedAmount(amount);
         setSelectedLabel(label);
         setPaymentModalOpen(true);
     };
 
-    const handlePaymentConfirm = async () => {
+    const handlePaymentConfirm = () => {
         setPaymentModalOpen(false);
-        await new Promise(resolve => setTimeout(resolve, 500));
-        await addDonation(selectedAmount);
-        await loadData();
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
+        // Show success animation
     };
 
-    const DonationTier = ({ amount, label, icon: Icon, color }: { amount: number, label: string, icon: any, color: string }) => (
-        <motion.button
-            whileHover={{ scale: 1.05, y: -5 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => openPaymentModal(amount, label)}
-            className="relative flex flex-col items-center justify-center p-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl shadow-xl hover:bg-white/10 hover:border-purple-400/50 transition-all group overflow-hidden"
-        >
-            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-colors bg-gradient-to-br from-white/10 to-transparent border border-white/5 group-hover:border-${color}-400/50`}>
-                <Icon className="text-white group-hover:text-purple-300 transition-colors" size={32} />
-            </div>
-            <h3 className="font-bold text-lg text-white mb-1">{label}</h3>
-            <p className="text-sm font-medium text-white/60">{amount.toLocaleString()}원</p>
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-        </motion.button>
-    );
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setProgress(prev => (prev >= 100 ? 0 : prev + 1));
+        }, 50);
+        return () => clearInterval(timer);
+    }, []);
+
+    // Trigger confetti on mount or specific event if needed
+    // For now, let's just show it periodically or on load
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        setShowConfetti(true);
+        const timer = setTimeout(() => setShowConfetti(false), 3000);
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
-        <div className="min-h-screen bg-[#050510] text-white relative overflow-hidden">
-            {/* Cosmic Background - Fixed */}
+        <div className="min-h-screen bg-black text-white selection:bg-purple-500/30 overflow-hidden relative">
+            {/* Background Stars - Deterministic rendering */}
             <div className="fixed inset-0 pointer-events-none">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-[#050510] to-[#050510]" />
-                <div className="absolute top-[-20%] right-[-10%] w-[60%] h-[60%] bg-purple-900/20 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[-20%] left-[-10%] w-[60%] h-[60%] bg-blue-900/20 rounded-full blur-[120px]" />
-
-                {/* Twinkling Stars */}
-                {[...Array(20)].map((_, i) => (
+                {[...Array(50)].map((_, i) => (
                     <motion.div
                         key={i}
                         initial={{ opacity: 0.2, scale: 0.5 }}
                         animate={{ opacity: [0.2, 0.8, 0.2], scale: [0.5, 1, 0.5] }}
-                        transition={{ duration: 3 + Math.random() * 4, repeat: Infinity, delay: Math.random() * 5 }}
+                        transition={{ duration: 3 + (i % 4), repeat: Infinity, delay: (i % 5) * 0.5 }}
                         className="absolute bg-white rounded-full"
                         style={{
-                            width: Math.random() * 3 + 1 + 'px',
-                            height: Math.random() * 3 + 1 + 'px',
-                            top: Math.random() * 100 + '%',
-                            left: Math.random() * 100 + '%'
+                            width: (i % 3) + 1 + 'px',
+                            height: (i % 3) + 1 + 'px',
+                            top: (i * 7) % 100 + '%',
+                            left: (i * 13) % 100 + '%'
                         }}
                     />
                 ))}
@@ -137,12 +75,12 @@ export default function ImaginationPage() {
                         {[...Array(30)].map((_, i) => (
                             <motion.div
                                 key={i}
-                                initial={{ y: -50, x: (Math.random() - 0.5) * window.innerWidth, rotate: 0 }}
+                                initial={{ y: -50, x: ((i * 137) % window.innerWidth) - window.innerWidth / 2, rotate: 0 }}
                                 animate={{ y: window.innerHeight, rotate: 360 }}
-                                transition={{ duration: 3 + Math.random() * 2, ease: "linear" }}
+                                transition={{ duration: 3 + (i % 3), ease: "linear" }}
                                 className="absolute top-0 text-4xl"
                             >
-                                {['🚀', '⭐', '🪐', '💫'][Math.floor(Math.random() * 4)]}
+                                {['🚀', '⭐', '🪐', '💫'][i % 4]}
                             </motion.div>
                         ))}
                     </motion.div>
@@ -166,146 +104,123 @@ export default function ImaginationPage() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1 }}
-                        className="inline-flex items-center justify-center p-3 mb-8 rounded-full bg-white/5 border border-white/10 backdrop-blur-md"
+                        className="inline-block mb-6 relative"
                     >
-                        <span className="text-2xl mr-2">🪐</span>
-                        <span className="text-sm font-bold text-purple-200 tracking-wider uppercase">Project Imagination School</span>
+                        <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 rounded-full animate-pulse" />
+                        <h1 className="text-5xl md:text-7xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-4 relative z-10">
+                            어린이 상상학교
+                        </h1>
+                        <p className="text-xl md:text-2xl text-blue-200/80 font-bold tracking-widest uppercase">
+                            Imagination Academy
+                        </p>
                     </motion.div>
 
-                    <motion.h1
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2, duration: 0.8 }}
-                        className="text-5xl md:text-7xl font-black mb-8 leading-tight tracking-tight"
-                    >
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-white to-blue-400">
-                            우주를 꿈꾸는<br />아이들의 학교
-                        </span>
-                    </motion.h1>
-
-                    <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4, duration: 0.8 }}
-                        className="text-xl text-white/60 font-medium max-w-2xl mx-auto leading-relaxed"
-                    >
-                        여러분의 반짝이는 아이디어가 모여<br />
-                        아이들의 꿈을 지키는 튼튼한 우주정거장이 됩니다.
-                    </motion.p>
+                    <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                        우리의 아이들이 더 넓은 우주를 꿈꿀 수 있도록,<br />
+                        <span className="text-white font-bold">무한한 상상력</span>을 지원합니다.
+                    </p>
                 </div>
 
-
-
-                {/* Participation Section - Galactic Blueprint */}
-                <div className="max-w-4xl mx-auto mb-24">
-                    <div className="bg-[#121225] rounded-[3rem] p-8 md:p-12 shadow-2xl border border-white/10 relative overflow-hidden group">
-                        {/* Blueprint decorative grid */}
-                        <div className="absolute inset-0 opacity-10 pointer-events-none"
-                            style={{ backgroundImage: 'linear-gradient(#4f46e5 1px, transparent 1px), linear-gradient(90deg, #4f46e5 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-                        />
-
-                        <div className="relative z-10 text-center mb-12">
-                            <span className="inline-block px-4 py-1.5 bg-white/5 text-purple-300 rounded-full text-[10px] font-black mb-4 uppercase tracking-[0.2em] border border-white/5">
-                                Captain's Log : Ideas
-                            </span>
-                            <h3 className="text-3xl md:text-5xl font-black text-white mb-6 font-serif">
-                                상상학교 설계도
-                            </h3>
-                            <p className="text-white/60 text-lg leading-relaxed max-w-xl mx-auto">
-                                이곳은 중력이 없습니다. 여러분의 상상력만 있다면 무엇이든 가능합니다.<br />
-                                <span className="text-purple-400 font-bold">학교에 무엇이 있었으면 좋겠나요?</span>
+                {/* Introduction - Sticky Scroll Effect */}
+                <div className="grid md:grid-cols-2 gap-12 items-center mb-32">
+                    <div className="relative">
+                        <div className="aspect-square rounded-[2.5rem] bg-gradient-to-br from-blue-900/50 to-purple-900/50 border border-white/10 overflow-hidden relative group">
+                            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')] bg-cover bg-center opacity-60 group-hover:scale-110 transition-transform duration-700" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <Rocket size={64} className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)] animate-bounce" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="space-y-8">
+                        <div className="space-y-4">
+                            <h2 className="text-3xl font-bold text-blue-300">꿈을 쏘아 올리다</h2>
+                            <p className="text-gray-400 leading-relaxed">
+                                모든 아이들은 각자의 우주를 품고 있습니다. 그 작은 불씨가 거대한 별이 될 수 있도록, 우리는 교육과 체험을 통해 아이들의 잠재력을 깨웁니다.
                             </p>
                         </div>
-
-                        {/* Cosmic Idea Board */}
-                        <div className="bg-black/40 backdrop-blur-md rounded-3xl p-6 md:p-8 mb-8 border border-white/5 min-h-[300px] max-h-[500px] overflow-y-auto custom-scrollbar relative">
-                            {ideas.length === 0 ? (
-                                <div className="flex flex-col items-center justify-center py-20 text-center opacity-40">
-                                    <motion.div
-                                        animate={{ y: [0, -10, 0] }}
-                                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                    >
-                                        <Sparkles size={48} className="mb-4 text-purple-400" />
-                                    </motion.div>
-                                    <p className="font-bold text-white/60">아직 발견된 행성이 없습니다.<br />첫 번째 좌표를 찍어주세요!</p>
-                                </div>
-                            ) : (
-                                <div className="space-y-4">
-                                    {ideas.map((idea) => (
-                                        <motion.div
-                                            key={idea.id}
-                                            initial={{ opacity: 0, x: -20 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            className="bg-white/5 p-5 rounded-2xl border border-white/10 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between hover:bg-white/10 transition-colors group"
-                                        >
-                                            <div className="flex items-start gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center shrink-0 border border-white/10">
-                                                    <span className="text-lg">🪐</span>
-                                                </div>
-                                                <div>
-                                                    <p className="text-white font-medium text-lg leading-snug">&quot;{idea.content}&quot;</p>
-                                                    <p className="text-xs text-white/30 font-bold mt-1 group-hover:text-purple-400 transition-colors">Commander {idea.author}</p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 text-green-400/80 bg-green-900/20 px-3 py-1.5 rounded-full border border-green-500/20 text-[10px] font-black uppercase tracking-wider shrink-0">
-                                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
-                                                <span>Transmission Received</span>
-                                            </div>
-                                        </motion.div>
-                                    ))}
-                                </div>
-                            )}
+                        <div className="space-y-4">
+                            <h2 className="text-3xl font-bold text-purple-300">미래를 그리다</h2>
+                            <p className="text-gray-400 leading-relaxed">
+                                획일화된 교육에서 벗어나, 창의적이고 주도적인 사고를 기르는 특별한 커리큘럼을 제공합니다.
+                            </p>
                         </div>
+                        <Link
+                            href="/contact"
+                            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-blue-50 transition-colors"
+                        >
+                            입학 문의하기 <ExternalLink size={16} />
+                        </Link>
+                    </div>
+                </div>
 
-                        {/* Input Control Panel */}
-                        <div className="bg-white/5 p-2 rounded-2xl border border-white/10 flex flex-col md:flex-row gap-2">
-                            <input
-                                type="text"
-                                value={newIdeaName}
-                                onChange={(e) => setNewIdeaName(e.target.value)}
-                                placeholder="이름 (선택)"
-                                className="w-full md:w-32 bg-transparent border-none text-white text-sm font-bold placeholder:text-white/20 px-4 py-3 focus:outline-none focus:bg-white/5 rounded-xl transition-all"
-                            />
-                            <div className="w-px bg-white/10 hidden md:block" />
-                            <input
-                                type="text"
-                                value={newIdeaContent}
-                                onChange={(e) => setNewIdeaContent(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleIdeaSubmit()}
-                                placeholder="예: 무중력 도서관이 필요해요!"
-                                className="flex-1 bg-transparent border-none text-white text-sm placeholder:text-white/20 px-4 py-3 focus:outline-none focus:bg-white/5 rounded-xl transition-all"
-                            />
+                {/* Programs Section */}
+                <div className="mb-32">
+                    <h2 className="text-4xl font-black text-center mb-16">
+                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400">
+                            탐험 프로그램
+                        </span>
+                    </h2>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {[
+                            { title: "코딩 우주선", desc: "블록 코딩으로 나만의 게임 만들기", color: "from-blue-500 to-cyan-500", icon: <Zap /> },
+                            { title: "아트 유니버스", desc: "디지털 드로잉과 3D 모델링", color: "from-purple-500 to-pink-500", icon: <Star /> },
+                            { title: "미래 과학자", desc: "로봇 공학과 AI 체험", color: "from-green-500 to-emerald-500", icon: <Rocket /> }
+                        ].map((item, idx) => (
+                            <div key={idx} className="group relative p-1 rounded-[2rem] bg-gradient-to-br from-white/10 to-transparent hover:from-white/20 transition-all duration-300">
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <div className="relative bg-black/80 backdrop-blur-xl p-8 rounded-[1.8rem] h-full border border-white/5 group-hover:border-white/20 transition-colors">
+                                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 text-white shadow-lg`}>
+                                        {item.icon}
+                                    </div>
+                                    <h3 className="text-xl font-bold mb-2 text-white">{item.title}</h3>
+                                    <p className="text-gray-400 text-sm">{item.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Support Section - Simplified and Clean */}
+                <div className="relative rounded-[3rem] overflow-hidden bg-gradient-to-br from-indigo-900 to-purple-900 border border-white/10 p-8 md:p-16 text-center">
+                    <div className="absolute top-0 left-0 w-full h-full opacity-30 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+
+                    <div className="relative z-10 space-y-8">
+                        <h2 className="text-3xl md:text-5xl font-black text-white mb-4">함께 꿈을 키워주세요</h2>
+                        <p className="text-indigo-200 max-w-xl mx-auto mb-8">
+                            여러분의 작은 후원이 모여 아이들에게 더 넓은 세상을 보여줄 수 있습니다.
+                        </p>
+
+                        <div className="flex flex-wrap justify-center gap-4">
                             <button
-                                onClick={handleIdeaSubmit}
-                                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white font-black px-6 py-3 rounded-xl text-sm transition-all shadow-lg shadow-purple-900/30 flex items-center justify-center gap-2 group"
+                                onClick={() => handleSupportClick(10000, "별똥별 후원")}
+                                className="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/30 transition-all text-white font-bold backdrop-blur-md"
                             >
-                                <span>신호 전송</span>
-                                <Rocket size={14} className="group-hover:-translate-y-1 group-hover:translate-x-1 transition-transform" />
+                                ✨ 별똥별 (10,000원)
+                            </button>
+                            <button
+                                onClick={() => handleSupportClick(30000, "은하수 후원")}
+                                className="px-8 py-4 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-400 hover:to-purple-400 text-white font-bold shadow-lg shadow-purple-500/20 transform hover:scale-105 transition-all"
+                            >
+                                🌌 은하수 (30,000원)
+                            </button>
+                            <button
+                                onClick={() => handleSupportClick(50000, "우주선 후원")}
+                                className="px-8 py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 hover:border-white/30 transition-all text-white font-bold backdrop-blur-md"
+                            >
+                                🚀 우주선 (50,000원)
                             </button>
                         </div>
                     </div>
                 </div>
 
-                {/* Construction Progress - Galactic Map */}
-                <div className="max-w-2xl mx-auto p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-sm">
-                    <div className="text-center mb-8">
-                        <h3 className="text-xl font-bold text-white mb-2">기지 건설 현황</h3>
-                        <p className="text-sm text-white/40">목표 달성률 {progress.toFixed(1)}%</p>
-                    </div>
-
-                    <div className="relative h-4 bg-white/10 rounded-full overflow-hidden">
-                        <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${progress}%` }}
-                            transition={{ duration: 1.5, ease: "easeOut" }}
-                            className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
-                        />
-                    </div>
-                    <div className="flex justify-between mt-4 text-xs font-bold text-white/30 uppercase tracking-widest">
-                        <span>Ground Zero</span>
-                        <span>Ignition</span>
-                        <span>Orbit</span>
-                    </div>
+                {/* Footer Progress Bar */}
+                <div className="fixed bottom-0 left-0 right-0 h-1 bg-white/10 z-50">
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+                    />
                 </div>
             </div>
         </div>

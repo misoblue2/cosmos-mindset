@@ -29,11 +29,13 @@ export function SettingsModal({
     const [profile, setProfile] = useState<UserProfile>(currentProfile);
 
     // Sync when modal opens
+    // Sync when modal opens
     useEffect(() => {
         if (isOpen) {
             setProfile(currentProfile);
         }
-    }, [isOpen, currentProfile]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     const handleSave = () => {
         onSave(profile);

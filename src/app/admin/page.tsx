@@ -504,14 +504,14 @@ function BookManager() {
                     <div className="flex flex-col md:flex-row gap-6">
                         <div className="w-full md:w-32 aspect-[3/4] relative rounded-lg overflow-hidden bg-muted shadow-inner">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={book.cover} alt={book.title} className="w-full h-full object-cover" />
+                            <img src={book.images?.[0] || '/placeholder.png'} alt={book.title} className="w-full h-full object-cover" />
                         </div>
 
                         <div className="flex-grow">
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <h3 className="text-xl font-bold">{book.title}</h3>
-                                    <p className="text-sm text-muted-foreground mt-1">포맷: {book.formats.join(', ')}</p>
+                                    <p className="text-sm text-muted-foreground mt-1">포맷: {book.options?.join(', ') || 'N/A'}</p>
                                 </div>
                                 <button
                                     onClick={() => setEditingId(editingId === book.id ? null : book.id)}

@@ -87,14 +87,14 @@ export function DonationModal({
                                 <div className="text-sm font-bold text-foreground">예금주: 정겨운</div>
                             </div>
 
-                            {/* Kakao QR */}
+                            {/* Kakao Pay (Mobile Only) */}
                             <button
                                 onClick={() => window.open("https://qr.kakaopay.com/Ej7qNKGFs", "_blank")}
-                                className="w-full flex items-center justify-between p-4 bg-[#FAE100] hover:bg-[#FADB00] transition-colors rounded-2xl group shadow-sm"
+                                className="w-full flex items-center justify-between p-4 bg-[#FAE100] hover:bg-[#FADB00] transition-colors rounded-2xl group shadow-sm md:hidden"
                             >
                                 <div className="flex flex-col items-start">
                                     <span className="text-[10px] font-black text-[#371D1E]/60 uppercase tracking-wider mb-0.5">Kakaopay</span>
-                                    <span className="text-sm font-bold text-[#371D1E]">QR코드로 송금하기</span>
+                                    <span className="text-sm font-bold text-[#371D1E]">카카오페이로 송금하기</span>
                                 </div>
                                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}

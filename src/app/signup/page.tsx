@@ -19,6 +19,8 @@ export default function SignupPage() {
     const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     // Derived state for password mismatch
     const isPasswordMismatch = confirmPassword && password !== confirmPassword;
@@ -26,8 +28,12 @@ export default function SignupPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError("");
+        setIsLoading(true);
+
         if (password !== confirmPassword) {
-            alert("비밀번호가 일치하지 않습니다.");
+            setError("비밀번호가 일치하지 않습니다.");
+            setIsLoading(false);
             return;
         }
 
@@ -43,14 +49,19 @@ export default function SignupPage() {
             });
             alert("회원가입이 완료되었습니다! 환영합니다.");
             router.push('/mypage');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Signup failed", error);
             if (error.message === "이미 가입된 이메일입니다.") {
-                alert("이미 가입된 이메일입니다. 로그인해주세요.");
-                router.push('/login');
+                setError("이미 가입된 이메일입니다. 로그인해주세요.");
+                // Optional: router.push('/login'); but let user see the error first? 
+                // Using alert for this specific case might be better flow? 
+                // User might want to click login link.
             } else {
-                alert("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
+                setError("회원가입 중 오류가 발생했습니다. 다시 시도해주세요.");
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -197,9 +208,19 @@ export default function SignupPage() {
                                 </div>
                             </div>
 
-                            <button className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-2xl hover:opacity-90 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-purple-900/20 hover:scale-[1.02] active:scale-[0.98]">
-                                <span>탑승 수속 완료하기</span>
-                                <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+                            {error && (
+                                <div className="text-red-400 text-xs font-bold text-center animate-in slide-in-from-top-1">
+                                    {error}
+                                </div>
+                            )}
+
+                            <button disabled={isLoading} className="w-full py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-black rounded-2xl hover:opacity-90 transition-all flex items-center justify-center gap-2 group shadow-xl shadow-purple-900/20 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+                                {isLoading ? <span>처리중...</span> : (
+                                    <>
+                                        <span>탑승 수속 완료하기</span>
+                                        <ArrowRight className="group-hover:translate-x-1 transition-transform" size={18} />
+                                    </>
+                                )}
                             </button>
                         </form>
                     </div>

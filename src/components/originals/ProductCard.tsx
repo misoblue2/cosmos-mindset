@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Download, Book, ExternalLink, ShieldCheck } from 'lucide-react';
-import { getProductMetadata, getBookCoverImage, type ProductMetadata, getBookFile } from '@/lib/db';
+import { getProductMetadata, getBookCoverImage, type ProductMetadata, getBookFile, type Product } from '@/lib/db';
 import { WaitlistModal } from './WaitlistModal';
 import { PurchaseModal } from './PurchaseModal';
 
-export const ProductCard = ({ book }: { book: any }) => {
+export const ProductCard = ({ book }: { book: Product }) => {
     const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
     const [isPurchaseOpen, setIsPurchaseOpen] = useState(false);
     // const [purchaseType, setPurchaseType] = useState<'pdf' | 'physical'>('pdf'); // Deprecated
@@ -71,7 +71,7 @@ export const ProductCard = ({ book }: { book: any }) => {
                 {/* Image Area */}
                 <div className="relative aspect-[3/4] w-full bg-muted overflow-hidden">
                     <Image
-                        src={customCoverUrl || book.cover}
+                        src={customCoverUrl || book.images?.[0] || '/placeholder.png'}
                         alt={book.title}
                         fill
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -116,7 +116,7 @@ export const ProductCard = ({ book }: { book: any }) => {
                             </button>
 
                             <a
-                                href={meta?.buyUrl || book.buyUrl}
+                                href={meta?.buyUrl || book.externalLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="py-4 px-3 bg-secondary text-secondary-foreground font-black rounded-xl hover:bg-secondary/80 transition-all active:scale-95 text-xs flex flex-col items-center justify-center gap-1.5 border border-border/50"
@@ -126,7 +126,7 @@ export const ProductCard = ({ book }: { book: any }) => {
                             </a>
                         </div>
 
-                        {(meta?.buyUrl || book.buyUrl) && (
+                        {(meta?.buyUrl || book.externalLink) && (
                             <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60 font-bold uppercase tracking-wider mt-2">
                                 <ExternalLink size={10} />
                                 <span>교보문고(Kyobo) 공식 판매처 연결됨</span>

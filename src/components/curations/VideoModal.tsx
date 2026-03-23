@@ -6,8 +6,20 @@ import ReactPlayer from 'react-player';
 import { X, ShoppingBag, Heart, Share2, Plus, Minus, Star, ShieldCheck, Truck } from 'lucide-react';
 import { getProductMetadata, getProductDetailImage, type ProductMetadata } from '@/lib/db';
 
+interface VideoItem {
+    id: string;
+    videoUrl: string;
+    product: {
+        name: string;
+        price: string;
+        description: string;
+        link: string;
+        buyUrl?: string;
+    };
+}
+
 interface VideoModalProps {
-    video: any;
+    video: VideoItem;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -81,6 +93,7 @@ export function VideoModal({ video, isOpen, onClose }: VideoModalProps) {
                                 controls: true,
                                 playing: true,
                                 light: false
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             } as any)}
                         />
                     </div>

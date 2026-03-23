@@ -3,10 +3,32 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LogIn, UserPlus, Settings2, User, LogOut, Menu, X, Sparkles } from 'lucide-react';
+import { LogIn, UserPlus, Settings2, User, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import GlobalCounter from './GlobalCounter';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const NavLink = ({ href, children, accent = false, className = "" }: { href: string; children: React.ReactNode; accent?: boolean; className?: string }) => (
+    <Link
+        href={href}
+        className={`text-sm font-bold tracking-tight transition-all hover:scale-105 ${accent
+            ? className
+            : 'text-foreground/80 hover:text-primary'
+            }`}
+    >
+        {children}
+    </Link>
+);
+
+const MobileNavLink = ({ href, children, onClick, className = "" }: { href: string; children: React.ReactNode; onClick: () => void; className?: string }) => (
+    <Link
+        href={href}
+        onClick={onClick}
+        className={`text-2xl font-black tracking-tight py-3 hover:text-primary transition-colors ${className}`}
+    >
+        {children}
+    </Link>
+);
 
 export function Header() {
     const { isLoggedIn, logout } = useAuth();
@@ -15,7 +37,8 @@ export function Header() {
 
     // Close menu when route changes
     useEffect(() => {
-        setIsMenuOpen(false);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        setIsMenuOpen(false); // Clean up menu on route change
     }, [pathname]);
 
     // Prevent scrolling when menu is open
@@ -27,28 +50,6 @@ export function Header() {
         }
         return () => { document.body.style.overflow = 'unset'; };
     }, [isMenuOpen]);
-
-    const NavLink = ({ href, children, accent = false, className = "" }: { href: string; children: React.ReactNode; accent?: boolean; className?: string }) => (
-        <Link
-            href={href}
-            className={`text-sm font-bold tracking-tight transition-all hover:scale-105 ${accent
-                    ? className
-                    : 'text-foreground/80 hover:text-primary'
-                }`}
-        >
-            {children}
-        </Link>
-    );
-
-    const MobileNavLink = ({ href, children, onClick, className = "" }: { href: string; children: React.ReactNode; onClick: () => void; className?: string }) => (
-        <Link
-            href={href}
-            onClick={onClick}
-            className={`text-2xl font-black tracking-tight py-3 hover:text-primary transition-colors ${className}`}
-        >
-            {children}
-        </Link>
-    );
 
     return (
         <>
@@ -62,7 +63,7 @@ export function Header() {
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-6">
                         <NavLink href="/">홈</NavLink>
-                        <NavLink href="/legacy-ai">나만의 시나리오</NavLink>
+                        <NavLink href="/temple" accent className="font-serif text-yellow-400/90 hover:text-yellow-400">지혜의 신전</NavLink>
                         <NavLink href="/healing" accent className="font-serif text-amber-500/80 hover:text-amber-500">마음 상담소</NavLink>
                         <NavLink href="/originals">우주의 서재</NavLink>
                         <NavLink href="/imagination" accent className="font-serif text-orange-500/80 hover:text-orange-500">어린이 상상학교</NavLink>
@@ -98,7 +99,7 @@ export function Header() {
                             </>
                         )}
                         <div className="w-px h-4 bg-border mx-1" />
-                        <Link href="/admin" className="p-2 bg-secondary text-primary rounded-full hover:bg-primary hover:text-secondary transition-all">
+                        <Link href="/admin" className="p-2 bg-secondary text-primary rounded-full hover:bg-primary/20 transition-all">
                             <Settings2 size={16} />
                         </Link>
                     </div>
@@ -126,7 +127,7 @@ export function Header() {
                         <div className="flex flex-col space-y-6">
                             <div className="space-y-4 flex flex-col items-start border-l-2 border-primary/20 pl-6">
                                 <MobileNavLink href="/" onClick={() => setIsMenuOpen(false)}>홈</MobileNavLink>
-                                <MobileNavLink href="/legacy-ai" onClick={() => setIsMenuOpen(false)}>나만의 시나리오</MobileNavLink>
+                                <MobileNavLink href="/temple" onClick={() => setIsMenuOpen(false)} className="text-yellow-400 font-serif">지혜의 신전</MobileNavLink>
                                 <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-amber-500 font-serif">마음 상담소</MobileNavLink>
                                 <MobileNavLink href="/originals" onClick={() => setIsMenuOpen(false)}>우주의 서재</MobileNavLink>
                                 <MobileNavLink href="/imagination" onClick={() => setIsMenuOpen(false)} className="text-orange-500 font-serif">어린이 상상학교</MobileNavLink>
@@ -149,7 +150,8 @@ export function Header() {
                                         </div>
                                         <Link
                                             href="/mypage"
-                                            className="w-full py-4 text-center bg-primary/10 text-primary font-black rounded-2xl hover:bg-primary/20 transition-all border-2 border-primary/20"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="w-full py-4 text-center bg-primary/10 text-primary font-bold rounded-xl"
                                         >
                                             마이페이지
                                         </Link>
@@ -158,7 +160,7 @@ export function Header() {
                                                 logout();
                                                 setIsMenuOpen(false);
                                             }}
-                                            className="w-full py-4 text-center text-muted-foreground font-bold hover:text-destructive transition-colors border-2 border-transparent hover:border-destructive/20 rounded-2xl"
+                                            className="w-full py-4 text-center bg-secondary text-muted-foreground font-bold rounded-xl"
                                         >
                                             로그아웃
                                         </button>
@@ -167,24 +169,20 @@ export function Header() {
                                     <>
                                         <Link
                                             href="/login"
-                                            className="w-full py-4 text-center border-2 border-border text-foreground font-bold rounded-2xl hover:bg-muted transition-all"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="w-full py-4 text-center bg-secondary text-foreground font-bold rounded-xl hover:bg-secondary/80 transition-colors"
                                         >
                                             로그인
                                         </Link>
                                         <Link
                                             href="/signup"
-                                            className="w-full py-4 text-center bg-primary text-primary-foreground font-black rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.95] transition-all"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="w-full py-4 text-center bg-primary text-primary-foreground font-bold rounded-xl hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                                         >
                                             회원가입
                                         </Link>
                                     </>
                                 )}
-                                <Link
-                                    href="/admin"
-                                    className="w-full py-3 text-center text-xs font-bold text-muted-foreground/50 hover:text-primary transition-colors mt-4 flex items-center justify-center gap-1"
-                                >
-                                    <Settings2 size={12} /> 관리자 페이지
-                                </Link>
                             </div>
                         </div>
                     </motion.div>
