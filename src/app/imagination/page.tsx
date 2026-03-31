@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Star, Rocket, ExternalLink, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ImaginationPage() {
+    const router = useRouter();
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -54,31 +56,28 @@ export default function ImaginationPage() {
                         { title: "아트 유니버스", desc: "디지털 드로잉 체험", color: "from-purple-600 to-pink-500", icon: <Star />, href: "/imagination/art" },
                         { title: "미래 과학자", desc: "AI 체험 센터", color: "from-green-600 to-emerald-500", icon: <Rocket />, href: "/imagination/science" }
                     ].map((item, idx) => (
-                        <Link
+                        <motion.div
                             key={idx}
-                            href={item.href}
-                            className="block w-full h-full no-underline outline-none z-50 pointer-events-auto cursor-pointer group"
+                            onClick={() => router.push(item.href)}
+                            whileHover={{ y: -12, scale: 1.03 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="relative p-10 rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-2xl overflow-hidden shadow-2xl h-full flex flex-col z-50 pointer-events-auto cursor-pointer group"
+                            style={{ WebkitTapHighlightColor: 'transparent' }}
                         >
-                            <motion.div
-                                whileHover={{ y: -12, scale: 1.03 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="relative p-10 rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-2xl overflow-hidden shadow-2xl h-full flex flex-col"
-                            >
-                                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 text-white shadow-xl relative z-10`}>
-                                    {item.icon}
-                                </div>
-                                <div className="relative z-10 flex-1">
-                                    <h3 className="text-2xl font-black text-white mb-3 tracking-tighter">{item.title}</h3>
-                                    <p className="text-white/40 text-sm mb-6 leading-relaxed">{item.desc}</p>
-                                </div>
-                                <div className="relative z-10 text-blue-400 flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-                                    Launch Lab <ExternalLink size={14} />
-                                </div>
+                            <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-6 text-white shadow-xl relative z-10`}>
+                                {item.icon}
+                            </div>
+                            <div className="relative z-10 flex-1">
+                                <h3 className="text-2xl font-black text-white mb-3 tracking-tighter">{item.title}</h3>
+                                <p className="text-white/40 text-sm mb-6 leading-relaxed">{item.desc}</p>
+                            </div>
+                            <div className="relative z-10 text-blue-400 flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                                Launch Lab <ExternalLink size={14} />
+                            </div>
 
-                                {/* Hover Glow Effect */}
-                                <div className={`absolute -inset-1 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-500 z-0`} />
-                            </motion.div>
-                        </Link>
+                            {/* Hover Glow Effect */}
+                            <div className={`absolute -inset-1 bg-gradient-to-br ${item.color} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity duration-500 z-0`} />
+                        </motion.div>
                     ))}
                 </div>
             </div>
