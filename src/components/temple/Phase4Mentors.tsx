@@ -116,6 +116,13 @@ function generateScenario(type: string): { metaphor: string; description: string
     return scenarios[type] || scenarios["완전한 비움과 통찰"];
 }
 
+const SAGE_BACKGROUND_OPTIONS = [
+    { id: "parchment", label: "📜 고전 파피루스", url: "", color: "#f4ece0", textColor: "#2c1e11" },
+    { id: "athens", label: "🏛️ 아테네 학당 (라파엘로)", url: "https://images.unsplash.com/photo-1549490349-8643362247b5?w=1080&h=1920&fit=crop", color: "#e5e1da", textColor: "#222222" },
+    { id: "monk", label: "🌿 숲속의 고요 (명상)", url: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1080&h=1920&fit=crop", color: "#1a2e1a", textColor: "#ffffff" },
+    { id: "universe", label: "🌌 우주 대폭발 (통찰)", url: "https://images.unsplash.com/photo-1462331940026-a3ecdf5c986c?w=1080&h=1920&fit=crop", color: "#0a0a1a", textColor: "#ffffff" },
+];
+
 export default function Phase4Mentors() {
     const [concern, setConcern] = useState("");
     const [submitted, setSubmitted] = useState(false);
@@ -124,6 +131,9 @@ export default function Phase4Mentors() {
     const [mentorReaction, setMentorReaction] = useState(0);
     const [advice, setAdvice] = useState("");
     const [downloadingScenario, setDownloadingScenario] = useState<string | null>(null);
+
+    const [selectedAdviceBg, setSelectedAdviceBg] = useState(SAGE_BACKGROUND_OPTIONS[0]);
+    const [isDownloadingAdvice, setIsDownloadingAdvice] = useState(false);
 
     const handleSubmit = () => {
         if (!concern.trim()) return;
@@ -140,6 +150,115 @@ export default function Phase4Mentors() {
         setAdvice(generateAdvice(mentor));
     };
 
+    const downloadAdviceCard = async () => {
+        if (!activeMentor || !advice) return;
+        setIsDownloadingAdvice(true);
+        try {
+            const canvas = document.createElement("canvas");
+            canvas.width = 1080;
+            canvas.height = 1920;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            // 1. Background
+            if (selectedAdviceBg.url) {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.src = selectedAdviceBg.url;
+                await new Promise((res) => {
+                    img.onload = res;
+                    img.onerror = res;
+                });
+                if (img.width > 0) {
+                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                    const x = (canvas.width / 2) - (img.width / 2) * scale;
+                    const y = (canvas.height / 2) - (img.height / 2) * scale;
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                } else {
+                    ctx.fillStyle = selectedAdviceBg.color;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                }
+            } else {
+                ctx.fillStyle = selectedAdviceBg.color;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Overlay
+            ctx.fillStyle = selectedAdviceBg.textColor === "#ffffff" ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.3)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Frame / Card
+            const margin = 80;
+            ctx.fillStyle = selectedAdviceBg.textColor === "#ffffff" ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.98)";
+            ctx.shadowBlur = 50;
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.fillRect(margin, margin, canvas.width - margin * 2, canvas.height - margin * 2);
+
+            // Title
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#1a202c";
+            ctx.font = "bold 60px 'Malgun Gothic', sans-serif";
+            ctx.fillText(`✨ 현자 ${activeMentor.name}의 가르침 ✨`, canvas.width / 2, margin + 200);
+
+            // Mentor Icon / Era
+            ctx.font = "120px sans-serif";
+            ctx.fillText(activeMentor.emoji, canvas.width / 2, margin + 380);
+            ctx.font = "32px 'Malgun Gothic', sans-serif";
+            ctx.fillStyle = "#718096";
+            ctx.fillText(`${activeMentor.era} | ${activeMentor.specialty}`, canvas.width / 2, margin + 460);
+
+            // Line
+            ctx.strokeStyle = "#D4AF37";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(margin + 100, margin + 530);
+            ctx.lineTo(canvas.width - margin - 100, margin + 530);
+            ctx.stroke();
+
+            // Advice Text
+            ctx.font = "italic 44px 'Pretendard', 'Malgun Gothic', 'Noto Sans KR', sans-serif";
+            ctx.fillStyle = "#2d3748";
+            const words = advice.split(" ");
+            let line = "";
+            let y = margin + 680;
+            const maxWidth = canvas.width - margin * 4;
+            const lineHeight = 75;
+
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + " ";
+                if (ctx.measureText(testLine).width > maxWidth) {
+                    ctx.fillText(line, canvas.width / 2, y);
+                    line = words[i] + " ";
+                    y += lineHeight;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, canvas.width / 2, y);
+
+            // Logo
+            ctx.font = "bold 36px sans-serif";
+            ctx.fillStyle = "#A38634";
+            ctx.fillText("Temple of Wisdom", canvas.width / 2, canvas.height - margin - 150);
+
+            // Download
+            const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", 0.95));
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `Mentor_Advice_${activeMentor.name}.jpg`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("이미지 생성 중 오류가 발생했습니다.");
+        } finally {
+            setIsDownloadingAdvice(false);
+        }
+    };
+
     const downloadScenarioFrame = async (s: typeof SCENARIOS[0], sc: { metaphor: string; description: string }) => {
         setDownloadingScenario(s.type);
         try {
@@ -149,8 +268,8 @@ export default function Phase4Mentors() {
             const ctx = canvas.getContext("2d");
             if (!ctx) return;
 
-            // Background Collage Image
-            const bgImg = new window.Image();
+            // Background Image
+            const bgImg = new Image();
             bgImg.crossOrigin = "anonymous";
             bgImg.src = s.bgUrl; 
             
@@ -160,7 +279,10 @@ export default function Phase4Mentors() {
             });
 
             if (bgImg.width > 0) {
-                ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+                const scale = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
+                const x = (canvas.width / 2) - (bgImg.width / 2) * scale;
+                const y = (canvas.height / 2) - (bgImg.height / 2) * scale;
+                ctx.drawImage(bgImg, x, y, bgImg.width * scale, bgImg.height * scale);
             } else {
                 ctx.fillStyle = "#EAE6DF";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -195,10 +317,10 @@ export default function Phase4Mentors() {
             ctx.font = "80px sans-serif";
             ctx.fillText(s.icon, canvas.width / 2, margin + 250);
             
-            ctx.font = "bold 60px 'Pretendard', 'Malgun Gothic', 'Noto Sans KR', sans-serif";
+            ctx.font = "bold 60px 'Malgun Gothic', sans-serif";
             ctx.fillText(s.type, canvas.width / 2, margin + 380);
             
-            ctx.font = "italic 38px 'Pretendard', 'Malgun Gothic', 'Noto Sans KR', sans-serif";
+            ctx.font = "italic 38px 'Malgun Gothic', sans-serif";
             ctx.fillStyle = "#666666";
             ctx.fillText(sc.metaphor, canvas.width / 2, margin + 480);
 
@@ -211,7 +333,7 @@ export default function Phase4Mentors() {
             ctx.stroke();
 
             // Word wrap description
-            ctx.font = "38px 'Pretendard', 'Malgun Gothic', 'Noto Sans KR', sans-serif";
+            ctx.font = "38px 'Malgun Gothic', sans-serif";
             ctx.fillStyle = "#444444";
             const words = sc.description.split(" ");
             let line = "";
@@ -221,8 +343,7 @@ export default function Phase4Mentors() {
 
             for (let i = 0; i < words.length; i++) {
                 const testLine = line + words[i] + " ";
-                const metrics = ctx.measureText(testLine);
-                if (metrics.width > maxWidth && i > 0) {
+                if (ctx.measureText(testLine).width > maxWidth) {
                     ctx.fillText(line, canvas.width / 2, y);
                     line = words[i] + " ";
                     y += lineHeight;
@@ -233,12 +354,9 @@ export default function Phase4Mentors() {
             ctx.fillText(line, canvas.width / 2, y);
 
             // Footer / Logo Space
-            ctx.font = "bold 32px 'Pretendard', sans-serif";
+            ctx.font = "bold 32px sans-serif";
             ctx.fillStyle = "#A38634";
             ctx.fillText("✨ Temple of Wisdom", canvas.width / 2, canvas.height - margin - 140);
-            ctx.font = "24px 'Pretendard', sans-serif";
-            ctx.fillStyle = "#BBBBBB";
-            ctx.fillText("Guidance that moves your heart", canvas.width / 2, canvas.height - margin - 80);
 
             // Trigger Download
             const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", 0.95));
@@ -262,7 +380,7 @@ export default function Phase4Mentors() {
         <div className="space-y-6">
             <div className="text-center space-y-2">
                 <div className="text-5xl mb-4">🧙</div>
-                <h2 className="text-2xl font-bold text-white">Phase 4: 10대 멘토 상담</h2>
+                <h2 className="text-2xl font-bold text-white">Phase 4: 10대 멘토에게 조언 듣기</h2>
                 <p className="text-indigo-200/70 text-sm">동서양 10대 현자들이 당신의 고민을 들어드립니다</p>
             </div>
 
@@ -291,7 +409,7 @@ export default function Phase4Mentors() {
                     </button>
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white/70 text-sm italic">
                         💬 &quot;{concern}&quot;
                     </div>
@@ -332,7 +450,7 @@ export default function Phase4Mentors() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
-                                className="bg-gradient-to-br from-indigo-900/40 to-purple-900/30 border border-indigo-400/30 rounded-2xl p-5 space-y-3"
+                                className="bg-gradient-to-br from-indigo-900/40 to-purple-900/30 border border-indigo-400/30 rounded-2xl p-5 space-y-4"
                             >
                                 <div className="flex items-center gap-3">
                                     <span className="text-3xl">{REACTIONS[mentorReaction]?.emoji || activeMentor.emoji}</span>
@@ -342,6 +460,25 @@ export default function Phase4Mentors() {
                                     </div>
                                 </div>
                                 <p className="text-indigo-100/90 text-sm leading-relaxed italic">&quot;{advice}&quot;</p>
+                                
+                                <div className="pt-4 border-t border-white/10 space-y-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        {SAGE_BACKGROUND_OPTIONS.map(bg => (
+                                            <button key={bg.id} onClick={() => setSelectedAdviceBg(bg)}
+                                                className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all border ${selectedAdviceBg.id === bg.id ? "bg-indigo-500 border-indigo-400 text-white" : "bg-white/5 border-white/10 text-white/40"}`}>
+                                                {bg.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <button 
+                                        onClick={downloadAdviceCard}
+                                        disabled={isDownloadingAdvice}
+                                        className="w-full py-2.5 bg-indigo-500 hover:bg-indigo-400 rounded-xl text-white text-xs font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                                    >
+                                        {isDownloadingAdvice ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                        현자의 가르침 액자 저장하기
+                                    </button>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>

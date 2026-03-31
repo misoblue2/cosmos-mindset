@@ -1,244 +1,291 @@
 "use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Send, PenTool, Mail, RefreshCcw } from 'lucide-react';
-import { setCounseling, type CounselingSession } from '@/lib/db';
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Send, ChevronLeft, Sparkles, Loader2, Download, Image as ImageIcon } from "lucide-react";
+import Link from "next/link";
 
-// ----------------------------------------------------------------------
-// AI Simulation Logic (Mock)
-// ----------------------------------------------------------------------
+const HEALING_BG_OPTIONS = [
+    { id: "paper1", label: "📜 앤티크 편지지", url: "https://images.unsplash.com/photo-1586075010633-2470ac20235a?w=1000&fit=crop", color: "#f3e5ab", textColor: "#4a3728" },
+    { id: "night", label: "🌌 고요한 밤하늘", url: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1000&fit=crop", color: "#0c1445", textColor: "#ffffff" },
+    { id: "flower", label: "🌸 잔잔한 꽃무늬", url: "https://images.unsplash.com/photo-1522441815192-d9f04eb0615c?w=1000&fit=crop", color: "#fff0f5", textColor: "#6a5ace" },
+    { id: "nature", label: "🌿 평온한 숲", url: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=1000&fit=crop", color: "#e8f5e9", textColor: "#2e7d32" },
+    { id: "minimal", label: "🐚 미니멀 베이지", url: "https://images.unsplash.com/photo-1505330622279-bf7d7fc918f4?w=1000&fit=crop", color: "#f5f5dc", textColor: "#333333" },
+];
 
-const generateReply = (receiver: string, _story: string): string => {
-    const r = receiver.trim();
-    // Simple tone detection based on standard Korean relational terms
-    const isMom = /엄마|어머니|모친|맘/.test(r);
-    const isDad = /아빠|아버지|부친|대디/.test(r);
-    const isGrand = /할머니|할아버지|조부모/.test(r);
-    const isFriend = /친구|지인|동기/.test(r);
-    const isLover = /애인|남친|여친|아내|남편/.test(r);
-
-    let intro = "";
-    let body = "";
-    let outro = "";
-
-    if (isMom) {
-        intro = `사랑하는 우리 딸, 우리 아들... ${r}야.`;
-        body = "네가 어릴 적 그 순간을 이렇게 기억하고 있다니, 마음이 뭉클하구나. 엄마는 그때 너를 보며 항상 더 해주지 못해 미안한 마음뿐이었단다. 네가 겪은 그 시간들이 널 이렇게 단단하게 만들었구나.";
-        outro = "언제나 너는 나의 자랑이자 기쁨이란다. 힘들 땐 언제든 엄마 품으로 오렴. 사랑한다, 내 강아지.";
-    } else if (isDad) {
-        intro = `그래, 아빠다.`;
-        body = "네 이야기를 듣는데 코끝이 찡해지는구나. 그 시절, 아빠가 너에게 든든한 산이 되어주었어야 했는데... 네가 그 작은 어깨로 세상을 마주하던 모습이 눈에 선하구나. 참 잘 자라주었어.";
-        outro = "너는 아빠보다 훨씬 훌륭한 사람이다. 세상이 너를 힘들게 해도 기죽지 마라. 아빠가 항상 뒤에서 지켜보고 있으마.";
-    } else if (isGrand) {
-        intro = `아이고, 우리 예쁜 강아지 왔구나.`;
-        body = "할미(할비)는 네가 꼬물꼬물거리던 게 엊그제 같은데, 벌써 이렇게 커서 옛날 이야기를 다 하고... 기특하기도 하지. 네가 그때 느꼈던 마음, 내가 다 안다. 짠하고 대견해.";
-        outro = "밥은 잘 먹고 다니지? 아프지 말고, 항상 웃으며 살거라. 네 행복이 내 행복이란다.";
-    } else if (isFriend) {
-        intro = `안녕! 나야, 네 친구.`;
-        body = "야, 너 그 얘기 진짜 오랜만이다. 너 그때 진짜 그랬었잖아. 네 편지를 읽는데 우리 어릴 때 생각나서 피식 웃음이 나더라. 그때의 우리는 참 서툴고, 순수했지? 네가 그런 생각을 하고 있었는지 몰랐어.";
-        outro = "우리가 어른이 되어서도 이렇게 서로의 마음을 나눌 수 있어서 좋다. 언제나 네 편이 되어줄게. 술 한잔 하자!";
-    } else if (isLover) {
-        intro = `사랑하는 사람아.`;
-        body = "당신의 어린 시절 이야기를 들으니, 내가 모르는 당신의 시간을 함께 여행한 기분이야. 그때의 작은 아이가 자라서 지금 내 곁에 있는 당신이 되었다는 게 새삼 고맙고 신비로워. 그 시절 당신을 안아주고 싶다.";
-        outro = "당신의 모든 시간, 모든 모습을 사랑해. 앞으로 만들어갈 추억들은 내가 함께할게. 사랑해.";
-    } else {
-        // Default / General
-        intro = `${r}(으)로부터의 답장입니다.`;
-        body = "오랜 시간 마음속에 담아두었던 너의 이야기를 들려주어서 고마워. 너의 기억 속 그 장면들이 모여 지금의 빛나는 네가 되었단다. 그때의 너도, 지금의 너도 참 소중하고 애틋하구나.";
-        outro = "네 마음속의 그 어린아이가 이제는 편안하게 웃을 수 있기를 바라. 너는 충분히 사랑받아 마땅한 사람이란다.";
-    }
-
-    return `${intro}\n\n${body}\n\n${outro}`;
-};
-
-// ----------------------------------------------------------------------
-// Main Component
-// ----------------------------------------------------------------------
+const DOWNLOAD_SIZES = [
+    { label: "📱 모바일 배경화면", width: 1080, height: 1920 },
+    { label: "⬛ 정사각 공유용 (1:1)", width: 1080, height: 1080 },
+];
 
 export default function HealingPage() {
-    const [step, setStep] = useState<'input' | 'sending' | 'reading'>('input');
-    const [receiver, setReceiver] = useState('');
-    const [story, setStory] = useState('');
-    const [generatedReply, setGeneratedReply] = useState('');
+    const [isMounted, setIsMounted] = useState(false);
+    const [story, setStory] = useState("");
+    const [reply, setReply] = useState("");
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [step, setStep] = useState(0);
+    const [selectedBg, setSelectedBg] = useState(HEALING_BG_OPTIONS[0]);
+    const [isDownloading, setIsDownloading] = useState(false);
 
-    const handleSubmit = async () => {
-        if (!receiver.trim() || !story.trim()) {
-            alert("답장 받을 사람과 이야기를 모두 입력해주세요.");
-            return;
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
+    const analyzeSteps = [
+        "마음의 소리에 귀 기울이는 중...",
+        "당신의 감정을 깊이 공감하고 있습니다...",
+        "과거의 기억을 따뜻하게 어루만지는 중...",
+        "진심 어린 위로의 문장을 고르는 중...",
+        "지혜의 신전에서 답장을 준비 중..."
+    ];
+
+    const handleSend = async () => {
+        if (!story.trim()) return;
+        setIsAnalyzing(true);
+        setReply("");
+        
+        for (let i = 0; i < analyzeSteps.length; i++) {
+            setStep(i);
+            await new Promise(r => setTimeout(r, 1500));
         }
 
-        setStep('sending');
+        const responses = [
+            "보내주신 사연에서 당신의 깊은 진심이 느껴집니다. 그동안 얼마나 애써오셨을지 감히 짐작해봅니다. 지금 이 순간, 당신의 마음이 조금이나마 편안해지기를 바랍니다. 당신은 충분히 잘해왔고, 앞으로도 그럴 것입니다.",
+            "당신의 이야기를 들으니 제 마음도 따뜻해집니다. 힘든 시간 속에서도 희망을 잃지 않으려는 당신의 모습이 정말 아름답습니다. 우주는 언제나 당신의 행복을 지지하고 있다는 사실을 잊지 마세요.",
+            "누구에게도 말하지 못했던 그 감정들을 용기 내어 적어주셔서 감사합니다. 글을 적는 것만으로도 치유는 이미 시작되었습니다. 당신은 혼자가 아닙니다. 지혜의 신전이 당신의 안식을 기원합니다."
+        ];
+        
+        setReply(responses[Math.floor(Math.random() * responses.length)]);
+        setIsAnalyzing(false);
+    };
 
-        // AI Simulation Delay
-        setTimeout(async () => {
-            const reply = generateReply(receiver, story);
-            setGeneratedReply(reply);
+    const downloadLetter = async (width: number, height: number, label: string) => {
+        setIsDownloading(true);
+        try {
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
 
-            // Save to DB
-            const session: CounselingSession = {
-                id: crypto.randomUUID(),
-                userId: 'anonymous',
-                userName: receiver.trim(),
-                mood: 'letter-from-past',
-                content: `[To]: ${receiver}\n[Story]: ${story}`,
-                status: 'completed',
-                createdAt: Date.now(),
-                aiReply: reply,
-                isRead: false
+            // 1. Background
+            if (selectedBg.url) {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.src = selectedBg.url;
+                await new Promise(res => { img.onload = res; img.onerror = res; });
+                if (img.width > 0) {
+                    const scale = Math.max(width / img.width, height / img.height);
+                    const x = (width / 2) - (img.width / 2) * scale;
+                    const y = (height / 2) - (img.height / 2) * scale;
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                } else {
+                    ctx.fillStyle = selectedBg.color;
+                    ctx.fillRect(0, 0, width, height);
+                }
+            } else {
+                ctx.fillStyle = selectedBg.color;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            // 2. Overlay for readability
+            ctx.fillStyle = selectedBg.textColor === "#ffffff" ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.4)";
+            ctx.fillRect(0, 0, width, height);
+
+            // 3. Paper Overlay
+            const margin = width * 0.1;
+            const paperW = width - margin * 2;
+            const paperH = height - margin * 2;
+            ctx.fillStyle = "rgba(255,255,255,0.95)";
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = "rgba(0,0,0,0.15)";
+            ctx.fillRect(margin, margin, paperW, paperH);
+
+            // 4. Content
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#1a202c";
+            ctx.font = `bold ${width * 0.05}px sans-serif`;
+            ctx.fillText("✉️ 당신에게 도착한 따뜻한 위로 ✉️", width / 2, margin + height * 0.08);
+
+            ctx.font = `italic ${width * 0.03}px sans-serif`;
+            ctx.fillStyle = "#A0AEC0";
+            ctx.fillText(new Date().toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' }), width / 2, margin + height * 0.12);
+
+            // Wrap Text Logic
+            const wrapText = (text: string, x: number, y: number, maxWidth: number, lineHeight: number) => {
+                const words = text.split("");
+                let line = "";
+                for (let n = 0; n < words.length; n++) {
+                    const testLine = line + words[n];
+                    const metrics = ctx.measureText(testLine);
+                    if (metrics.width > maxWidth && n > 0) {
+                        ctx.fillText(line, x, y);
+                        line = words[n];
+                        y += lineHeight;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                ctx.fillText(line, x, y);
+                return y;
             };
-            await setCounseling(session);
 
-            setStep('reading');
-        }, 3000);
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#2d3748";
+            ctx.font = `${width * 0.035}px 'Malgun Gothic', sans-serif`;
+            wrapText(reply, width / 2, margin + height * 0.25, paperW * 0.8, height * 0.06);
+
+            ctx.font = `bold ${width * 0.025}px sans-serif`;
+            ctx.fillStyle = "#CBD5E0";
+            ctx.fillText("Temple of Wisdom - Memory Mailbox", width / 2, height - margin - height * 0.05);
+
+            const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, "image/jpeg", 0.95));
+            if (blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `Healing_Letter_${label.replace(/\s+/g, "_")}.jpg`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("다운로드 중 오류가 발생했습니다.");
+        } finally {
+            setIsDownloading(false);
+        }
     };
 
-    const handleReset = () => {
-        setReceiver('');
-        setStory('');
-        setGeneratedReply('');
-        setStep('input');
-    };
+    if (!isMounted) return <div className="min-h-screen bg-[#050510]" />;
 
     return (
-        <div className="min-h-screen bg-[#FDF6E3] text-[#4A4A4A] relative overflow-hidden font-serif selection:bg-orange-200">
-            {/* Background Texture - Paper feel */}
-            <div className="fixed inset-0 pointer-events-none opacity-50 mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')]"></div>
+        <div className="min-h-screen bg-[#050510] text-white selection:bg-indigo-500/30 font-sans pb-20">
+            {/* Nav */}
+            <div className="max-w-4xl mx-auto p-6 flex items-center justify-between relative z-50">
+                <Link href="/temple" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-bold group">
+                    <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> 지혜의 신전 로비
+                </Link>
+                <div className="text-xs font-bold bg-white/5 px-4 py-2 rounded-full border border-white/10 uppercase tracking-widest text-indigo-300">
+                    Memory Mailbox
+                </div>
+            </div>
 
-            <div className="container mx-auto px-4 py-12 md:py-20 relative z-10 max-w-4xl">
-
-                {step === 'input' && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-12"
-                    >
-                        <header className="text-center space-y-4 mb-16">
-                            <div className="inline-block p-3 rounded-full bg-orange-100/50 mb-4">
-                                <Mail className="text-orange-600" size={32} />
-                            </div>
-                            <h1 className="text-3xl md:text-5xl font-bold text-orange-950 tracking-tight">추억의 우체통</h1>
-                            <p className="text-lg text-orange-800/60 max-w-xl mx-auto leading-relaxed">
-                                어린 시절, 하지 못했던 말이나 가슴 속에 묻어두었던 이야기를 꺼내보세요.<br />
-                                <span className="font-bold text-orange-700">그 시절 그 사람</span>이, 지금의 당신에게 답장을 보냅니다.
-                            </p>
-                        </header>
-
-                        <div className="bg-white/80 backdrop-blur-sm p-8 md:p-12 rounded-[2rem] shadow-xl border border-orange-100 space-y-8 relative">
-                            {/* Decorative Stamp */}
-                            <div className="absolute top-8 right-8 hidden md:block opacity-20 rotate-12 pointer-events-none">
-                                <div className="border-4 border-orange-900 rounded-full w-24 h-24 flex items-center justify-center">
-                                    <span className="text-orange-900 font-black uppercase text-xs tracking-widest text-center">Cosmic<br />Post</span>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <label className="block text-sm font-bold text-orange-900/50 uppercase tracking-widest">To. 누구에게 답장을 받고 싶나요?</label>
-                                <input
-                                    type="text"
-                                    value={receiver}
-                                    onChange={(e) => setReceiver(e.target.value)}
-                                    placeholder="예: 엄마, 아빠, 돌아가신 할머니, 어린 시절의 단짝친구..."
-                                    className="w-full bg-transparent border-b-2 border-orange-200 py-4 text-2xl md:text-3xl font-bold text-orange-950 placeholder:text-orange-900/20 focus:outline-none focus:border-orange-500 transition-colors"
-                                />
-                            </div>
-
-                            <div className="space-y-4">
-                                <label className="block text-sm font-bold text-orange-900/50 uppercase tracking-widest flex items-center gap-2">
-                                    <PenTool size={14} />
-                                    그 시절, 당신의 기억을 적어주세요 (1000자 이내)
-                                </label>
-                                <textarea
-                                    value={story}
-                                    onChange={(e) => setStory(e.target.value.slice(0, 1000))}
-                                    placeholder="어린 시절의 기억, 서운했던 점, 그리운 순간들...&#13;&#10;솔직한 마음을 편하게 적어보세요."
-                                    className="w-full h-64 bg-orange-50/50 rounded-xl p-6 text-lg leading-relaxed text-orange-900 placeholder:text-orange-900/30 resize-none focus:ring-2 focus:ring-orange-200 outline-none transition-all"
-                                />
-                                <div className="text-right text-xs text-orange-900/40 font-medium">
-                                    {story.length} / 1000
-                                </div>
-                            </div>
-
-                            <button
-                                onClick={handleSubmit}
-                                disabled={!receiver || !story}
-                                className="w-full py-5 bg-orange-600 text-white font-bold text-lg rounded-xl hover:bg-orange-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2 group"
-                            >
-                                <span>편지 부치기</span>
-                                <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                            </button>
-                        </div>
+            <div className="max-w-2xl mx-auto px-6 space-y-12 py-10">
+                {/* Header */}
+                <div className="text-center space-y-4">
+                    <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="inline-block p-4 rounded-[2.5rem] bg-indigo-500/10 border border-indigo-500/20 mb-4 shadow-2xl">
+                        <Mail size={48} className="text-indigo-400" />
                     </motion.div>
-                )}
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight">추억의 우체통</h1>
+                    <p className="text-gray-400 leading-relaxed font-medium">당신만 아는 소중한 기억, 혹은 묻어둔 고민을 적어주세요.<br/>지혜의 신전이 당신을 위한 따뜻한 답장을 보내드립니다.</p>
+                </div>
 
-                {step === 'sending' && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex flex-col items-center justify-center min-h-[60vh] text-center"
-                    >
-                        <motion.div
-                            animate={{
-                                y: [-10, 10, -10],
-                                rotate: [0, 5, -5, 0]
-                            }}
-                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            className="text-orange-400 mb-8"
+                {/* Input Section */}
+                {!reply && !isAnalyzing && (
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+                        <textarea
+                            value={story}
+                            onChange={(e) => setStory(e.target.value)}
+                            placeholder="이곳에 당신의 사연을 자유롭게 적어보세요..."
+                            className="w-full h-64 bg-white/5 border border-white/10 rounded-[2rem] p-8 text-white placeholder-white/20 focus:outline-none focus:border-indigo-500/50 transition-all resize-none text-lg leading-relaxed shadow-inner"
+                        />
+                        <button
+                            onClick={handleSend}
+                            disabled={!story.trim()}
+                            className="w-full py-6 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-30 text-white font-black rounded-3xl shadow-[0_20px_40px_rgba(79,70,229,0.3)] transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 text-lg"
                         >
-                            <Mail size={80} />
-                        </motion.div>
-                        <h2 className="text-2xl font-bold text-orange-900 mb-4 animate-pulse">시공간을 넘어 편지를 전달하고 있습니다...</h2>
-                        <p className="text-orange-800/60 font-medium">
-                            <span className="font-bold underlineDecoration">{receiver}</span> 님에게 당신의 마음이 닿고 있습니다.
-                        </p>
+                            <Send size={20} /> 신전에 편지 보내기
+                        </button>
                     </motion.div>
                 )}
 
-                {step === 'reading' && (
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8 }}
-                        className="max-w-3xl mx-auto perspective-1000"
-                    >
-                        <div className="bg-[#fff9f0] p-8 md:p-16 rounded shadow-2xl relative overflow-hidden transform rotate-1 border border-stone-200">
-                            {/* Paper Texture Overlay */}
-                            <div className="absolute inset-0 opacity-40 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/paper-fibers.png')]"></div>
+                {/* Loading State */}
+                {isAnalyzing && (
+                    <div className="text-center space-y-10 py-20">
+                        <div className="relative inline-block">
+                            <motion.div animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }} className="w-24 h-24 border-t-4 border-indigo-500 rounded-full" />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                <Sparkles size={32} className="text-indigo-400 animate-pulse" />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 to-purple-300 italic">{analyzeSteps[step]}</p>
+                            <p className="text-white/20 text-xs uppercase tracking-widest font-black">AI Emotion Analysis In Progress</p>
+                        </div>
+                    </div>
+                )}
 
-                            <div className="relative z-10">
-                                <div className="flex justify-between items-start mb-12 border-b border-stone-200 pb-8">
-                                    <div>
-                                        <div className="text-xs text-stone-500 font-bold uppercase tracking-widest mb-1">From</div>
-                                        <div className="text-2xl font-serif font-bold text-stone-800">{receiver}</div>
-                                    </div>
-                                    <div className="opacity-50">
-                                        <Mail className="text-stone-400" size={24} />
+                {/* Reply Section */}
+                {reply && (
+                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
+                        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden group">
+                           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity"><Sparkles size={100} /></div>
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                                    <Sparkles size={18} className="text-indigo-400" />
+                                </div>
+                                <span className="text-sm font-black text-indigo-300 uppercase tracking-widest">Divine Response</span>
+                            </div>
+                            <p className="text-xl md:text-2xl leading-loose font-medium text-white/90 italic">
+                                &quot;{reply}&quot;
+                            </p>
+                            <div className="mt-12 flex items-center justify-between border-t border-white/10 pt-8">
+                                <p className="text-white/30 text-xs font-bold uppercase tracking-widest">— Your Guiding Spirit</p>
+                                <button onClick={() => { setStory(""); setReply(""); }} className="text-xs font-bold text-indigo-400 hover:text-white transition-colors">새로운 편지 쓰기</button>
+                            </div>
+                        </div>
+
+                        {/* Download Options */}
+                        <div className="bg-gradient-to-br from-indigo-900/30 to-purple-900/20 border border-indigo-500/20 rounded-[2.5rem] p-8 space-y-8">
+                            <div className="space-y-4">
+                                <h3 className="text-white font-bold text-sm tracking-wide flex items-center gap-2">
+                                    <ImageIcon size={16} className="text-indigo-400" /> 감성 배경 선택
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                                    {HEALING_BG_OPTIONS.map(bg => (
+                                        <button key={bg.id} onClick={() => setSelectedBg(bg)}
+                                            className={`px-3 py-2 rounded-xl text-[10px] font-bold transition-all border ${selectedBg.id === bg.id ? "border-indigo-400 bg-indigo-400/20 text-indigo-200" : "border-white/10 bg-white/5 text-white/40 hover:border-white/20"}`}
+                                        >
+                                            {bg.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Letter Preview */}
+                            <div className="pt-6 border-t border-white/10 space-y-4">
+                                <h3 className="text-white font-bold text-sm tracking-wide">🖼️ 편지 이미지 미리보기</h3>
+                                <div className="flex justify-center scale-90 md:scale-100 origin-top">
+                                    <div className="relative w-full max-w-[260px] aspect-[9/16] rounded-2xl overflow-hidden shadow-2xl border border-white/20"
+                                        style={{ backgroundColor: selectedBg.color, backgroundImage: selectedBg.url ? `url(${selectedBg.url})` : 'none', backgroundSize: 'cover', backgroundPosition: 'center' }}>
+                                        <div className={`absolute inset-0 ${selectedBg.textColor === "#ffffff" ? "bg-black/40" : "bg-white/40"} backdrop-blur-[1px]`} />
+                                        <div className="absolute inset-4 bg-white/95 rounded-lg p-6 flex flex-col items-center shadow-inner">
+                                            <h4 className="text-[#1a202c] font-black text-[9px] mb-3 italic">✉️ 당신을 위한 따뜻한 위로 ✉️</h4>
+                                            <div className="w-full h-[1px] bg-gray-200 mb-4" />
+                                            <div className="flex-1 flex items-center justify-center">
+                                                <p className="text-[#2d3748] text-[9px] font-medium leading-relaxed italic text-center px-2">
+                                                    &quot;{reply}&quot;
+                                                </p>
+                                            </div>
+                                            <div className="mt-4 text-[6px] text-gray-400 font-extrabold uppercase tracking-widest italic opacity-50">Temple of Wisdom</div>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                <div className="leading-loose text-lg text-stone-700 whitespace-pre-wrap font-serif mb-16">
-                                    {generatedReply}
-                                </div>
-
-                                <div className="text-center pt-8 border-t border-stone-200">
-                                    <p className="text-stone-400 text-sm italic mb-8">
-                                        이 편지가 당신에게 작은 위로가 되었기를.
-                                    </p>
-
-                                    <button
-                                        onClick={handleReset}
-                                        className="inline-flex items-center gap-2 px-6 py-3 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-full font-bold text-sm transition-colors"
+                            <div className="pt-6 border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {DOWNLOAD_SIZES.map(s => (
+                                    <button key={s.label} onClick={() => downloadLetter(s.width, s.height, s.label)} disabled={isDownloading}
+                                        className="py-4 bg-white/10 hover:bg-indigo-500 hover:text-white rounded-2xl text-white text-xs font-black transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                                     >
-                                        <RefreshCcw size={16} />
-                                        다른 편지 쓰기
+                                        {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+                                        {s.label} 저장
                                     </button>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     </motion.div>
                 )}
-
             </div>
         </div>
     );

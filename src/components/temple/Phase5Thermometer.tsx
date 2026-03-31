@@ -156,6 +156,13 @@ export default function Phase5Thermometer({
                 <div className="flex justify-between text-white/30 text-[10px]">
                     <span>6일 전</span><span>5일</span><span>4일</span><span>3일</span><span>2일</span><span>1일</span><span className="text-emerald-400">오늘</span>
                 </div>
+                
+                <button 
+                    onClick={() => alert(`나의 레질리언스 수치 ${overallResilience}°C를 공유합니다! \n#지혜의신전 #마음온도계`)}
+                    className="w-full py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-bold transition-all flex items-center justify-center gap-2"
+                >
+                    <TrendingUp size={14} /> 나의 성장 데이터 이미지로 저장하기
+                </button>
             </div>
 
             {/* Morning Notification Setting */}

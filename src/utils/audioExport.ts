@@ -14,10 +14,13 @@ export async function mixAudioToWav(
     // We use mono (1 channel) for voice+BGM to save half the memory and bandwidth (1 hour mono WAV = 317MB)
     const ctx = new window.OfflineAudioContext(1, framesToRender, sampleRate);
     
-    // Fetch and decode voice
-    onProgress(10);
-    const voiceRes = await fetch(voiceUrl);
-    const voiceBuffer = await ctx.decodeAudioData(await voiceRes.arrayBuffer());
+    // Fetch and decode voice if given
+    let voiceBuffer = null;
+    if (voiceUrl) {
+        onProgress(10);
+        const voiceRes = await fetch(voiceUrl);
+        voiceBuffer = await ctx.decodeAudioData(await voiceRes.arrayBuffer());
+    }
     
     onProgress(30);
     // Fetch and decode BGM if given
@@ -33,16 +36,18 @@ export async function mixAudioToWav(
     
     onProgress(50);
     
-    // Setup voice node (Looping)
-    const voiceNode = ctx.createBufferSource();
-    voiceNode.buffer = voiceBuffer;
-    voiceNode.loop = true;
-    
-    const voiceGain = ctx.createGain();
-    voiceGain.gain.value = 1.0;
-    voiceNode.connect(voiceGain);
-    voiceGain.connect(ctx.destination);
-    voiceNode.start(0);
+    // Setup voice node (Looping) if buffer exists
+    if (voiceBuffer) {
+        const voiceNode = ctx.createBufferSource();
+        voiceNode.buffer = voiceBuffer;
+        voiceNode.loop = true;
+        
+        const voiceGain = ctx.createGain();
+        voiceGain.gain.value = 1.0;
+        voiceNode.connect(voiceGain);
+        voiceGain.connect(ctx.destination);
+        voiceNode.start(0);
+    }
 
     // Setup BGM node (Looping)
     if (bgmBuffer) {
@@ -51,7 +56,7 @@ export async function mixAudioToWav(
         bgmNode.loop = true;
         
         const bgmGain = ctx.createGain();
-        bgmGain.gain.value = 0.15; // 15% volume for BGM
+        bgmGain.gain.value = 0.015; // Extra quiet background for voice clarity (30% of previous 0.05)
         bgmNode.connect(bgmGain);
         bgmGain.connect(ctx.destination);
         bgmNode.start(0);

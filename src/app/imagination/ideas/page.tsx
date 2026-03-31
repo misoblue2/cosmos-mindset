@@ -190,16 +190,16 @@ export default function ImaginationIdeasPage() {
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10 text-sm text-purple-300 font-medium"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 rounded-full border border-purple-400/30 text-sm text-purple-200 font-bold"
                         >
-                            <Sparkles size={16} /> 상상 은하계 (Imagination Galaxy)
+                            <Sparkles size={16} /> 상상학교 공식 입학 문의 & 아이디어 광장
                         </motion.div>
                         <h1 className="text-4xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-white leading-tight">
-                            혼자가 아닌 우리가 모여<br className="hidden md:block"/> 상상학교를 만듭니다
+                            우리의 힘을 합치면<br className="hidden md:block"/> 상상학교는 현실이 됩니다
                         </h1>
-                        <p className="text-gray-400 text-lg">
-                            여러분이 생각하는 완벽한 학교의 모습은 무엇인가요?<br />
-                            아이디어를 내고, 꼬리에 꼬리를 무는 상상력으로 별자리를 완성해주세요.
+                        <p className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed">
+                            이곳은 입학 문의를 넘어, 우리가 꿈꾸는 학교를 직접 설계하는 토론장입니다.<br />
+                            서로의 의견에 투표하고, <span className="text-purple-300 font-bold">꼬리에 꼬리를 무는 아이디어</span>로 공동체 의식을 키워주세요! 🤝
                         </p>
                     </div>
 

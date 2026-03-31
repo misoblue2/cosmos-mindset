@@ -84,6 +84,12 @@ export default function Home() {
             </span>
           </Link>
 
+          <Link href="/imagination/ideas" className="group relative px-8 py-4 bg-purple-500/20 backdrop-blur-md border border-purple-400/30 rounded-full overflow-hidden hover:bg-purple-500/30 transition-all">
+            <span className="relative flex items-center gap-3 text-purple-200 font-bold tracking-wide">
+              🏫 상상학교 입학 문의/아이디어 제안
+            </span>
+          </Link>
+
           <Link href="/shop" className="text-stone-400 hover:text-white transition-colors underline decoration-1 underline-offset-4 font-light text-sm tracking-widest uppercase">
             Visit Shop
           </Link>

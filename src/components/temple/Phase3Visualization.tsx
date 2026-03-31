@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Eye, Star, Download, Loader2, LayoutGrid, Image as ImageIcon } from "lucide-react";
+import { Search, CheckCircle2, Eye, Star, Download, Loader2, LayoutGrid, Image as ImageIcon, Heart, Home, Trophy, Plane } from "lucide-react";
 
-const PEXELS_API_KEY = "563492ad6f9170000100000143419b40db2544a0808bfba076db4066"; // Free demo key for prototype
+const PEXELS_API_KEY = "563492ad6f9170000100000143419b40db2544a0808bfba076db4066";
 
 const DOWNLOAD_SIZES = [
     { label: "A4 크기 (출력용)", width: 2480, height: 3508 },
@@ -15,71 +15,84 @@ const DOWNLOAD_SIZES = [
     { label: "📱 폰 배경화면", width: 1080, height: 1920 },
 ];
 
-const DEFAULT_KEYWORDS = ["성공", "부자", "건강", "사랑", "여행", "평화", "CEO", "돈"];
+const CURATED_GALLERY = [
+    { url: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg", highResUrl: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg", label: "성공" },
+    { url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", highResUrl: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", label: "드림하우스" },
+    { url: "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg", highResUrl: "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg", label: "팀워크" },
+    { url: "https://images.pexels.com/photos/3769138/pexels-photo-3769138.jpeg", highResUrl: "https://images.pexels.com/photos/3769138/pexels-photo-3769138.jpeg", label: "건강" },
+    { url: "https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg", highResUrl: "https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg", label: "여행" },
+    { url: "https://images.pexels.com/photos/259915/pexels-photo-259915.jpeg", highResUrl: "https://images.pexels.com/photos/259915/pexels-photo-259915.jpeg", label: "투자" },
+    { url: "https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg", highResUrl: "https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg", label: "가족" },
+    { url: "https://images.pexels.com/photos/3823488/pexels-photo-3823488.jpeg", highResUrl: "https://images.pexels.com/photos/3823488/pexels-photo-3823488.jpeg", label: "열정" },
+    { url: "https://images.pexels.com/photos/1556704/pexels-photo-1556704.jpeg", highResUrl: "https://images.pexels.com/photos/1556704/pexels-photo-1556704.jpeg", label: "자유" },
+];
+
+const KEYWORD_TRANSLATION: Record<string, string> = {
+    "성공": "success achievement glory",
+    "부자": "wealth luxury money",
+    "건강": "health fitness lifestyle",
+    "사랑": "romantic love couple",
+    "여행": "luxury travel adventure",
+    "평화": "inner peace meditation zen",
+    "CEO": "successful business owner office",
+    "가족": "happy family home",
+    "집": "modern luxury mansion house",
+    "차": "luxury sports car supercar",
+};
+
+const DEFAULT_KEYWORDS = ["성공", "부자", "건강", "사랑", "여행", "평화", "CEO", "집", "차", "가족"];
 
 export default function Phase3Visualization() {
     const [keyword, setKeyword] = useState("");
-    const [activeKeyword, setActiveKeyword] = useState<string | null>(null);
-    const [images, setImages] = useState<{url: string, highResUrl: string, label: string}[]>([]);
+    const [activeKeyword, setActiveKeyword] = useState<string | null>("추천");
+    const [images, setImages] = useState<{url: string, highResUrl: string, label: string}[]>(CURATED_GALLERY);
     
-    // Map URL to highResUrl for selected images
     const [selectedImagesMap, setSelectedImagesMap] = useState<Map<string, string>>(new Map());
     
-    const [layoutStyle, setLayoutStyle] = useState<"grid" | "collage">("grid");
+    const [layoutStyle, setLayoutStyle] = useState<"grid" | "collage">("collage");
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isPreviewing, setIsPreviewing] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
 
-    // Initial default search
-    useEffect(() => {
-        handleSearchSubmit("성공");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
     const handleSearchSubmit = async (kw: string) => {
+        if (kw === "추천") {
+            setActiveKeyword("추천");
+            setImages(CURATED_GALLERY);
+            return;
+        }
         if (!kw.trim() || isSearching) return;
         setIsSearching(true);
         setActiveKeyword(kw);
         setImages([]);
         
+        const englishKw = KEYWORD_TRANSLATION[kw] || kw;
+        
         try {
-            const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(kw)}&per_page=12&locale=ko-KR`, {
+            const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(englishKw)}&per_page=12`, {
                 headers: { Authorization: PEXELS_API_KEY }
             });
             const data = await res.json();
             
             if (data.photos && data.photos.length > 0) {
                 const results = data.photos.map((p: any) => ({
-                    url: p.src.medium, 
+                    url: p.src.large,
                     highResUrl: p.src.large2x, 
                     label: kw
                 }));
                 setImages(results);
             } else {
-                // Fallback to picsum if exactly 0 results
-                const fallbacks = Array.from({length: 12}).map((_, i) => ({ 
-                    url: `https://picsum.photos/seed/${kw}${i}/400/300`, 
-                    highResUrl: `https://picsum.photos/seed/${kw}${i}/1200/900`, 
-                    label: kw 
-                }));
-                setImages(fallbacks);
+                setImages(CURATED_GALLERY);
             }
         } catch (e) {
-            console.error("Image search failed, using fallback:", e);
-            const fallbacks = Array.from({length: 12}).map((_, i) => ({ 
-                url: `https://picsum.photos/seed/${kw}${i}/400/300`, 
-                highResUrl: `https://picsum.photos/seed/${kw}${i}/1200/900`, 
-                label: kw 
-            }));
-            setImages(fallbacks);
+            console.error("Image search failed:", e);
+            setImages(CURATED_GALLERY);
         } finally {
             setIsSearching(false);
             setKeyword("");
         }
     };
 
-    // Core Canvas Generator Engine
     const generateBoardCanvas = async (width: number, height: number, layout: "grid"|"collage"): Promise<HTMLCanvasElement | null> => {
         const canvas = document.createElement("canvas");
         canvas.width = width;
@@ -87,28 +100,24 @@ export default function Phase3Visualization() {
         const ctx = canvas.getContext("2d");
         if (!ctx) return null;
 
-        // Draw Background
         const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, layout === "grid" ? "#2e1065" : "#1e293b"); 
-        gradient.addColorStop(1, layout === "grid" ? "#831843" : "#0f172a"); 
+        gradient.addColorStop(0, "#0f172a"); 
+        gradient.addColorStop(1, "#1e1b4b"); 
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
 
-        // Optional texture (simple noise)
-        ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
-        for (let i = 0; i < 500; i++) {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+        for (let i = 0; i < 200; i++) {
             ctx.beginPath();
-            ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 3, 0, Math.PI * 2);
+            ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 2, 0, Math.PI * 2);
             ctx.fill();
         }
 
-        // Draw Title
         ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-        ctx.font = `bold ${Math.floor(width * 0.05)}px 'Malgun Gothic', sans-serif`;
+        ctx.font = `bold ${Math.floor(width * 0.04)}px 'Malgun Gothic', sans-serif`;
         ctx.textAlign = "center";
-        ctx.fillText("✨ My Vision Board ✨", width / 2, height * 0.12);
+        ctx.fillText("✨ MY VISION BOARD ✨", width / 2, height * 0.08);
 
-        // Load all high-res images safely
         const imagesToLoad = Array.from(selectedImagesMap.values());
         const loadedImages = await Promise.all(
             imagesToLoad.map(url => {
@@ -127,15 +136,15 @@ export default function Phase3Visualization() {
             })
         );
 
-        const padding = width * 0.05;
-        const topOffset = height * 0.18;
+        const padding = width * 0.06;
+        const topOffset = height * 0.15;
         const availableWidth = width - padding * 2;
         const availableHeight = height - padding - topOffset;
         const count = loadedImages.length;
 
         if (layout === "grid") {
-            const cols = Math.ceil(Math.sqrt(count));
-            const rows = Math.ceil(count / cols);
+            const cols = 3;
+            const rows = 3;
             const gap = width * 0.02;
             const cellW = (availableWidth - gap * (cols - 1)) / cols;
             const cellH = (availableHeight - gap * (rows - 1)) / rows;
@@ -162,73 +171,56 @@ export default function Phase3Visualization() {
 
                 ctx.save();
                 ctx.shadowColor = "rgba(0,0,0,0.5)";
-                ctx.shadowBlur = width * 0.015;
-                ctx.shadowOffsetY = width * 0.01;
-                
-                const radius = width * 0.015;
-                ctx.beginPath();
-                ctx.moveTo(dx + radius, dy);
-                ctx.lineTo(dx + cellW - radius, dy);
-                ctx.quadraticCurveTo(dx + cellW, dy, dx + cellW, dy + radius);
-                ctx.lineTo(dx + cellW, dy + cellH - radius);
-                ctx.quadraticCurveTo(dx + cellW, dy + cellH, dx + cellW - radius, dy + cellH);
-                ctx.lineTo(dx + radius, dy + cellH);
-                ctx.quadraticCurveTo(dx, dy + cellH, dx, dy + cellH - radius);
-                ctx.lineTo(dx, dy + radius);
-                ctx.quadraticCurveTo(dx, dy, dx + radius, dy);
-                ctx.closePath();
-                ctx.fill(); 
-                ctx.clip();
+                ctx.shadowBlur = width * 0.01;
                 ctx.drawImage(img, sx, sy, sw, sh, dx, dy, cellW, cellH);
                 ctx.restore();
             });
         } else {
-            // Collage Layout: Auto sizing math
-            // Scale target width dynamically depending on the number of images to prevent overflow
-            let scaleFactor = 0.65;
-            if (count > 2) scaleFactor = 0.50;
-            if (count > 5) scaleFactor = 0.35;
-            
-            loadedImages.forEach((img, i) => {
-                const imgTargetW = availableWidth * scaleFactor; 
-                const imgTargetH = imgTargetW * (img.height / img.width);
-                
-                const maxDx = availableWidth - imgTargetW;
-                const maxDy = availableHeight - imgTargetH;
-                
-                const seedRng = Math.sin((i+1) * 123.456) * 10000;
-                const rand1 = seedRng - Math.floor(seedRng);
-                const seedRng2 = Math.cos((i+1) * 321.654) * 10000;
-                const rand2 = seedRng2 - Math.floor(seedRng2);
+            // Intelligent Jittered Grid for Collage (To avoid overlaps)
+            const gridCols = 3;
+            const gridRows = 3;
+            const cellW = availableWidth / gridCols;
+            const cellH = availableHeight / gridRows;
 
-                const dx = padding + (rand1 * maxDx);
-                const dy = topOffset + (rand2 * maxDy);
+            loadedImages.forEach((img, i) => {
+                const col = i % gridCols;
+                const row = Math.floor(i / gridCols);
                 
-                const angle = (rand1 - 0.5) * 35 * (Math.PI / 180);
+                // Target width for polaroid to fit cell nicely
+                const targetW = cellW * 0.85; 
+                const targetH = targetW * (img.height / img.width);
+
+                // Add random jitter within cell
+                const seed = Math.sin(i + 1) * 10000;
+                const r1 = seed - Math.floor(seed);
+                const r2 = Math.cos(i + 1) * 10000 - Math.floor(Math.cos(i + 1) * 10000);
+
+                const centerX = padding + col * cellW + cellW / 2;
+                const centerY = topOffset + row * cellH + cellH / 2;
+                
+                const dx = centerX + (r1 - 0.5) * (cellW * 0.2);
+                const dy = centerY + (r2 - 0.5) * (cellH * 0.2);
+                const angle = (r1 - 0.5) * 0.3; // Approx +/- 8 degrees
 
                 ctx.save();
-                ctx.translate(dx + imgTargetW/2, dy + imgTargetH/2);
+                ctx.translate(dx, dy);
                 ctx.rotate(angle);
                 
                 // Polaroid Frame
-                ctx.shadowColor = "rgba(0,0,0,0.6)";
-                ctx.shadowBlur = width * 0.02;
-                ctx.shadowOffsetY = width * 0.015;
+                const framePadding = targetW * 0.05;
+                const bottomSpace = targetW * 0.15;
+                ctx.shadowColor = "rgba(0,0,0,0.3)";
+                ctx.shadowBlur = width * 0.015;
                 ctx.fillStyle = "#ffffff";
-                const border = imgTargetW * 0.04;
-                const bottomBorder = imgTargetW * 0.12;
-                ctx.fillRect(-imgTargetW/2 - border, -imgTargetH/2 - border, imgTargetW + border*2, imgTargetH + border + bottomBorder);
-                ctx.shadowColor = "transparent";
-
-                // Draw Image
-                ctx.drawImage(img, -imgTargetW/2, -imgTargetH/2, imgTargetW, imgTargetH);
+                ctx.fillRect(-targetW/2 - framePadding, -targetH/2 - framePadding, targetW + framePadding*2, targetH + framePadding + bottomSpace);
                 
-                // Draw Tape or Pin (Randomly tape)
-                ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-                const tapeW = imgTargetW * 0.3;
-                const tapeH = imgTargetW * 0.06;
-                ctx.rotate((rand2 - 0.5) * 10 * Math.PI/180);
-                ctx.fillRect(-tapeW/2, -imgTargetH/2 - border - tapeH/2, tapeW, tapeH);
+                // Draw Image
+                ctx.drawImage(img, -targetW/2, -targetH/2, targetW, targetH);
+                
+                // Optional: Tape effect
+                ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+                ctx.rotate(0.1);
+                ctx.fillRect(-targetW*0.2, -targetH/2 - framePadding - 5, targetW*0.4, 15);
 
                 ctx.restore();
             });
@@ -280,8 +272,8 @@ export default function Phase3Visualization() {
             if (next.has(url)) {
                 next.delete(url);
             } else {
-                if(next.size >= 8) {
-                    alert("최대 8장까지 선택 가능합니다.");
+                if(next.size >= 9) {
+                    alert("최대 9장까지 선택 가능합니다.");
                     return next;
                 }
                 next.set(url, highResUrl);
@@ -296,7 +288,7 @@ export default function Phase3Visualization() {
             <div className="text-center space-y-2">
                 <div className="text-5xl mb-4">🎨</div>
                 <h2 className="text-2xl font-bold text-white">Phase 3: 꿈의 콜라주 캔버스</h2>
-                <p className="text-pink-200/70 text-sm">무료 고퀄리티 사진 검색으로 내 비전을 생생하게! 선택한 사진들은 사이즈에 맞게 자동 배치됩니다.</p>
+                <p className="text-pink-200/70 text-sm">무료 고퀄리티 사진 검색 혹은 추천 갤러리에서 비전을 생생하게! 최대 9장까지 자동 배치됩니다.</p>
             </div>
 
             <div className="space-y-3">
@@ -318,6 +310,10 @@ export default function Phase3Visualization() {
                     </button>
                 </div>
                 <div className="flex flex-wrap gap-2">
+                    <button onClick={() => handleSearchSubmit("추천")}
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeKeyword === "추천" ? "bg-purple-500 text-white shadow-lg shadow-purple-500/40" : "bg-white/5 text-white/60 hover:bg-white/10"}`}>
+                        ⭐ 추천 정석 사진
+                    </button>
                     {DEFAULT_KEYWORDS.map(kw => (
                         <button key={kw} onClick={() => handleSearchSubmit(kw)}
                             disabled={isSearching}
@@ -343,8 +339,13 @@ export default function Phase3Visualization() {
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-white/80 text-sm font-semibold flex items-center gap-2">
                                     {isSearching ? <Loader2 size={16} className="animate-spin text-pink-400" /> : <Star size={16} className="text-yellow-400"/>}
-                                    &quot;{activeKeyword}&quot; 무료 고화질 이미지 검색 결과 (최대 8장 중 {selectedImagesMap.size}장 선택됨)
+                                    &quot;{activeKeyword}&quot; {activeKeyword === "추천" ? "고품격 큐레이션" : "고화질 이미지"} (최대 9장 중 {selectedImagesMap.size}장 선택됨)
                                 </h3>
+                                {selectedImagesMap.size > 0 && (
+                                    <button onClick={() => setSelectedImagesMap(new Map())} className="text-pink-400/70 hover:text-pink-400 text-xs font-bold underline transition-all">
+                                        선택 모두 해제
+                                    </button>
+                                )}
                             </div>
                             
                             {isSearching ? (
@@ -396,12 +397,11 @@ export default function Phase3Visualization() {
                                         <button 
                                             onClick={() => { setLayoutStyle("collage"); setPreviewUrl(null); }}
                                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${layoutStyle === "collage" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10"}`}>
-                                            <ImageIcon size={14} /> 감성 폴라로이드 콜라주
+                                            <ImageIcon size={14} /> 지능형 폴라로이드 콜라주
                                         </button>
                                     </div>
                                 </div>
 
-                                {/* Preview Area */}
                                 <div className="bg-black/40 border border-black/50 rounded-xl p-4 flex flex-col items-center gap-4">
                                     {previewUrl ? (
                                         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative w-full max-w-sm rounded-lg overflow-hidden shadow-2xl border border-white/10">
@@ -410,7 +410,7 @@ export default function Phase3Visualization() {
                                         </motion.div>
                                     ) : (
                                         <div className="py-6 text-center">
-                                            <p className="text-white/40 text-sm mb-3">생성될 비전보드의 모습을 먼저 확인해보세요</p>
+                                            <p className="text-white/40 text-sm mb-3">생성될 비전보드의 모습을 먼저 확인해보세요 (겹침 최소화 지터 로직 적용)</p>
                                             <button 
                                                 onClick={handlePreview}
                                                 disabled={isPreviewing}
@@ -422,10 +422,9 @@ export default function Phase3Visualization() {
                                     )}
                                 </div>
 
-                                {/* Download Buttons */}
                                 {previewUrl && (
                                     <div className="pt-2 animate-fade-in-up">
-                                        <p className="text-pink-200/50 text-xs text-center mb-3">미리보기가 마음에 드신다면 아래 사이즈를 골라 저장하세요 (자동 고화질 변환됨)</p>
+                                        <p className="text-pink-200/50 text-xs text-center mb-3">미리보기가 마음에 드신다면 아래 사이즈를 골라 저장하세요</p>
                                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
                                             {DOWNLOAD_SIZES.map(s => (
                                                 <button

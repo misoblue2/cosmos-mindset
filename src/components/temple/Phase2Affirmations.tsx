@@ -138,11 +138,11 @@ const DURATIONS = [
 
 const BGM_OPTIONS = [
     { id: "none", label: "🔇 배경음악 없음", url: "" },
-    { id: "bgm1", label: "🌊 고요한 호수 (잔잔)", url: "/bgm/bgm1.mp3" },
-    { id: "bgm2", label: "🌧️ 차분한 명상", url: "/bgm/bgm2.mp3" },
-    { id: "bgm3", label: "🌲 숲 속의 아침", url: "/bgm/bgm3.mp3" },
-    { id: "bgm4", label: "🔔 내면의 평화", url: "/bgm/bgm4.mp3" },
-    { id: "bgm5", label: "💧 은은한 시냇물", url: "/bgm/bgm5.mp3" },
+    { id: "bgm1", label: "🎹 고요한 새벽 (이루마풍)", url: "/bgm/bgm1.mp3" },
+    { id: "bgm2", label: "✨ 별이 내리는 창가 (피아노)", url: "/bgm/bgm2.mp3" },
+    { id: "bgm3", label: "🕊️ 숲속의 기도 (뉴에이지)", url: "/bgm/bgm3.mp3" },
+    { id: "bgm4", label: "🌊 잔잔한 파도 소리 (명상)", url: "/bgm/bgm4.mp3" },
+    { id: "bgm5", label: "🌅 치유의 선율 (차분)", url: "/bgm/bgm5.mp3" },
 ];
 
 const EXPORT_DURATIONS = [
@@ -472,19 +472,19 @@ export default function Phase2Affirmations() {
                     🎧 {audioUrl ? "녹음이 완료되었습니다. 내 목소리로 듣기 버튼을 눌러 반복 재생할 수 있습니다." : "마이크 버튼을 눌러 확언을 직접 녹음해보세요.\n직접 녹음하지 않아도 AI 음성을 통해 확언을 들을 수 있습니다."}
                 </p>
                 
-                {/* Export / Mixing UI */}
-                {audioUrl && (
+                {/* Export / Mixing UI - Always visible if items are selected */}
+                {(audioUrl || selected.size > 0) && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="pt-6 border-t border-purple-400/20 text-left space-y-4">
                         <div className="space-y-2">
                             <h4 className="text-white/80 text-sm font-semibold flex items-center gap-2">
-                                <Music size={16} className="text-pink-400" /> 배경 음악 선택 (미리듣기 지원)
+                                <Music size={16} className="text-pink-400" /> 배경 음악 선택 (잔잔한 피아노 위주)
                             </h4>
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                 {BGM_OPTIONS.map(bgm => (
                                     <button 
                                         key={bgm.id}
                                         onClick={() => setSelectedBgm(bgm)}
-                                        className={`px-3 py-2 rounded-xl text-xs font-bold transition-all border ${
+                                        className={`px-3 py-2 rounded-xl text-[11px] font-bold transition-all border ${
                                             selectedBgm.id === bgm.id ? "bg-pink-500/20 border-pink-400 text-pink-300" : "bg-white/5 border-white/10 text-white/60 hover:border-white/30"
                                         }`}
                                     >
@@ -493,32 +493,25 @@ export default function Phase2Affirmations() {
                                 ))}
                             </div>
                             
-                            {/* Audio Preview for BGM */}
                             {selectedBgm.url && (
-                                <div className="mt-3 bg-black/20 p-3 rounded-xl border border-white/5 flex flex-col items-center gap-2 animation-fade-in">
-                                    <p className="text-xs text-pink-300/80 w-full text-center">🎧 위에서 선택하신 배경음악 미리듣기</p>
-                                    <audio 
-                                        controls 
-                                        autoPlay
-                                        src={selectedBgm.url} 
-                                        className="h-9 w-full max-w-[300px] outline-none" 
-                                        style={{ filter: "invert(0.9) hue-rotate(180deg) opacity(0.8)" }} 
-                                    />
+                                <div className="mt-2 bg-black/20 p-2 rounded-xl border border-white/5 flex flex-col items-center gap-1">
+                                    <p className="text-[10px] text-pink-300/80">🎧 배경음악 미리듣기 (잔잔하게 설정됨)</p>
+                                    <audio controls src={selectedBgm.url} className="h-8 w-full max-w-[250px] opacity-70" onPlay={(e) => (e.currentTarget.volume = 0.2)} />
                                 </div>
                             )}
                         </div>
 
                         <div className="space-y-2">
                             <h4 className="text-white/80 text-sm font-semibold flex items-center gap-2">
-                                <Download size={16} className="text-yellow-400" /> 저장 시간 선택 (반복 길이)
+                                <Clock size={16} className="text-yellow-400" /> 다운로드 파일 반복 길이
                             </h4>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="grid grid-cols-3 gap-2">
                                 {EXPORT_DURATIONS.map(d => (
                                     <button 
                                         key={d.value}
                                         onClick={() => setExportDuration(d.value)}
-                                        className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
-                                            exportDuration === d.value ? "bg-yellow-500/20 border-yellow-400 text-yellow-300" : "bg-white/5 border-white/10 text-white/60 hover:border-white/30"
+                                        className={`px-2 py-2 rounded-xl text-[10px] font-bold transition-all border ${
+                                            exportDuration === d.value ? "bg-yellow-500/20 border-yellow-400 text-yellow-300" : "bg-white/5 border-white/10 text-white/50 hover:border-white/30"
                                         }`}
                                     >
                                         {d.label}
@@ -527,11 +520,11 @@ export default function Phase2Affirmations() {
                             </div>
                         </div>
 
-                        <div className="pt-2">
+                        <div className="pt-2 space-y-3">
                             <button 
                                 onClick={handleMixAndDownload}
-                                disabled={isMixing}
-                                className="w-full py-3 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 rounded-xl text-yellow-950 font-black text-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+                                disabled={isMixing || (!audioUrl && selectedBgm.id === "none")}
+                                className="w-full py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 rounded-xl text-yellow-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20 disabled:opacity-40"
                             >
                                 {isMixing ? (
                                     <>
@@ -541,12 +534,34 @@ export default function Phase2Affirmations() {
                                 ) : (
                                     <>
                                         <Download size={18} />
-                                        나만의 자동 암시 MP3 저장하기 ({exportDuration}분 반복)
+                                        {audioUrl ? "합성 음원(BGM+내목소리) 저장" : "배경음악 음원 저장"} ({exportDuration}분 반복)
                                     </>
                                 )}
                             </button>
-                            <p className="text-[10px] text-purple-200/40 text-center mt-2">
-                                * 브라우저 메모리 한계로 인해 모바일/PC 상관없이 쾌적한 최대 30분까지만 저장을 지원합니다. 스마트폰의 '한 곡 반복' 기능을 활용하면 12시간 연속 재생이 가능합니다.
+                            
+                            {audioUrl && (
+                                <button
+                                    onClick={() => {
+                                        const a = document.createElement("a");
+                                        a.href = audioUrl;
+                                        a.download = "My_Affirmation_Voice.webm";
+                                        a.click();
+                                    }}
+                                    className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white/60 text-xs transition-all"
+                                >
+                                    목소리 원본만 따로 저장하기
+                                </button>
+                            )}
+
+                            {!audioUrl && (
+                                <p className="text-[10px] text-blue-300/60 text-center bg-blue-500/5 py-2 rounded-lg border border-blue-500/10">
+                                    💡 <b>내 목소리</b>를 녹음하시면 배경음악과 합성하여 나만의 암시 음원을 만들 수 있습니다!
+                                </p>
+                            )}
+                            
+                            <p className="text-[9px] text-purple-200/30 text-center leading-tight">
+                                * 브라우저 안정성을 위해 최대 30분까지 지원합니다. <br/>
+                                * 더 긴 재생을 원하시면 다운로드 파일을 스마트폰 정규 플레이어의 '한 곡 반복' 기능을 사용해 주세요.
                             </p>
                         </div>
                     </motion.div>
