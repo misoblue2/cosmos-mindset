@@ -1,96 +1,89 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, CheckCircle2, Eye, Star, Download, Loader2, LayoutGrid, Image as ImageIcon, Heart, Home, Trophy, Plane } from "lucide-react";
+import { CheckCircle2, Eye, Download, LayoutGrid, Image as ImageIcon, Sparkles, X } from "lucide-react";
 
-const PEXELS_API_KEY = "563492ad6f9170000100000143419b40db2544a0808bfba076db4066";
+// 프리미엄 언스플래시 화상 소스 (고정)
+const CURATED_CATEGORIES = [
+    {
+        id: "wealth",
+        label: "💰 부와 여유",
+        images: [
+            { url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80", label: "드림하우스" },
+            { url: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80", label: "슈퍼카" },
+            { url: "https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?w=800&q=80", label: "여유로운 자산" },
+            { url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800&q=80", label: "고급 인테리어" },
+            { url: "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?w=800&q=80", label: "자유로운 삶" },
+            { url: "https://images.unsplash.com/photo-1563986768494-4dee2763ff3f?w=800&q=80", label: "명품" },
+        ]
+    },
+    {
+        id: "success",
+        label: "🏆 성공과 명예",
+        images: [
+            { url: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80", label: "성공적인 비즈니스" },
+            { url: "https://images.unsplash.com/photo-1552234994-66ba234fd567?w=800&q=80", label: "열정적인 강연" },
+            { url: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80", label: "최고의 팀워크" },
+            { url: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800&q=80", label: "CEO의 책상" },
+            { url: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80", label: "디지털 노마드" },
+            { url: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&q=80", label: "컨퍼런스 리더" },
+        ]
+    },
+    {
+        id: "peace",
+        label: "🧘 평화와 건강",
+        images: [
+            { url: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80", label: "명상과 요가" },
+            { url: "https://images.unsplash.com/photo-1499806318251-404c0ecfd1ec?w=800&q=80", label: "건강한 식단" },
+            { url: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=800&q=80", label: "자연 속 힐링" },
+            { url: "https://images.unsplash.com/photo-1540206351-d6465b3ac5c1?w=800&q=80", label: "휴양지 리조트" },
+            { url: "https://images.unsplash.com/photo-1448375240586-882707db8855?w=800&q=80", label: "고요한 아침" },
+            { url: "https://images.unsplash.com/photo-1528318269466-69f9430fdcc4?w=800&q=80", label: "내면의 평화" },
+        ]
+    },
+    {
+        id: "travel",
+        label: "✈️ 세계 여행",
+        images: [
+            { url: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80", label: "파리 에펠탑" },
+            { url: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80", label: "도쿄의 야경" },
+            { url: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80", label: "산다이크 해변" },
+            { url: "https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=800&q=80", label: "휴양지 바다" },
+            { url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80", label: "퍼스트 클래스" },
+            { url: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800&q=80", label: "어드벤처로드" },
+        ]
+    }
+];
 
 const DOWNLOAD_SIZES = [
-    { label: "A4 크기 (출력용)", width: 2480, height: 3508 },
-    { label: "A3 크기 (포스터용)", width: 3508, height: 4960 },
-    { label: '8x10" (탁상용)', width: 2400, height: 3000 },
-    { label: '11x14" (소형)', width: 3300, height: 4200 },
-    { label: '16x20" (대형)', width: 4800, height: 6000 },
-    { label: "📱 폰 배경화면", width: 1080, height: 1920 },
+    { label: "📱 폰 배경화면 (1080x1920)", width: 1080, height: 1920 },
+    { label: "출력용 (A4 사이즈)", width: 2480, height: 3508 },
+    { label: "가로 모니터 (1920x1080)", width: 1920, height: 1080 },
 ];
-
-const CURATED_GALLERY = [
-    { url: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg", highResUrl: "https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg", label: "성공" },
-    { url: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", highResUrl: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg", label: "드림하우스" },
-    { url: "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg", highResUrl: "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg", label: "팀워크" },
-    { url: "https://images.pexels.com/photos/3769138/pexels-photo-3769138.jpeg", highResUrl: "https://images.pexels.com/photos/3769138/pexels-photo-3769138.jpeg", label: "건강" },
-    { url: "https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg", highResUrl: "https://images.pexels.com/photos/414612/pexels-photo-414612.jpeg", label: "여행" },
-    { url: "https://images.pexels.com/photos/259915/pexels-photo-259915.jpeg", highResUrl: "https://images.pexels.com/photos/259915/pexels-photo-259915.jpeg", label: "투자" },
-    { url: "https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg", highResUrl: "https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg", label: "가족" },
-    { url: "https://images.pexels.com/photos/3823488/pexels-photo-3823488.jpeg", highResUrl: "https://images.pexels.com/photos/3823488/pexels-photo-3823488.jpeg", label: "열정" },
-    { url: "https://images.pexels.com/photos/1556704/pexels-photo-1556704.jpeg", highResUrl: "https://images.pexels.com/photos/1556704/pexels-photo-1556704.jpeg", label: "자유" },
-];
-
-const KEYWORD_TRANSLATION: Record<string, string> = {
-    "성공": "success achievement glory",
-    "부자": "wealth luxury money",
-    "건강": "health fitness lifestyle",
-    "사랑": "romantic love couple",
-    "여행": "luxury travel adventure",
-    "평화": "inner peace meditation zen",
-    "CEO": "successful business owner office",
-    "가족": "happy family home",
-    "집": "modern luxury mansion house",
-    "차": "luxury sports car supercar",
-};
-
-const DEFAULT_KEYWORDS = ["성공", "부자", "건강", "사랑", "여행", "평화", "CEO", "집", "차", "가족"];
 
 export default function Phase3Visualization() {
-    const [keyword, setKeyword] = useState("");
-    const [activeKeyword, setActiveKeyword] = useState<string | null>("추천");
-    const [images, setImages] = useState<{url: string, highResUrl: string, label: string}[]>(CURATED_GALLERY);
+    const [activeCategory, setActiveCategory] = useState(CURATED_CATEGORIES[0].id);
+    const [selectedImages, setSelectedImages] = useState<string[]>([]);
     
-    const [selectedImagesMap, setSelectedImagesMap] = useState<Map<string, string>>(new Map());
-    
+    // Board Generation States
     const [layoutStyle, setLayoutStyle] = useState<"grid" | "collage">("collage");
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isPreviewing, setIsPreviewing] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
-    const [isSearching, setIsSearching] = useState(false);
 
-    const handleSearchSubmit = async (kw: string) => {
-        if (kw === "추천") {
-            setActiveKeyword("추천");
-            setImages(CURATED_GALLERY);
-            return;
-        }
-        if (!kw.trim() || isSearching) return;
-        setIsSearching(true);
-        setActiveKeyword(kw);
-        setImages([]);
-        
-        const englishKw = KEYWORD_TRANSLATION[kw] || kw;
-        
-        try {
-            const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(englishKw)}&per_page=12`, {
-                headers: { Authorization: PEXELS_API_KEY }
-            });
-            const data = await res.json();
-            
-            if (data.photos && data.photos.length > 0) {
-                const results = data.photos.map((p: any) => ({
-                    url: p.src.large,
-                    highResUrl: p.src.large2x, 
-                    label: kw
-                }));
-                setImages(results);
-            } else {
-                setImages(CURATED_GALLERY);
+    const activeImages = CURATED_CATEGORIES.find(c => c.id === activeCategory)?.images || [];
+
+    const toggleImage = (url: string) => {
+        setSelectedImages(prev => {
+            if (prev.includes(url)) return prev.filter(u => u !== url);
+            if (prev.length >= 7) {
+                alert("비전보드에는 가장 핵심적인 7장의 꿈만 담을 수 있습니다.");
+                return prev;
             }
-        } catch (e) {
-            console.error("Image search failed:", e);
-            setImages(CURATED_GALLERY);
-        } finally {
-            setIsSearching(false);
-            setKeyword("");
-        }
+            return [...prev, url];
+        });
+        setPreviewUrl(null); // Reset preview if edited
     };
 
     const generateBoardCanvas = async (width: number, height: number, layout: "grid"|"collage"): Promise<HTMLCanvasElement | null> => {
@@ -100,51 +93,48 @@ export default function Phase3Visualization() {
         const ctx = canvas.getContext("2d");
         if (!ctx) return null;
 
+        // Gradient Background
         const gradient = ctx.createLinearGradient(0, 0, width, height);
         gradient.addColorStop(0, "#0f172a"); 
         gradient.addColorStop(1, "#1e1b4b"); 
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, width, height);
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-        for (let i = 0; i < 200; i++) {
+        // Stars overlay
+        ctx.fillStyle = "rgba(255, 255, 255, 0.1)";
+        for (let i = 0; i < 150; i++) {
             ctx.beginPath();
             ctx.arc(Math.random() * width, Math.random() * height, Math.random() * 2, 0, Math.PI * 2);
             ctx.fill();
         }
 
-        ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-        ctx.font = `bold ${Math.floor(width * 0.04)}px 'Malgun Gothic', sans-serif`;
+        // Title text
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
+        ctx.font = `bold ${Math.floor(Math.min(width, height) * 0.05)}px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif`;
         ctx.textAlign = "center";
         ctx.fillText("✨ MY VISION BOARD ✨", width / 2, height * 0.08);
 
-        const imagesToLoad = Array.from(selectedImagesMap.values());
+        // Load images
         const loadedImages = await Promise.all(
-            imagesToLoad.map(url => {
-                return new Promise<HTMLImageElement>((resolve) => {
+            selectedImages.map(url => {
+                return new Promise<HTMLImageElement>((resolve, reject) => {
                     const img = new Image();
                     img.crossOrigin = "anonymous";
                     img.onload = () => resolve(img);
-                    img.onerror = () => {
-                        const fallback = new Image();
-                        fallback.crossOrigin = "anonymous";
-                        fallback.onload = () => resolve(fallback);
-                        fallback.src = `https://picsum.photos/seed/${Math.random()}/1200/900`; 
-                    };
+                    img.onerror = () => reject();
                     img.src = url;
                 });
             })
         );
 
-        const padding = width * 0.06;
-        const topOffset = height * 0.15;
+        const padding = width * 0.05;
+        const topOffset = height * 0.12;
         const availableWidth = width - padding * 2;
-        const availableHeight = height - padding - topOffset;
-        const count = loadedImages.length;
+        const availableHeight = height - padding - topOffset - (height * 0.05);
 
         if (layout === "grid") {
-            const cols = 3;
-            const rows = 3;
+            const cols = loadedImages.length <= 4 ? 2 : 3;
+            const rows = Math.ceil(loadedImages.length / cols);
             const gap = width * 0.02;
             const cellW = (availableWidth - gap * (cols - 1)) / cols;
             const cellH = (availableHeight - gap * (rows - 1)) / rows;
@@ -172,279 +162,253 @@ export default function Phase3Visualization() {
                 ctx.save();
                 ctx.shadowColor = "rgba(0,0,0,0.5)";
                 ctx.shadowBlur = width * 0.01;
+                ctx.roundRect ? ctx.roundRect(dx, dy, cellW, cellH, 10) : ctx.rect(dx, dy, cellW, cellH);
+                ctx.clip();
                 ctx.drawImage(img, sx, sy, sw, sh, dx, dy, cellW, cellH);
                 ctx.restore();
             });
         } else {
-            // Intelligent Jittered Grid for Collage (To avoid overlaps)
-            const gridCols = 3;
-            const gridRows = 3;
-            const cellW = availableWidth / gridCols;
-            const cellH = availableHeight / gridRows;
+            // Collage Polaroid Style
+            const cols = loadedImages.length <= 4 ? 2 : 3;
+            const rows = Math.ceil(loadedImages.length / cols);
+            const cellW = availableWidth / cols;
+            const cellH = availableHeight / rows;
 
             loadedImages.forEach((img, i) => {
-                const col = i % gridCols;
-                const row = Math.floor(i / gridCols);
-                
-                // Target width for polaroid to fit cell nicely
-                const targetW = cellW * 0.85; 
+                const col = i % cols;
+                const row = Math.floor(i / cols);
+                const targetW = cellW * 0.8; 
                 const targetH = targetW * (img.height / img.width);
 
-                // Add random jitter within cell
-                const seed = Math.sin(i + 1) * 10000;
-                const r1 = seed - Math.floor(seed);
-                const r2 = Math.cos(i + 1) * 10000 - Math.floor(Math.cos(i + 1) * 10000);
+                const r1 = Math.sin(i * 123) * 0.5; // Pseudo-random -0.5 to 0.5
+                const r2 = Math.cos(i * 321) * 0.5;
 
                 const centerX = padding + col * cellW + cellW / 2;
                 const centerY = topOffset + row * cellH + cellH / 2;
-                
-                const dx = centerX + (r1 - 0.5) * (cellW * 0.2);
-                const dy = centerY + (r2 - 0.5) * (cellH * 0.2);
-                const angle = (r1 - 0.5) * 0.3; // Approx +/- 8 degrees
+                const dx = centerX + r1 * (cellW * 0.2);
+                const dy = centerY + r2 * (cellH * 0.2);
+                const angle = r1 * 0.35; // Slight rotation
 
                 ctx.save();
                 ctx.translate(dx, dy);
                 ctx.rotate(angle);
                 
-                // Polaroid Frame
+                // Polaroid White Frame
                 const framePadding = targetW * 0.05;
-                const bottomSpace = targetW * 0.15;
-                ctx.shadowColor = "rgba(0,0,0,0.3)";
-                ctx.shadowBlur = width * 0.015;
+                const bottomSpace = targetW * 0.18;
+                ctx.shadowColor = "rgba(0,0,0,0.4)";
+                ctx.shadowBlur = width * 0.02;
                 ctx.fillStyle = "#ffffff";
                 ctx.fillRect(-targetW/2 - framePadding, -targetH/2 - framePadding, targetW + framePadding*2, targetH + framePadding + bottomSpace);
                 
-                // Draw Image
                 ctx.drawImage(img, -targetW/2, -targetH/2, targetW, targetH);
-                
-                // Optional: Tape effect
-                ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-                ctx.rotate(0.1);
-                ctx.fillRect(-targetW*0.2, -targetH/2 - framePadding - 5, targetW*0.4, 15);
-
                 ctx.restore();
             });
         }
-
         return canvas;
     };
 
     const handlePreview = async () => {
+        if (selectedImages.length === 0) return alert("먼저 꿈꾸는 사진을 선택해주세요.");
         setIsPreviewing(true);
         try {
             const canvas = await generateBoardCanvas(1080, 1080, layoutStyle); 
-            if (!canvas) return;
+            if (!canvas) throw new Error("Canvas generation failed");
             const blob = await new Promise<Blob|null>(r => canvas.toBlob(r, "image/jpeg", 0.8));
             if (blob) setPreviewUrl(URL.createObjectURL(blob));
         } catch (e) {
             console.error(e);
-            alert("미리보기 생성에 실패했습니다.");
+            alert("미리보기 이미지 생성에 실패했습니다.");
         } finally {
             setIsPreviewing(false);
         }
     };
 
-    const downloadVisionBoard = async (width: number, height: number, label: string) => {
+    const triggerDownload = async (width: number, height: number, label: string) => {
         setIsDownloading(true);
         try {
             const canvas = await generateBoardCanvas(width, height, layoutStyle);
-            if (!canvas) return;
-            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, "image/jpeg", 0.95));
+            if (!canvas) throw new Error("Canvas generation failed");
+            const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, "image/jpeg", 0.95));
             if (blob) {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement("a");
                 a.href = url;
-                a.download = `VisionBoard_${layoutStyle}_${width}x${height}.jpg`;
+                a.download = `VisionBoard_${label}.jpg`;
                 a.click();
                 URL.revokeObjectURL(url);
             }
         } catch (error) {
             console.error(error);
-            alert("비전보드 다운로드 중 오류가 발생했습니다.");
+            alert("다운로드 중 오류가 발생했습니다.");
         } finally {
             setIsDownloading(false);
         }
     };
 
-    const toggleImage = (url: string, highResUrl: string) => {
-        setSelectedImagesMap(prev => {
-            const next = new Map(prev);
-            if (next.has(url)) {
-                next.delete(url);
-            } else {
-                if(next.size >= 9) {
-                    alert("최대 9장까지 선택 가능합니다.");
-                    return next;
-                }
-                next.set(url, highResUrl);
-            }
-            return next;
-        });
-        setPreviewUrl(null);
-    };
-
     return (
-        <div className="space-y-6">
+        <div className="space-y-8 animate-fade-in-up">
             <div className="text-center space-y-2">
-                <div className="text-5xl mb-4">🎨</div>
-                <h2 className="text-2xl font-bold text-white">Phase 3: 꿈의 콜라주 캔버스</h2>
-                <p className="text-pink-200/70 text-sm">무료 고퀄리티 사진 검색 혹은 추천 갤러리에서 비전을 생생하게! 최대 9장까지 자동 배치됩니다.</p>
+                <div className="text-5xl mb-4">🖼️</div>
+                <h2 className="text-2xl font-bold text-white">Phase 3: 프리미엄 꿈의 캔버스</h2>
+                <p className="text-pink-200/70 text-sm">성공과 부를 끌어당기는 초고화질 갤러리에서 당신의 꿈을 시각화하세요.</p>
             </div>
 
-            <div className="space-y-3">
-                <div className="flex gap-2">
-                    <input
-                        value={keyword}
-                        onChange={e => setKeyword(e.target.value)}
-                        onKeyDown={e => e.key === "Enter" && handleSearchSubmit(keyword)}
-                        placeholder="원하는 키워드를 검색하세요 (예: 성공, 커피, 오션뷰)"
-                        className="flex-1 bg-white/5 border border-white/20 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-pink-400/60"
-                        disabled={isSearching}
-                    />
-                    <button 
-                        onClick={() => handleSearchSubmit(keyword)} 
-                        disabled={isSearching || !keyword.trim()}
-                        className="px-4 py-3 bg-pink-500/80 hover:bg-pink-500 disabled:opacity-50 rounded-xl text-white font-bold transition-all"
+            {/* Category Tabs */}
+            <div className="flex flex-wrap gap-2 justify-center">
+                {CURATED_CATEGORIES.map(cat => (
+                    <button
+                        key={cat.id}
+                        onClick={() => setActiveCategory(cat.id)}
+                        className={`px-4 py-2.5 rounded-full text-sm font-bold transition-all ${
+                            activeCategory === cat.id 
+                            ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg shadow-pink-500/30 transform scale-105" 
+                            : "bg-white/5 border border-white/10 text-white/60 hover:bg-white/10"
+                        }`}
                     >
-                        {isSearching ? <Loader2 size={20} className="animate-spin" /> : <Search size={20} />}
+                        {cat.label}
                     </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    <button onClick={() => handleSearchSubmit("추천")}
-                        className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeKeyword === "추천" ? "bg-purple-500 text-white shadow-lg shadow-purple-500/40" : "bg-white/5 text-white/60 hover:bg-white/10"}`}>
-                        ⭐ 추천 정석 사진
-                    </button>
-                    {DEFAULT_KEYWORDS.map(kw => (
-                        <button key={kw} onClick={() => handleSearchSubmit(kw)}
-                            disabled={isSearching}
-                            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${activeKeyword === kw
-                                    ? "bg-pink-500 text-white shadow-lg shadow-pink-500/40"
-                                    : "bg-white/5 text-white/60 hover:bg-white/10"
-                                }`}
-                        >
-                            {kw}
+                ))}
+            </div>
+
+            {/* Image Grid */}
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-5">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-white/80 font-bold flex items-center gap-2">
+                        <Sparkles size={18} className="text-yellow-400" />
+                        선택된 에너지가 담긴 사진 ({selectedImages.length}/7장)
+                    </h3>
+                    {selectedImages.length > 0 && (
+                        <button onClick={() => {setSelectedImages([]); setPreviewUrl(null);}} className="text-pink-400 hover:text-pink-300 text-xs font-bold underline">
+                            모두 해제
                         </button>
-                    ))}
+                    )}
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <AnimatePresence mode="popLayout">
+                        {activeImages.map((img) => {
+                            const isSelected = selectedImages.includes(img.url);
+                            return (
+                                <motion.div
+                                    key={img.url}
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="relative aspect-square cursor-pointer group rounded-2xl overflow-hidden"
+                                    onClick={() => toggleImage(img.url)}
+                                >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img 
+                                        src={img.url} 
+                                        alt={img.label} 
+                                        className={`w-full h-full object-cover transition-all duration-500 ${isSelected ? "scale-110 brightness-110" : "group-hover:scale-105 brightness-75 hover:brightness-100"}`} 
+                                        crossOrigin="anonymous" 
+                                    />
+                                    <div className={`absolute inset-0 transition-opacity duration-300 ${isSelected ? "bg-pink-500/20" : "bg-black/30 group-hover:bg-black/10"}`} />
+                                    
+                                    {/* Label Badge */}
+                                    <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full border border-white/10">
+                                        <span className="text-white/90 text-[11px] font-bold tracking-wide">{img.label}</span>
+                                    </div>
+
+                                    {/* Selection Indicator */}
+                                    {isSelected && (
+                                        <motion.div 
+                                            initial={{ scale: 0 }}
+                                            animate={{ scale: 1 }}
+                                            className="absolute top-3 right-3 bg-white rounded-full p-1"
+                                        >
+                                            <CheckCircle2 size={24} className="text-pink-500 fill-white" />
+                                        </motion.div>
+                                    )}
+                                </motion.div>
+                            );
+                        })}
+                    </AnimatePresence>
                 </div>
             </div>
 
-            <AnimatePresence>
-                {activeKeyword && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="space-y-3"
-                    >
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 min-h-[300px]">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-white/80 text-sm font-semibold flex items-center gap-2">
-                                    {isSearching ? <Loader2 size={16} className="animate-spin text-pink-400" /> : <Star size={16} className="text-yellow-400"/>}
-                                    &quot;{activeKeyword}&quot; {activeKeyword === "추천" ? "고품격 큐레이션" : "고화질 이미지"} (최대 9장 중 {selectedImagesMap.size}장 선택됨)
-                                </h3>
-                                {selectedImagesMap.size > 0 && (
-                                    <button onClick={() => setSelectedImagesMap(new Map())} className="text-pink-400/70 hover:text-pink-400 text-xs font-bold underline transition-all">
-                                        선택 모두 해제
-                                    </button>
-                                )}
+            {/* Canvas Generation Section */}
+            {selectedImages.length > 0 && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-gradient-to-br from-indigo-900/50 to-purple-900/40 border border-purple-500/30 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl"
+                >
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex-1">
+                            <h4 className="text-2xl font-black text-white flex items-center gap-2 mb-2">
+                                <Sparkles size={24} className="text-yellow-400" />
+                                나의 비전보드 완성
+                            </h4>
+                            <p className="text-purple-200/70 text-sm">스마트폰 배경화면으로 저장하여 매일 아침 시각화 하세요.</p>
+                        </div>
+                        
+                        <div className="flex gap-2 bg-black/40 p-1.5 rounded-2xl border border-white/10 w-fit">
+                            <button 
+                                onClick={() => { setLayoutStyle("grid"); setPreviewUrl(null); }}
+                                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${layoutStyle === "grid" ? "bg-white/20 text-white shadow-md shadow-white/5" : "text-white/50 hover:bg-white/10"}`}>
+                                <LayoutGrid size={16} /> 그리드
+                            </button>
+                            <button 
+                                onClick={() => { setLayoutStyle("collage"); setPreviewUrl(null); }}
+                                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${layoutStyle === "collage" ? "bg-white/20 text-white shadow-md shadow-white/5" : "text-white/50 hover:bg-white/10"}`}>
+                                <ImageIcon size={16} /> 콜라주
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-black/40 border border-black/50 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 min-h-[300px]">
+                        {previewUrl ? (
+                            <div className="relative group">
+                                <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="rounded-xl overflow-hidden shadow-[0_0_40px_rgba(168,85,247,0.3)] border border-purple-500/30">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={previewUrl} alt="Vision Board Preview" className="w-[280px] h-auto rounded-xl" />
+                                </motion.div>
+                                <button onClick={() => setPreviewUrl(null)} className="absolute -top-3 -right-3 bg-black text-white/50 hover:text-white border border-white/20 rounded-full p-2 transition-colors">
+                                    <X size={16}/>
+                                </button>
                             </div>
-                            
-                            {isSearching ? (
-                                <div className="flex justify-center items-center h-48">
-                                    <div className="loader w-8 h-8 rounded-full border-4 border-t-pink-500 border-white/20 animate-spin"></div>
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                                    {images.map((img, i) => (
-                                        <motion.button
-                                            key={img.url}
-                                            initial={{ opacity: 0, scale: 0.9 }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ delay: i * 0.02 }}
-                                            onClick={() => toggleImage(img.url, img.highResUrl)}
-                                            className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${selectedImagesMap.has(img.url)
-                                                    ? "border-pink-400 scale-[1.02] shadow-lg shadow-pink-500/50"
-                                                    : "border-transparent hover:border-white/30"
-                                                }`}
+                        ) : (
+                            <button 
+                                onClick={handlePreview}
+                                disabled={isPreviewing}
+                                className="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 text-white font-black rounded-2xl transition-all shadow-[0_0_30px_rgba(236,72,153,0.4)] flex items-center justify-center gap-3 text-lg"
+                            >
+                                {isPreviewing ? (
+                                    <><div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> 생성 중...</>
+                                ) : (
+                                    <><Eye size={20} /> 디자인 미리보기</>
+                                )}
+                            </button>
+                        )}
+                    </div>
+
+                    <AnimatePresence>
+                        {previewUrl && (
+                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="pt-2">
+                                <p className="text-purple-200/50 text-xs font-medium text-center mb-4">원하는 기기 사이즈에 맞게 원본 화질로 자동 다운로드됩니다.</p>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    {DOWNLOAD_SIZES.map(s => (
+                                        <button
+                                            key={s.label}
+                                            onClick={() => triggerDownload(s.width, s.height, s.label)}
+                                            disabled={isDownloading}
+                                            className="py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-400/50 rounded-xl text-white text-xs font-bold transition-all disabled:opacity-50 flex flex-col items-center justify-center gap-2"
                                         >
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={img.url} alt={img.label} className="w-full h-full object-cover bg-black/20" crossOrigin="anonymous" />
-                                            <div className="absolute inset-0 bg-black/20 hover:bg-black/10 transition-colors" />
-                                            {selectedImagesMap.has(img.url) && (
-                                                <div className="absolute top-2 right-2 bg-black/40 rounded-full">
-                                                    <CheckCircle2 size={24} className="text-pink-400 fill-pink-500/20" />
-                                                </div>
-                                            )}
-                                        </motion.button>
+                                            <Download size={18} className="text-purple-400" />
+                                            {s.label}
+                                        </button>
                                     ))}
                                 </div>
-                            )}
-                        </div>
-
-                        {selectedImagesMap.size > 0 && (
-                            <div className="bg-gradient-to-br from-purple-900/40 to-pink-900/30 border border-pink-500/30 rounded-2xl p-5 space-y-4">
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                                    <h4 className="text-white font-bold flex items-center gap-2">
-                                        <Star size={18} className="text-yellow-400" />
-                                        비전보드 생성 및 다운로드
-                                    </h4>
-                                    
-                                    <div className="flex gap-2 bg-black/30 p-1.5 rounded-xl border border-white/10">
-                                        <button 
-                                            onClick={() => { setLayoutStyle("grid"); setPreviewUrl(null); }}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${layoutStyle === "grid" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10"}`}>
-                                            <LayoutGrid size={14} /> 자동 맞춤 바둑판
-                                        </button>
-                                        <button 
-                                            onClick={() => { setLayoutStyle("collage"); setPreviewUrl(null); }}
-                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${layoutStyle === "collage" ? "bg-white/20 text-white" : "text-white/50 hover:bg-white/10"}`}>
-                                            <ImageIcon size={14} /> 지능형 폴라로이드 콜라주
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="bg-black/40 border border-black/50 rounded-xl p-4 flex flex-col items-center gap-4">
-                                    {previewUrl ? (
-                                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative w-full max-w-sm rounded-lg overflow-hidden shadow-2xl border border-white/10">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={previewUrl} alt="Preview" className="w-full h-auto" />
-                                        </motion.div>
-                                    ) : (
-                                        <div className="py-6 text-center">
-                                            <p className="text-white/40 text-sm mb-3">생성될 비전보드의 모습을 먼저 확인해보세요 (겹침 최소화 지터 로직 적용)</p>
-                                            <button 
-                                                onClick={handlePreview}
-                                                disabled={isPreviewing}
-                                                className="px-6 py-2.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 disabled:opacity-50 text-white font-bold rounded-full transition-all flex items-center justify-center mx-auto gap-2">
-                                                {isPreviewing ? <Loader2 size={16} className="animate-spin" /> : <Eye size={16} />}
-                                                미리보기 생성
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {previewUrl && (
-                                    <div className="pt-2 animate-fade-in-up">
-                                        <p className="text-pink-200/50 text-xs text-center mb-3">미리보기가 마음에 드신다면 아래 사이즈를 골라 저장하세요</p>
-                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
-                                            {DOWNLOAD_SIZES.map(s => (
-                                                <button
-                                                    key={s.label}
-                                                    onClick={() => downloadVisionBoard(s.width, s.height, s.label)}
-                                                    disabled={isDownloading}
-                                                    className="py-2.5 px-2 bg-pink-500/20 hover:bg-pink-500/40 border border-pink-400/30 hover:border-pink-400/60 rounded-xl text-pink-100 text-[11px] lg:text-xs font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
-                                                >
-                                                    {isDownloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                                                    {s.label}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                            </motion.div>
                         )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    </AnimatePresence>
+                </motion.div>
+            )}
         </div>
     );
 }

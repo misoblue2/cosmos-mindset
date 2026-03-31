@@ -1,301 +1,190 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Bell, TrendingUp, Infinity as InfinityIcon } from "lucide-react";
+import { MessageCircle, Copy, CheckCircle2, Share2, Sparkles, Award } from "lucide-react";
+import { useState, useEffect } from "react";
+import confetti from "canvas-confetti";
 
-const MORNING_WISDOMS = [
-    "오늘도 당신은 무한한 가능성의 존재입니다. 🌅",
-    "매 순간이 새로운 시작입니다. 지금 이 순간을 소중히 하세요. ✨",
-    "당신의 생각이 현실을 창조합니다. 오늘은 아름다운 생각으로 채우세요. 💫",
-    "작은 진전도 분명히 진전입니다. 오늘의 성장을 축하합니다. 🌱",
-    "당신은 이미 충분합니다. 그 자체로 완전합니다. 🌸",
-];
-
-const RESILIENCE_DATA = [
-    { label: "감사", level: 0 },
-    { label: "확언", level: 0 },
-    { label: "시각화", level: 0 },
-    { label: "멘토 상담", level: 0 },
-    { label: "종합", level: 0 },
-];
-
-export default function Phase5Thermometer({
-    completedPhases = 0,
-}: {
-    completedPhases?: number;
-}) {
-    const [wisdomIndex, setWisdomIndex] = useState(0);
-    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-    const [notificationTime, setNotificationTime] = useState("07:00");
-    const [animatedLevels, setAnimatedLevels] = useState(RESILIENCE_DATA.map(() => 0));
-
-    const [name, setName] = useState("");
-    const [phone, setPhone] = useState("");
-    const [isSubscribed, setIsSubscribed] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
-    const handleSubscribe = () => {
-        if (!name.trim() || !phone.trim()) return;
-        setIsSubmitting(true);
-        // Simulate API call scheduling
-        setTimeout(() => {
-            setIsSubmitting(false);
-            setIsSubscribed(true);
-        }, 1200);
-    };
+export default function Phase5Thermometer({ completedPhases }: { completedPhases?: number }) {
+    const [isCopied, setIsCopied] = useState(false);
+    const [canNativeShare, setCanNativeShare] = useState(false);
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setWisdomIndex((prev) => (prev + 1) % MORNING_WISDOMS.length);
-        }, 5000);
-        return () => clearInterval(interval);
+        // Check if Web Share API is available
+        if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+            setCanNativeShare(true);
+        }
+        
+        // Trigger celebration confetti on mount
+        setTimeout(() => {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#FCD34D', '#FDE68A', '#ffffff']
+            });
+        }, 500);
     }, []);
 
-    useEffect(() => {
-        // Animate resilience bars based on completedPhases
-        const targets = RESILIENCE_DATA.map((_, i) => {
-            const base = Math.min(100, completedPhases * 25);
-            const variation = (i * 17) % 30;
-            return Math.min(95, base + variation);
-        });
-        const timer = setTimeout(() => setAnimatedLevels(targets), 300);
-        return () => clearTimeout(timer);
-    }, [completedPhases]);
+    const todayDate = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' }).format(new Date());
 
-    const overallResilience = Math.round(animatedLevels.reduce((a, b) => a + b, 0) / animatedLevels.length);
+    const summaryText = `✨ [지혜의 신전] 오늘의 긍정 마인드 충전 완료! ✨
 
-    const getTemperatureColor = (level: number) => {
-        if (level < 30) return "from-blue-500 to-cyan-400";
-        if (level < 60) return "from-yellow-500 to-amber-400";
-        return "from-orange-500 to-red-400";
+📅 일시: ${todayDate}
+🌡️ 마음 온도: 100°C (열정 최고조🔥)
+
+당신은 오늘 지혜의 신전에서 다음과 같은 위대한 작업을 완수했습니다:
+✅ 1. 감사의 정원: 내면의 평화를 다졌습니다.
+✅ 2. 성공의 주파수: 나만의 긍정 확언을 새겼습니다.
+✅ 3. 꿈의 캔버스: 부와 성공의 시각화를 완료했습니다.
+✅ 4. 우주의 계시: 대기만성과 만사형통의 행운을 뽑았습니다.
+
+🌟 "당신의 생각이 현실을 창조합니다. 오늘은 가장 빛나는 하루가 될 것입니다."
+
+우주의 기운이 당신과 함께합니다. 늘 자신을 믿으세요! 🚀
+- 상상학교 지혜의 신전 -`;
+
+    const handleShare = async () => {
+        if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+            try {
+                await navigator.share({
+                    title: '지혜의 신전 긍정 충전 요약',
+                    text: summaryText,
+                });
+            } catch (err) {
+                console.log('공유 취소됨 또는 실패', err);
+            }
+        } else {
+            handleCopy();
+        }
     };
 
-    const getTemperatureLabel = (level: number) => {
-        if (level < 20) return { label: "차갑게 시작", emoji: "🌊" };
-        if (level < 40) return { label: "서서히 워밍업", emoji: "🌤️" };
-        if (level < 60) return { label: "균형 잡힌 상태", emoji: "☀️" };
-        if (level < 80) return { label: "활짝 피어나는 중", emoji: "🌺" };
-        return { label: "최고 레벨 달성!", emoji: "🔥" };
+    const handleCopy = () => {
+        navigator.clipboard.writeText(summaryText);
+        setIsCopied(true);
+        setTimeout(() => setIsCopied(false), 3000);
     };
-
-    const tempInfo = getTemperatureLabel(overallResilience);
 
     return (
-        <div className="space-y-6">
-            <div className="text-center space-y-2">
-                <div className="text-5xl mb-4">🌡️</div>
-                <h2 className="text-2xl font-bold text-white">Phase 5: 마음 온도계</h2>
-                <p className="text-emerald-200/70 text-sm">오늘의 레질리언스 수치와 아침 지혜 알림을 확인하세요</p>
+        <div className="space-y-8 animate-fade-in-up">
+            <div className="text-center space-y-2 relative z-10">
+                <motion.div 
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                    className="text-6xl mb-4 inline-block drop-shadow-2xl"
+                >
+                    🏅
+                </motion.div>
+                <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500 pb-1">
+                    퍼펙트 데이 달성!
+                </h2>
+                <p className="text-yellow-100/80 text-sm">
+                    오늘의 긍정 마인드 충전을 성공적으로 마쳤습니다.
+                </p>
             </div>
 
-            {/* Overall Thermometer */}
-            <div className="bg-gradient-to-br from-emerald-900/30 to-teal-900/20 border border-emerald-400/20 rounded-2xl p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <p className="text-white/60 text-xs uppercase tracking-wide">오늘의 마음 온도</p>
-                        <div className="flex items-end gap-2 mt-1">
-                            <span className="text-5xl font-black text-white">{overallResilience}</span>
-                            <span className="text-white/40 text-xl mb-1">°C</span>
-                        </div>
-                        <p className="text-emerald-300 text-sm font-medium">{tempInfo.emoji} {tempInfo.label}</p>
-                    </div>
-                    {/* Thermometer Visual */}
-                    <div className="relative flex flex-col items-center gap-1">
-                        <div className="w-8 h-32 bg-white/10 rounded-full overflow-hidden border border-white/20 relative">
-                            <motion.div
-                                initial={{ height: "0%" }}
-                                animate={{ height: `${overallResilience}%` }}
-                                transition={{ duration: 1.5, ease: "easeOut" }}
-                                className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t ${getTemperatureColor(overallResilience)} rounded-full`}
-                            />
-                        </div>
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-orange-500 border-2 border-white/20 flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">{overallResilience}°</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Phase Progress Bar */}
-                <div className="space-y-1.5">
-                    {RESILIENCE_DATA.map((item, i) => (
-                        <div key={item.label} className="flex items-center gap-3">
-                            <span className="text-white/50 text-xs w-16 flex-shrink-0">{item.label}</span>
-                            <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                                <motion.div
-                                    initial={{ width: "0%" }}
-                                    animate={{ width: `${animatedLevels[i]}%` }}
-                                    transition={{ duration: 1.2, delay: i * 0.1 }}
-                                    className={`h-full bg-gradient-to-r ${getTemperatureColor(animatedLevels[i])} rounded-full`}
-                                />
-                            </div>
-                            <span className="text-white/50 text-xs w-8 text-right">{animatedLevels[i]}%</span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Trend Graph (Simple) */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center gap-2 text-white/70">
-                    <TrendingUp size={16} className="text-green-400" />
-                    <span className="text-sm font-semibold">레질리언스 성장 그래프</span>
-                </div>
-                <div className="flex items-end gap-2 h-20">
-                    {[20, 35, 28, 55, 48, 72, overallResilience].map((val, i) => (
-                        <motion.div
-                            key={i}
-                            initial={{ height: 0 }}
-                            animate={{ height: `${val}%` }}
-                            transition={{ duration: 0.8, delay: i * 0.1 }}
-                            className={`flex-1 rounded-t-md bg-gradient-to-t ${i === 6 ? "from-green-500 to-emerald-400" : "from-emerald-700/60 to-emerald-500/40"
-                                }`}
-                        />
-                    ))}
-                </div>
-                <div className="flex justify-between text-white/30 text-[10px]">
-                    <span>6일 전</span><span>5일</span><span>4일</span><span>3일</span><span>2일</span><span>1일</span><span className="text-emerald-400">오늘</span>
+            <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-gradient-to-b from-[#1a1c29]/90 to-[#0f111a]/90 backdrop-blur-xl border border-yellow-500/30 rounded-[2.5rem] p-6 md:p-10 shadow-[0_0_50px_rgba(234,179,8,0.15)] relative overflow-hidden"
+            >
+                {/* Decorative Elements */}
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                    <Sparkles className="w-32 h-32 text-yellow-400" />
                 </div>
                 
-                <button 
-                    onClick={() => alert(`나의 레질리언스 수치 ${overallResilience}°C를 공유합니다! \n#지혜의신전 #마음온도계`)}
-                    className="w-full py-2.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-emerald-400 text-xs font-bold transition-all flex items-center justify-center gap-2"
-                >
-                    <TrendingUp size={14} /> 나의 성장 데이터 이미지로 저장하기
-                </button>
-            </div>
-
-            {/* Morning Notification Setting */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Bell size={16} className="text-yellow-400" />
-                        <span className="text-white font-semibold text-sm">아침 지혜 알림</span>
+                <div className="relative z-10 space-y-8">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-6">
+                        <div>
+                            <p className="text-white/50 text-xs font-bold uppercase tracking-widest mb-1">RECORD OF SUCCESS</p>
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Award className="text-yellow-400" /> 오늘의 긍정 마인드 요약본
+                            </h3>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-white/40 text-xs">{todayDate}</p>
+                            <p className="text-yellow-400 font-bold text-lg">심박수: 100°C 🔥</p>
+                        </div>
                     </div>
-                    <button
-                        onClick={() => setNotificationsEnabled(!notificationsEnabled)}
-                        className={`relative w-12 h-6 rounded-full transition-all ${notificationsEnabled ? "bg-yellow-400" : "bg-white/20"}`}
-                    >
-                        <motion.div
-                            animate={{ x: notificationsEnabled ? 24 : 2 }}
-                            className="absolute top-1 w-4 h-4 bg-white rounded-full shadow-md"
-                        />
-                    </button>
-                </div>
 
-                {notificationsEnabled && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="space-y-4 pt-2 border-t border-white/10">
-                        {isSubscribed ? (
-                            <div className="bg-green-500/10 border border-green-500/30 rounded-xl px-4 py-4 text-center space-y-2">
-                                <div className="text-2xl">✅</div>
-                                <h3 className="text-green-400 font-bold text-sm">알림 예약 완료!</h3>
-                                <p className="text-green-200/80 text-xs leading-relaxed">
-                                    {name}님, 내일부터 매일 {notificationTime}에<br/>
-                                    입력해주신 번호({phone})로 아침 지혜 문자가 발송됩니다.
-                                </p>
-                                <button 
-                                    onClick={() => setIsSubscribed(false)}
-                                    className="mt-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-white/50 hover:text-white/80 text-xs transition-colors"
-                                >
-                                    알림 설정 변경하기
-                                </button>
+                    <div className="space-y-4">
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors">
+                            <div className="flex items-start gap-3">
+                                <CheckCircle2 className="text-green-400 mt-0.5" size={20} shrink-0 />
+                                <div>
+                                    <h4 className="text-white font-bold text-sm">마음의 평화와 결단</h4>
+                                    <p className="text-white/60 text-xs mt-1">감사의 주파수를 맞추고 과거의 짐을 내려놓았습니다.</p>
+                                </div>
                             </div>
-                        ) : (
-                            <>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-1">
-                                        <label className="text-white/60 text-xs ml-1">이름</label>
-                                        <input
-                                            type="text"
-                                            value={name}
-                                            onChange={e => setName(e.target.value)}
-                                            placeholder="홍길동"
-                                            className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:border-yellow-400/60"
-                                        />
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-white/60 text-xs ml-1">알림 시간</label>
-                                        <input
-                                            type="time"
-                                            value={notificationTime}
-                                            onChange={e => setNotificationTime(e.target.value)}
-                                            className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm focus:outline-none focus:border-yellow-400/60"
-                                            style={{ colorScheme: 'dark' }}
-                                        />
-                                    </div>
+                        </div>
+                        
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors">
+                            <div className="flex items-start gap-3">
+                                <CheckCircle2 className="text-green-400 mt-0.5" size={20} shrink-0 />
+                                <div>
+                                    <h4 className="text-white font-bold text-sm">성공의 시각화 완수</h4>
+                                    <p className="text-white/60 text-xs mt-1">부와 행복이 가득한 비전보드로 미래를 명확히 그렸습니다.</p>
                                 </div>
-                                <div className="space-y-1">
-                                    <label className="text-white/60 text-xs ml-1">휴대폰 번호</label>
-                                    <input
-                                        type="tel"
-                                        value={phone}
-                                        onChange={e => setPhone(e.target.value)}
-                                        placeholder="010-0000-0000"
-                                        className="w-full bg-white/5 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm placeholder-white/20 focus:outline-none focus:border-yellow-400/60"
-                                    />
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-colors">
+                            <div className="flex items-start gap-3">
+                                <CheckCircle2 className="text-green-400 mt-0.5" size={20} shrink-0 />
+                                <div>
+                                    <h4 className="text-white font-bold text-sm">우주의 무한한 지지</h4>
+                                    <p className="text-white/60 text-xs mt-1">대기만성의 거대한 행운과 긍정의 메시지를 수신했습니다.</p>
                                 </div>
-                                <button
-                                    onClick={handleSubscribe}
-                                    disabled={!name.trim() || !phone.trim() || isSubmitting}
-                                    className="w-full py-3 bg-yellow-500/80 hover:bg-yellow-500 disabled:opacity-40 disabled:hover:bg-yellow-500/80 rounded-xl text-yellow-950 font-bold flex items-center justify-center gap-2 transition-all mt-2"
-                                >
-                                    {isSubmitting ? "예약 처리 중..." : "매일 아침 문자 알림 예약하기"}
-                                </button>
-                                <p className="text-center text-white/30 text-[10px] mt-1">
-                                    입력하신 정보는 알림 발송 목적 외에는 사용되지 않습니다.
-                                </p>
-                            </>
-                        )}
-                    </motion.div>
-                )}
-            </div>
+                            </div>
+                        </div>
+                    </div>
 
-            {/* Rotating Morning Wisdom */}
-            <div className="text-center space-y-3">
-                <p className="text-white/40 text-xs uppercase tracking-widest">오늘의 아침 지혜</p>
-                <motion.div
-                    key={wisdomIndex}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-base text-white/80 font-medium leading-relaxed px-4"
-                >
-                    {MORNING_WISDOMS[wisdomIndex]}
-                </motion.div>
-            </div>
-
-            {/* Final Affirmation */}
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.5 }}
-                className="relative overflow-hidden bg-gradient-to-br from-yellow-900/40 via-amber-800/30 to-orange-900/40 border border-yellow-400/30 rounded-2xl p-8 text-center space-y-4"
-            >
-                <div className="absolute inset-0 opacity-10">
-                    {[...Array(20)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            animate={{ y: [0, -30, 0], opacity: [0.3, 1, 0.3] }}
-                            transition={{ duration: 3 + (i % 3), repeat: Infinity, delay: i * 0.3 }}
-                            className="absolute text-yellow-300 text-xl"
-                            style={{ left: `${(i * 13) % 100}%`, top: `${(i * 17) % 100}%` }}
-                        >
-                            ✦
-                        </motion.div>
-                    ))}
-                </div>
-                <div className="relative z-10 space-y-4">
-                    <InfinityIcon className="w-10 h-10 text-yellow-400 mx-auto" />
-                    <p className="text-yellow-100 text-sm md:text-base leading-relaxed font-medium italic">
-                        &#34;You possess the infinite power to create your reality,<br />
-                        and I will be here to guide you every step of the way.&#34;
-                    </p>
-                    <p className="text-yellow-300/60 text-xs">
-                        — Temple of Wisdom · Divine Guide
-                    </p>
+                    <div className="bg-gradient-to-r from-yellow-500/10 to-transparent p-5 rounded-2xl border-l-4 border-yellow-400">
+                        <p className="text-yellow-200/90 text-sm leading-relaxed italic font-medium">
+                            "당신의 무한한 잠재력은 이미 깨어났습니다. 내일도 긍정의 주파수로 세상을 호령하시길 바랍니다."
+                        </p>
+                    </div>
                 </div>
             </motion.div>
+
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex flex-col sm:flex-row gap-4"
+            >
+                {canNativeShare ? (
+                    <button 
+                        onClick={handleShare}
+                        className="flex-1 py-5 bg-[#FEE500] hover:bg-[#FEE500]/90 text-black font-black text-lg rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg active:scale-95 cursor-pointer"
+                    >
+                        <MessageCircle size={24} className="text-[#3A1D1D]" /> 
+                        카카오톡으로 요약 전송하기
+                    </button>
+                ) : (
+                    <button 
+                        onClick={handleShare}
+                        className="flex-1 py-5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:scale-[1.02] text-white font-black text-lg rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg active:scale-95 cursor-pointer"
+                    >
+                        <Share2 size={22} /> 기기 공유 메뉴 열기
+                    </button>
+                )}
+                
+                <button 
+                    onClick={handleCopy}
+                    className="w-full sm:w-auto px-8 py-5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                    {isCopied ? <><CheckCircle2 size={20} className="text-green-400" /> 복사됨</> : <><Copy size={20} /> 텍스트 복사</>}
+                </button>
+            </motion.div>
+
+            <div className="text-center pt-8">
+               <button onClick={() => window.location.href = "/"} className="text-white/40 hover:text-white text-sm font-semibold transition-colors underline underline-offset-4">
+                   메인 홀로 돌아가기
+               </button>
+            </div>
         </div>
     );
 }
