@@ -6,11 +6,11 @@ import { Mail, Send, ChevronLeft, Sparkles, Loader2, Download, Image as ImageIco
 import Link from "next/link";
 
 const HEALING_BG_OPTIONS = [
-    { id: "paper1", label: "📜 앤티크 편지지", url: "https://images.unsplash.com/photo-1586075010633-2470ac20235a?w=1000&fit=crop", color: "#f3e5ab", textColor: "#4a3728" },
-    { id: "night", label: "🌌 고요한 밤하늘", url: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1000&fit=crop", color: "#0c1445", textColor: "#ffffff" },
-    { id: "flower", label: "🌸 잔잔한 꽃무늬", url: "https://images.unsplash.com/photo-1522441815192-d9f04eb0615c?w=1000&fit=crop", color: "#fff0f5", textColor: "#6a5ace" },
-    { id: "nature", label: "🌿 평온한 숲", url: "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?w=1000&fit=crop", color: "#e8f5e9", textColor: "#2e7d32" },
-    { id: "minimal", label: "🐚 미니멀 베이지", url: "https://images.unsplash.com/photo-1505330622279-bf7d7fc918f4?w=1000&fit=crop", color: "#f5f5dc", textColor: "#333333" },
+    { id: "paper1", label: "📜 고전 명화", url: "https://images.unsplash.com/photo-1577083552431-6e5fd01aa342?w=1600&fit=crop", color: "#f3e5ab", textColor: "#ffffff" },
+    { id: "night", label: "🌌 우주 일러스트", url: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=1600&fit=crop", color: "#0c1445", textColor: "#ffffff" },
+    { id: "flower", label: "🌸 인상주의 정원", url: "https://images.unsplash.com/photo-1518791841217-8f162f1e1131?w=1600&fit=crop", color: "#fff0f5", textColor: "#ffffff" },
+    { id: "nature", label: "🌿 풍경화의 미학", url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1600&fit=crop", color: "#e8f5e9", textColor: "#ffffff" },
+    { id: "minimal", label: "🐚 추상 화원", url: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600&fit=crop", color: "#f5f5dc", textColor: "#ffffff" },
 ];
 
 const DOWNLOAD_SIZES = [
@@ -159,7 +159,26 @@ export default function HealingPage() {
     if (!isMounted) return <div className="min-h-screen bg-[#050510]" />;
 
     return (
-        <div className="min-h-screen bg-[#050510] text-white selection:bg-indigo-500/30 font-sans pb-20">
+        <div className="relative min-h-screen text-white selection:bg-indigo-500/30 font-sans pb-20 transition-all duration-1000 overflow-x-hidden">
+            {/* Full-page Background Layer */}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={selectedBg.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 1.5 }}
+                    className="fixed inset-0 z-0 pointer-events-none"
+                >
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                        style={{ backgroundImage: `url(${selectedBg.url})` }}
+                    />
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40" />
+                </motion.div>
+            </AnimatePresence>
+
             {/* Nav */}
             <div className="max-w-4xl mx-auto p-6 flex items-center justify-between relative z-50">
                 <Link href="/temple" className="flex items-center gap-2 text-white/50 hover:text-white transition-colors font-bold group">
@@ -217,34 +236,60 @@ export default function HealingPage() {
 
                 {/* Reply Section */}
                 {reply && (
-                    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="space-y-8">
-                        <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[3rem] p-10 md:p-14 shadow-2xl relative overflow-hidden group">
-                           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity"><Sparkles size={100} /></div>
-                            <div className="flex items-center gap-3 mb-8">
-                                <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
-                                    <Sparkles size={18} className="text-indigo-400" />
+                    <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 relative z-10">
+                        <div className="bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[4rem] p-12 md:p-16 shadow-[0_40px_100px_rgba(0,0,0,0.5)] relative overflow-hidden group">
+                           <div className="absolute -top-24 -right-24 p-8 opacity-10 group-hover:opacity-20 transition-all duration-700 blur-2xl">
+                               <Sparkles size={300} className="text-white" />
+                           </div>
+                            
+                            <div className="flex flex-col items-center text-center space-y-10">
+                                <motion.div 
+                                    initial={{ scale: 0.9, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="px-6 py-2 bg-white/20 rounded-full border border-white/30 text-[10px] uppercase tracking-[0.4em] font-black text-white/80"
+                                >
+                                    Divine Message from the Stars
+                                </motion.div>
+
+                                <motion.p 
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="text-2xl md:text-3xl leading-[1.8] font-bold text-white drop-shadow-xl font-serif"
+                                >
+                                    &quot;{reply}&quot;
+                                </motion.p>
+
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 1 }}
+                                    className="w-16 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent" 
+                                />
+
+                                <div className="flex flex-col items-center gap-4">
+                                    <p className="text-white/40 text-xs font-bold uppercase tracking-[0.3em]">— Your Cosmic Guide</p>
+                                    <button 
+                                        onClick={() => { setStory(""); setReply(""); }} 
+                                        className="px-8 py-3 bg-white/10 hover:bg-white/20 rounded-full border border-white/20 text-[10px] font-black uppercase tracking-widest transition-all hover:scale-105 active:scale-95"
+                                    >
+                                        새로운 사연 적기
+                                    </button>
                                 </div>
-                                <span className="text-sm font-black text-indigo-300 uppercase tracking-widest">Divine Response</span>
-                            </div>
-                            <p className="text-xl md:text-2xl leading-loose font-medium text-white/90 italic">
-                                &quot;{reply}&quot;
-                            </p>
-                            <div className="mt-12 flex items-center justify-between border-t border-white/10 pt-8">
-                                <p className="text-white/30 text-xs font-bold uppercase tracking-widest">— Your Guiding Spirit</p>
-                                <button onClick={() => { setStory(""); setReply(""); }} className="text-xs font-bold text-indigo-400 hover:text-white transition-colors">새로운 편지 쓰기</button>
                             </div>
                         </div>
 
                         {/* Download Options */}
-                        <div className="bg-gradient-to-br from-indigo-900/30 to-purple-900/20 border border-indigo-500/20 rounded-[2.5rem] p-8 space-y-8">
-                            <div className="space-y-4">
-                                <h3 className="text-white font-bold text-sm tracking-wide flex items-center gap-2">
-                                    <ImageIcon size={16} className="text-indigo-400" /> 감성 배경 선택
+                        <div className="bg-black/60 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-10 space-y-10 shadow-2xl">
+                            <div className="space-y-6">
+                                <h3 className="text-white/80 font-black text-xs tracking-[0.3em] flex items-center justify-center gap-3 uppercase">
+                                    <ImageIcon size={16} className="text-indigo-400" /> 배경 이미지 테마 선택
                                 </h3>
-                                <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                                     {HEALING_BG_OPTIONS.map(bg => (
                                         <button key={bg.id} onClick={() => setSelectedBg(bg)}
-                                            className={`px-3 py-2 rounded-xl text-[10px] font-bold transition-all border ${selectedBg.id === bg.id ? "border-indigo-400 bg-indigo-400/20 text-indigo-200" : "border-white/10 bg-white/5 text-white/40 hover:border-white/20"}`}
+                                            className={`px-4 py-3 rounded-2xl text-[10px] font-black transition-all border ${selectedBg.id === bg.id ? "border-white bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.3)]" : "border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:text-white"}`}
                                         >
                                             {bg.label}
                                         </button>

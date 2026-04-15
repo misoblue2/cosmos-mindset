@@ -63,7 +63,6 @@ export function Header() {
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-6">
                         <NavLink href="/">홈</NavLink>
-                        <NavLink href="/temple" accent className="font-serif text-yellow-400/90 hover:text-yellow-400">지혜의 신전</NavLink>
                         <NavLink href="/healing" accent className="font-serif text-amber-500/80 hover:text-amber-500">마음 상담소</NavLink>
                         <NavLink href="/originals">우주의 서재</NavLink>
                         <NavLink href="/imagination" accent className="font-serif text-orange-500/80 hover:text-orange-500">어린이 상상학교</NavLink>
@@ -127,7 +126,6 @@ export function Header() {
                         <div className="flex flex-col space-y-6">
                             <div className="space-y-4 flex flex-col items-start border-l-2 border-primary/20 pl-6">
                                 <MobileNavLink href="/" onClick={() => setIsMenuOpen(false)}>홈</MobileNavLink>
-                                <MobileNavLink href="/temple" onClick={() => setIsMenuOpen(false)} className="text-yellow-400 font-serif">지혜의 신전</MobileNavLink>
                                 <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-amber-500 font-serif">마음 상담소</MobileNavLink>
                                 <MobileNavLink href="/originals" onClick={() => setIsMenuOpen(false)}>우주의 서재</MobileNavLink>
                                 <MobileNavLink href="/imagination" onClick={() => setIsMenuOpen(false)} className="text-orange-500 font-serif">어린이 상상학교</MobileNavLink>
