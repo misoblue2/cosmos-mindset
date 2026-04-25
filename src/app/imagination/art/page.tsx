@@ -239,53 +239,87 @@ const Stage3Mandala = ({ onComplete }: { onComplete: () => void }) => {
     );
 };
 
-// --- STAGE 4: 주파수 시각화 (물결 공감각) ---
-const Stage4Waves = ({ onComplete }: { onComplete: () => void }) => {
-    const [waves, setWaves] = useState<{id: number, x: number, y: number}[]>([]);
-    const targetWaves = 10;
-    
-    const handleTap = (e: React.PointerEvent<HTMLDivElement>) => {
-        if (waves.length >= targetWaves) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        sound?.playChime(); // 치유음
-        
-        const newWaves = [...waves, { id: Date.now(), x, y }];
-        setWaves(newWaves);
+// --- STAGE 4: 음악 심상 훈련 (GIM - Guided Imagery and Music) ---
+const Stage4MusicReflection = ({ onComplete }: { onComplete: () => void }) => {
+    const [text, setText] = useState("");
+    const [submitted, setSubmitted] = useState(false);
 
-        if (newWaves.length === targetWaves) {
-            setTimeout(onComplete, 2000);
+    useEffect(() => {
+        // 백그라운드에서 웅장하고 치유적인 432Hz 앰비언스를 재생
+        sound?.startMeditationDrone();
+        return () => sound?.stopMeditationDrone();
+    }, []);
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (text.trim().length < 5) {
+            sound?.playError();
+            alert("조금 더 깊이 느끼고 적어주세요. (최소 5글자 이상)");
+            return;
         }
+        sound?.playSuccess();
+        setSubmitted(true);
+        setTimeout(() => {
+            sound?.stopMeditationDrone();
+            onComplete();
+        }, 3000); // 텍스트가 빛으로 날아가는 카타르시스 여운 대기
     };
 
     return (
         <div className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto px-4">
-            <h2 className="text-2xl font-black text-white mb-2">공감각 우주 물결</h2>
-            <p className="text-white/50 mb-8 text-center text-sm font-bold">
-                어둠 속 빈 공간을 터치하여 {targetWaves}개의 아름다운 생명의 파동을 만드세요.
+            <h2 className="text-2xl font-black text-white mb-2">음악 심상 훈련</h2>
+            <p className="text-white/70 mb-8 text-center text-sm md:text-base font-bold max-w-md leading-relaxed">
+                현재 흘러나오는 432Hz 힐링 주파수를 깊게 느껴보세요.<br/>이 음악이 당신의 마음에 어떤 풍경이나 어떤 감정을 그려주고 있나요?<br/>억눌린 감정도 좋습니다. 떠오르는 대로 자유롭게 적어내려가세요.
             </p>
 
-            <div 
-                onPointerDown={handleTap}
-                className="w-full max-w-lg h-96 border border-white/10 rounded-3xl bg-black/40 overflow-hidden relative cursor-pointer shadow-inner touch-none"
-            >
-                <AnimatePresence>
-                    {waves.map(wave => (
-                        <motion.div
-                            key={wave.id}
-                            initial={{ scale: 0, opacity: 1 }}
-                            animate={{ scale: 8, opacity: 0 }}
-                            transition={{ duration: 3, ease: "easeOut" }}
-                            className="absolute w-32 h-32 border-2 border-indigo-400 rounded-full -ml-16 -mt-16 pointer-events-none shadow-[0_0_30px_rgba(129,140,248,0.5)]"
-                            style={{ left: wave.x, top: wave.y }}
+            <AnimatePresence mode="wait">
+                {!submitted ? (
+                    <motion.form 
+                        key="form"
+                        initial={{ opacity: 1 }}
+                        exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+                        onSubmit={handleSubmit} 
+                        className="w-full max-w-lg flex flex-col gap-4"
+                    >
+                        <textarea 
+                            value={text}
+                            onChange={(e) => {
+                                setText(e.target.value);
+                                // Typing feedback (optional soft tap)
+                            }}
+                            placeholder="이 음악을 들으니..."
+                            className="w-full h-40 bg-white/5 border border-white/20 rounded-2xl p-6 text-white text-lg outline-none focus:border-indigo-400 focus:bg-white/10 transition-all font-serif resize-none shadow-inner"
                         />
-                    ))}
-                </AnimatePresence>
-                
-                {/* 잔상 효과 퍼지 (Pulse in center gently) */}
-                <div className="absolute inset-0 bg-indigo-500/5 pulse-slow pointer-events-none" />
+                        <button type="submit" className="w-full py-4 bg-indigo-600/80 hover:bg-indigo-500 rounded-xl font-black text-lg transition-colors border border-indigo-400/50">
+                            감정 흘려보내기
+                        </button>
+                    </motion.form>
+                ) : (
+                    <motion.div 
+                        key="submitted"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: -50, scale: 1.1 }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                        className="text-center"
+                    >
+                        <div className="text-indigo-300 font-serif text-xl italic mb-4 opacity-50">"{text}"</div>
+                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400 animate-pulse">
+                            당신의 감정이 아스라이 정화되었습니다.
+                        </h3>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            
+            {/* 시각적 오디오 파동 (가짜) */}
+            <div className="absolute bottom-10 flex gap-2 opacity-30 pointer-events-none">
+                {[1,2,3,4,5].map(i => (
+                    <motion.div 
+                        key={i}
+                        animate={{ height: ["10px", "40px", "10px"] }}
+                        transition={{ duration: Math.random() * 1 + 0.5, repeat: Infinity, ease: "easeInOut" }}
+                        className="w-2 bg-indigo-400 rounded-full"
+                    />
+                ))}
             </div>
         </div>
     );
@@ -338,7 +372,7 @@ const stageDescriptionsMap = [
     "마음의 잿빛 캔버스에 남아있는 찌꺼기 감정들을 버리고, 화사하고 밝은 색의 물감만 남기는 정화 단계입니다.",
     "우리 내면은 본래 빛으로 가득합니다. 아무리 짙은 그늘이 덮여있어도, 당신의 손끝으로 긁어내기만 하면 금세 아름다운 명화를 발견할 수 있습니다.",
     "좌우뇌의 철저한 대칭 밸런스를 맞추는 만다라 명상입니다. 마음 가는 대로 캔버스에 그리면 대칭의 힘이 당신을 정렬시킵니다.",
-    "치유의 432Hz 차임 소리에 귀를 기울이며, 허공에 아름다운 생명의 파동을 여러 번 발생시키세요. 빈 공간이 진동 에너지로 꽉 찹니다.",
+    "세계적인 심리치료 기법인 GIM(Guided Imagery and Music)을 활용합니다. 432Hz 치유 주파수를 들으며 글로 감정을 모두 뿜어내고 정화하세요.",
     "아트 유니버스의 마지막 관문, 당신의 작품과 인생에 스스로 '명작'이라는 금빛 서명을 새깁니다."
 ];
 
@@ -352,7 +386,7 @@ function ArtGameContent() {
     const [viewingStage, setViewingStage] = useState(1);
     const [gameState, setGameState] = useState<'intro' | 'playing' | 'stageClear' | 'readyToLaunch' | 'flying' | 'success' | 'clear'>('intro');
     
-    const levelNames = ['색채 정화', '빛의 발현', '대칭 명상', '우주 파동', '명작의 탄생'];
+    const levelNames = ['색채 정화', '빛의 발현', '대칭 명상', '음악 심상 훈련', '명작의 탄생'];
 
     useEffect(() => { setIsMounted(true); }, []);
 
@@ -471,7 +505,7 @@ function ArtGameContent() {
                             {viewingStage === 1 && <Stage1Colors onComplete={handleStageComplete} />}
                             {viewingStage === 2 && <Stage2Scratch onComplete={handleStageComplete} />}
                             {viewingStage === 3 && <Stage3Mandala onComplete={handleStageComplete} />}
-                            {viewingStage === 4 && <Stage4Waves onComplete={handleStageComplete} />}
+                            {viewingStage === 4 && <Stage4MusicReflection onComplete={handleStageComplete} />}
                             {viewingStage === 5 && <Stage5Masterpiece onComplete={handleStageComplete} />}
                         </div>
                     )}
