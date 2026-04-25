@@ -77,22 +77,28 @@ export default function Home() {
           transition={{ delay: 0.5, duration: 0.8 }}
           className="flex flex-col md:flex-row items-center justify-center gap-6"
         >
-          <Link href="/imagination" className="group relative px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 rounded-full overflow-hidden hover:bg-white/20 transition-all">
+          <Link href="/pricing" className="group relative px-8 py-4 bg-gradient-to-r from-purple-500/30 to-blue-500/30 backdrop-blur-md border border-purple-400/40 rounded-full overflow-hidden hover:from-purple-500/40 hover:to-blue-500/40 transition-all shadow-[0_0_30px_rgba(168,85,247,0.2)]">
             <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="relative flex items-center gap-3 text-white font-black tracking-wide">
+              💳 긍정마인드셋 학교 입학하기 <ArrowRight size={18} className="translate-x-0 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </Link>
+
+          <Link href="/imagination" className="group relative px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 rounded-full overflow-hidden hover:bg-white/20 transition-all">
             <span className="relative flex items-center gap-3 text-white font-medium tracking-wide">
-              상상학교 입장하기 <ArrowRight size={18} className="translate-x-0 group-hover:translate-x-1 transition-transform" />
+              🚀 상상학교 무료 체험 <ArrowRight size={18} className="translate-x-0 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
 
-          <Link href="/imagination/ideas" className="group relative px-8 py-4 bg-purple-500/20 backdrop-blur-md border border-purple-400/30 rounded-full overflow-hidden hover:bg-purple-500/30 transition-all">
-            <span className="relative flex items-center gap-3 text-purple-200 font-bold tracking-wide">
-              🏫 상상학교 입학 문의/아이디어 제안
-            </span>
-          </Link>
-
-          <Link href="/shop" className="text-stone-400 hover:text-white transition-colors underline decoration-1 underline-offset-4 font-light text-sm tracking-widest uppercase">
-            Visit Shop
-          </Link>
+          <div className="flex gap-4 items-center">
+            <Link href="/graduation" className="text-amber-300 hover:text-amber-200 transition-colors font-bold text-sm tracking-wide">
+              🎓 졸업장 발급
+            </Link>
+            <span className="text-white/10">|</span>
+            <Link href="/shop" className="text-stone-400 hover:text-white transition-colors font-light text-sm tracking-widest uppercase">
+              Shop
+            </Link>
+          </div>
         </motion.div>
       </div>
 

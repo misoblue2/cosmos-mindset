@@ -65,8 +65,10 @@ export function Header() {
                         <NavLink href="/">홈</NavLink>
                         <NavLink href="/healing" accent className="font-serif text-amber-500/80 hover:text-amber-500">마음 상담소</NavLink>
                         <NavLink href="/originals">우주의 서재</NavLink>
-                        <NavLink href="/imagination" accent className="font-serif text-orange-500/80 hover:text-orange-500">어린이 상상학교</NavLink>
-                        <NavLink href="/shop">Cosmic Shop</NavLink>
+                        <NavLink href="/imagination" accent className="font-serif text-orange-500/80 hover:text-orange-500">상상학교</NavLink>
+                        <NavLink href="/pricing" accent className="font-serif text-purple-500/80 hover:text-purple-500">가격표</NavLink>
+                        <NavLink href="/graduation">졸업장</NavLink>
+                        <NavLink href="/shop">Shop</NavLink>
                     </nav>
 
                     {/* Desktop Auth Buttons */}
@@ -128,8 +130,10 @@ export function Header() {
                                 <MobileNavLink href="/" onClick={() => setIsMenuOpen(false)}>홈</MobileNavLink>
                                 <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-amber-500 font-serif">마음 상담소</MobileNavLink>
                                 <MobileNavLink href="/originals" onClick={() => setIsMenuOpen(false)}>우주의 서재</MobileNavLink>
-                                <MobileNavLink href="/imagination" onClick={() => setIsMenuOpen(false)} className="text-orange-500 font-serif">어린이 상상학교</MobileNavLink>
-                                <MobileNavLink href="/shop" onClick={() => setIsMenuOpen(false)}>Cosmic Shop</MobileNavLink>
+                                <MobileNavLink href="/imagination" onClick={() => setIsMenuOpen(false)} className="text-orange-500 font-serif">상상학교</MobileNavLink>
+                                <MobileNavLink href="/pricing" onClick={() => setIsMenuOpen(false)} className="text-purple-500 font-serif">💳 가격표</MobileNavLink>
+                                <MobileNavLink href="/graduation" onClick={() => setIsMenuOpen(false)}>🎓 졸업장</MobileNavLink>
+                                <MobileNavLink href="/shop" onClick={() => setIsMenuOpen(false)}>Shop</MobileNavLink>
                             </div>
 
                             <div className="w-full h-px bg-border my-6" />
