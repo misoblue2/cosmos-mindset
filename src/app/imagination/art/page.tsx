@@ -26,8 +26,13 @@ const Stage1Colors = ({ onComplete }: { onComplete: () => void }) => {
     const handleSelect = (clr: typeof initialColors[0], correctType: 'dark'|'light') => {
         if (clr.type === correctType) {
             sound?.playSuccess();
-            setColors(c => c.filter(item => item.id !== clr.id));
-            if (colors.length === 1) setTimeout(onComplete, 1000);
+            setColors(c => {
+                const next = c.filter(item => item.id !== clr.id);
+                if (next.length === 0) {
+                    setTimeout(onComplete, 1000);
+                }
+                return next;
+            });
         } else {
             sound?.playError();
         }
@@ -116,7 +121,7 @@ const Stage2Scratch = ({ onComplete }: { onComplete: () => void }) => {
                 마우스(또는 손가락)로 어둠을 모두 문질러 명화를 드러내세요.
             </p>
 
-            <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-2xl overflow-hidden border-4 border-white/20 shadow-[0_0_50px_rgba(236,72,153,0.3)]">
+            <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-2xl overflow-hidden border-4 border-white/20 shadow-[0_0_50px_rgba(236,72,153,0.3)] touch-none">
                 {/* 배경 명화 (CSS Gradient + Abstract Shape) */}
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600 flex items-center justify-center p-8 text-center pt-20">
                     <h3 className="text-3xl font-black text-white/90 drop-shadow-xl leading-relaxed">
@@ -243,6 +248,7 @@ const Stage3Mandala = ({ onComplete }: { onComplete: () => void }) => {
 const Stage4MusicReflection = ({ onComplete }: { onComplete: () => void }) => {
     const [text, setText] = useState("");
     const [submitted, setSubmitted] = useState(false);
+    const [errorMsg, setErrorMsg] = useState("");
 
     useEffect(() => {
         // 백그라운드에서 웅장하고 치유적인 432Hz 앰비언스를 재생
@@ -254,9 +260,10 @@ const Stage4MusicReflection = ({ onComplete }: { onComplete: () => void }) => {
         e.preventDefault();
         if (text.trim().length < 5) {
             sound?.playError();
-            alert("조금 더 깊이 느끼고 적어주세요. (최소 5글자 이상)");
+            setErrorMsg("조금 더 깊이 느끼고 적어주세요. (최소 5글자 이상)");
             return;
         }
+        setErrorMsg("");
         sound?.playSuccess();
         setSubmitted(true);
         setTimeout(() => {
@@ -285,11 +292,12 @@ const Stage4MusicReflection = ({ onComplete }: { onComplete: () => void }) => {
                             value={text}
                             onChange={(e) => {
                                 setText(e.target.value);
-                                // Typing feedback (optional soft tap)
+                                if (errorMsg) setErrorMsg("");
                             }}
                             placeholder="이 음악을 들으니..."
                             className="w-full h-40 bg-white/5 border border-white/20 rounded-2xl p-6 text-white text-lg outline-none focus:border-indigo-400 focus:bg-white/10 transition-all font-serif resize-none shadow-inner"
                         />
+                        {errorMsg && <p className="text-red-400 font-bold text-sm text-center animate-pulse">{errorMsg}</p>}
                         <button type="submit" className="w-full py-4 bg-indigo-600/80 hover:bg-indigo-500 rounded-xl font-black text-lg transition-colors border border-indigo-400/50">
                             감정 흘려보내기
                         </button>
