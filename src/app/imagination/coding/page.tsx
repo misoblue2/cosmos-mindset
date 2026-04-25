@@ -53,7 +53,7 @@ function CodingGameContent() {
     
     // UI/Flow State
     const [viewingStage, setViewingStage] = useState(1);
-    const [maxUnlockedStage, setMaxUnlockedStage] = useState(1);
+    const [maxUnlockedStage, setMaxUnlockedStage] = useState(5);
     const [gameState, setGameState] = useState<'intro' | 'playing' | 'stageClear' | 'readyToLaunch' | 'flying' | 'success' | 'clear'>('intro');
     
     // Gameplay State
@@ -61,19 +61,20 @@ function CodingGameContent() {
     const [score, setScore] = useState(0);
 
     // Difficulty
-    const targetScore = 5 + (viewingStage * 3) + (level * 2);
+    // 버그 잡기 마릿수를 획기적으로 줄임 (빠르게 끝내고 넘어갈 수 있도록)
+    const targetScore = 2 + viewingStage;
     const bugDuration = Math.max(0.6, 4 - (viewingStage * 0.4) - (level * 0.2)); 
 
     useEffect(() => {
         setIsMounted(true);
     }, []);
 
-    // 1~4단계 클리어 시 4초 대기 후 자동으로 다음 단계 진입
+    // 1~4단계 클리어 시 자동 전환 대기 시간 축소 및 수동 클릭 유도
     useEffect(() => {
         if (gameState === 'stageClear') {
             const timer = setTimeout(() => {
                 handleNextStage();
-            }, 4000);
+            }, 1000); // 대기시간을 1초로 매우 짧게 만들어 즉각적으로 넘어가게 함
             return () => clearTimeout(timer);
         }
     }, [gameState, viewingStage]);
@@ -105,7 +106,7 @@ function CodingGameContent() {
 
     const startGame = () => {
         setScore(0);
-        const bugCount = 8 + (viewingStage * 3) + (level * 2);
+        const bugCount = targetScore;
         const newBugs: Bug[] = Array.from({ length: bugCount }).map((_, i) => {
             const isBossCandidate = viewingStage === 5 && i === bugCount - 1;
             return {
@@ -127,46 +128,44 @@ function CodingGameContent() {
     const handleBugClick = (id: number) => {
         if (gameState !== 'playing') return;
 
-        let stageCleared = false;
+        setBugs(prev => {
+            const index = prev.findIndex(b => b.id === id && !b.resolved);
+            if (index === -1) return prev;
+            
+            const bug = prev[index];
+            const currentHealth = bug.health || 1;
+            const updatedBugs = [...prev];
 
-        setBugs(prev => prev.map(bug => {
-            if (bug.id === id && !bug.resolved) {
-                const currentHealth = bug.health || 1;
-                if (currentHealth > 1) {
-                    confetti({ particleCount: 15, spread: 30, origin: { x: bug.x / 100, y: bug.y / 100 }, colors: ['#EF4444', '#F87171'] });
-                    return { ...bug, health: currentHealth - 1 };
-                }
-
-                confetti({ particleCount: 25, spread: 50, colors: ['#3B82F6', '#10B981'] });
-                
-                const newScore = score + 1;
-                setScore(newScore);
-
-                if (newScore >= targetScore) {
-                    stageCleared = true;
-                }
-
-                return { 
-                    ...bug, 
-                    resolved: true, 
-                    text: positiveThoughts[Math.floor(Math.random() * positiveThoughts.length)],
-                    health: 0
-                };
+            if (currentHealth > 1) {
+                confetti({ particleCount: 15, spread: 30, origin: { x: bug.x / 100, y: bug.y / 100 }, colors: ['#EF4444', '#F87171'] });
+                updatedBugs[index] = { ...bug, health: currentHealth - 1 };
+                return updatedBugs;
             }
-            return bug;
-        }));
 
-        if (stageCleared) {
-            confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 }, colors: ['#3B82F6', '#FCD34D'] });
-            if (viewingStage < 5) {
-                if (maxUnlockedStage <= viewingStage) {
-                    setMaxUnlockedStage(viewingStage + 1);
-                }
-                setGameState('stageClear');
-            } else {
-                setGameState('readyToLaunch');
+            confetti({ particleCount: 25, spread: 50, colors: ['#3B82F6', '#10B981'] });
+            updatedBugs[index] = { 
+                ...bug, 
+                resolved: true, 
+                text: positiveThoughts[Math.floor(Math.random() * positiveThoughts.length)],
+                health: 0
+            };
+
+            const resolvedCount = updatedBugs.filter(b => b.resolved).length;
+            setScore(resolvedCount);
+
+            if (resolvedCount >= targetScore) {
+                setTimeout(() => {
+                    confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 }, colors: ['#3B82F6', '#FCD34D'] });
+                    if (viewingStage < 5) {
+                        setGameState('stageClear');
+                    } else {
+                        setGameState('readyToLaunch');
+                    }
+                }, 0);
             }
-        }
+
+            return updatedBugs;
+        });
     };
 
     const handleNextStage = () => {
@@ -175,16 +174,8 @@ function CodingGameContent() {
         if (nextStage <= 5) {
             setViewingStage(nextStage);
             setGameState('intro');
-            setTimeout(() => {
-                // Intro로 잠시 빠졌다가 바로 시작하게 해주거나, 사용자가 클릭하게 놔둠
-                // 여기서는 "순차적 버튼 클릭 및 자동 시작"이라는 요청에 따라, 
-                // Intro 화면 렌더링 후 0.1초만에 startGame 호출하여 매끄러운 자동 진행 연출.
-                // 수동 전환 클릭 시에도 이 함수가 불리므로 동일하게 작동
-                setViewingStage(nextStage);
-                // Intro 보여줄 새 없이 바로 훈련 돌입원하면 바로 startGame(),
-                // 체험 설명(intro)을 읽게 하려면 intro에 머물게 함. 
-                // 사용자가 체험을 읽어야 하므로 intro 상태에 머물게 하는 것이 좋음.
-            }, 100);
+            // 바로 자동 시작을 원하면 setTimeout을 활용하지만, intro에서 시작 버튼을 누르게 하거나
+            // 원활한 진행을 위해 intro 화면만 일단 띄웁니다. "내가 직접 넘어가게해" 라는 요구를 반영해 intro로만 넘어갑니다.
         }
     };
 
@@ -221,24 +212,22 @@ function CodingGameContent() {
                     <div className="w-full max-w-2xl mx-auto flex flex-col gap-4">
                         <div className="flex bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-1 overflow-hidden">
                             {[1, 2, 3, 4, 5].map((stageNumber) => {
-                                const isUnlocked = stageNumber <= maxUnlockedStage;
+                                const isUnlocked = true; // 무조건 잠금 해제 설정
                                 const isCurrent = viewingStage === stageNumber;
                                 return (
                                     <button
                                         key={stageNumber}
                                         onClick={() => {
-                                            if (isUnlocked && gameState !== 'playing') {
+                                            if (gameState !== 'playing') {
                                                 setViewingStage(stageNumber);
                                                 setGameState('intro');
                                             }
                                         }}
                                         className={`flex-1 flex flex-col items-center py-2 transition-all rounded-xl relative ${
                                             isCurrent ? 'bg-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 
-                                            isUnlocked ? 'hover:bg-white/10 cursor-pointer' : 
-                                            'opacity-30 cursor-not-allowed'
+                                            'hover:bg-white/10 cursor-pointer'
                                         }`}
                                     >
-                                        {!isUnlocked && <Lock size={12} className="absolute top-2 right-2" />}
                                         <span className={`text-xs font-black ${isCurrent ? 'text-white' : 'text-blue-200'}`}>{stageNumber}단계</span>
                                     </button>
                                 );
@@ -268,7 +257,7 @@ function CodingGameContent() {
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 z-[100] backdrop-blur-md"
+                                className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 z-[100] backdrop-blur-md pointer-events-auto"
                             >
                                 <motion.div 
                                     initial={{ opacity: 0, y: 20 }}
@@ -299,12 +288,12 @@ function CodingGameContent() {
                                             <h3 className="text-3xl font-black text-white mb-6 tracking-tighter">
                                                 {viewingStage}단계 완벽 복구!
                                             </h3>
-                                            <p className="text-white/50 mb-6">잠시 후 다음 단계로 자동 이동합니다...</p>
+                                            <p className="text-white/50 mb-6">버튼을 눌러 다음 단계로 즉시 이동하세요!</p>
                                             <button 
                                                 onClick={handleNextStage}
                                                 className="px-10 py-5 bg-white/10 border border-white/20 hover:bg-white/20 rounded-2xl font-black text-lg transition-all active:scale-95 text-white flex gap-2 items-center"
                                             >
-                                                기다리지 않고 바로 진행 <ArrowRight size={18}/>
+                                                다음 단계로 바로 가기 <ArrowRight size={18}/>
                                             </button>
                                         </>
                                     )}
