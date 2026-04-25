@@ -583,11 +583,12 @@ function CodingGameContent() {
                                     <button
                                         key={stageNumber}
                                         onClick={() => {
-                                            if (gameState !== 'playing') {
-                                                sound?.playTap();
-                                                setViewingStage(stageNumber);
-                                                setGameState('intro');
-                                            }
+                                            // 비행/완료 상태를 제외하고 언제 어느 때든 자유롭게 단계 점프 (자물쇠 없음)
+                                            if (gameState === 'flying' || gameState === 'clear') return;
+                                            sound?.playTap();
+                                            sound?.stopMeditationDrone(); // 4단계 진행 중 넘어갈 경우 사운드 초기화
+                                            setViewingStage(stageNumber);
+                                            setGameState('intro');
                                         }}
                                         className={`flex-1 flex flex-col items-center py-3 md:py-4 transition-all rounded-2xl relative ${
                                             isCurrent ? 'bg-gradient-to-b from-blue-600 to-indigo-700 shadow-[0_0_20px_rgba(79,70,229,0.5)] scale-105 z-10' : 
