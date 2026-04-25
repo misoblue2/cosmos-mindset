@@ -227,20 +227,29 @@ export default function ImaginationJourneyPage() {
                     </div>
                 </div>
 
-                {/* Bottom Legend / Guide */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                {/* Bottom Legend / Guide (Now Clickable Links) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto z-20 relative">
                     {[
-                        { title: 'STEP 1: 코딩 우주선 (5단계)', subtitle: '마음의 오류를 디버깅하여 긍정 네트워크를 복구하세요.', color: 'bg-blue-600', icon: <Zap size={20} /> },
-                        { title: 'STEP 2: 아트 유니버스 (5단계)', subtitle: '딱딱해진 이성에 따뜻한 통찰과 감성의 색채를 불어넣으세요.', color: 'bg-pink-600', icon: <Star size={20} /> },
-                        { title: 'STEP 3: 미래 실험실 (5단계)', subtitle: '최종 결정체를 모아 나만의 가능성 우주를 매일 창조하세요.', color: 'bg-emerald-600', icon: <Rocket size={20} /> },
+                        { title: 'STEP 1: 코딩 우주선', subtitle: '마음의 오류를 디버깅하여 긍정 네트워크를 복구하세요.', color: 'bg-blue-600', hoverColor: 'hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(37,99,235,0.3)]', icon: <Zap size={20} />, href: `/imagination/coding?day=${progress.currentDay}` },
+                        { title: 'STEP 2: 아트 유니버스', subtitle: '따뜻한 감성의 색채를 채워 넣고 영감을 발견하세요.', color: 'bg-pink-600', hoverColor: 'hover:border-pink-500/50 hover:shadow-[0_0_30px_rgba(236,72,153,0.3)]', icon: <Star size={20} />, href: `/imagination/art?day=${progress.currentDay}` },
+                        { title: 'STEP 3: 미래 실험실', subtitle: '강력한 긍정의 힘을 바탕으로 가능성의 우주를 창조하세요.', color: 'bg-emerald-600', hoverColor: 'hover:border-emerald-500/50 hover:shadow-[0_0_30px_rgba(16,185,129,0.3)]', icon: <Rocket size={20} />, href: `/imagination/science?day=${progress.currentDay}` },
                     ].map((item, idx) => (
-                        <div key={idx} className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl group hover:bg-white/10 transition-all flex flex-col items-start text-left">
-                            <div className={`w-10 h-10 ${item.color} rounded-xl flex items-center justify-center text-white mb-4 shadow-lg group-hover:rotate-12 transition-transform`}>
+                        <Link 
+                            key={idx} 
+                            href={item.href}
+                            className={`block bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-xl group transition-all text-left no-underline ${item.hoverColor} cursor-pointer hover:-translate-y-2 relative overflow-hidden`}
+                        >
+                            <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <ArrowRight className="text-white/40" />
+                            </div>
+                            <div className={`w-10 h-10 ${item.color} rounded-xl flex items-center justify-center text-white mb-4 shadow-lg group-hover:scale-110 transition-transform`}>
                                 {item.icon}
                             </div>
-                            <h3 className="text-lg font-black text-white mb-2 leading-tight">{item.title}</h3>
+                            <h3 className="text-lg font-black text-white mb-2 leading-tight flex items-center gap-2">
+                                {item.title}
+                            </h3>
                             <p className="text-white/40 text-xs leading-relaxed">{item.subtitle}</p>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 
