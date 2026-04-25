@@ -1,335 +1,600 @@
 "use client";
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Palette, Sparkles, ChevronLeft, RefreshCcw, CheckCircle2, ArrowRight, Star } from 'lucide-react';
+import { ChevronLeft, CheckCircle2, ArrowRight, Play, Star, Brush, Droplet, Move, Circle, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
-import { completeDay } from '@/lib/trainingStore';
+import { sound } from '@/lib/sound';
 
-interface PaintSplat {
-    id: number;
-    x: number;
-    y: number;
-    color: string;
-    size: number;
-    rotation: number;
-    scale: number;
-}
+// --- STAGE 1: 색채 정화 (블랙홀과 캔버스) ---
+const Stage1Colors = ({ onComplete }: { onComplete: () => void }) => {
+    const initialColors = [
+        { id: 1, type: 'dark', color: 'bg-stone-800', label: '두려움' },
+        { id: 2, type: 'light', color: 'bg-pink-400', label: '사랑' },
+        { id: 3, type: 'dark', color: 'bg-gray-700', label: '우울' },
+        { id: 4, type: 'light', color: 'bg-yellow-300', label: '빛' },
+        { id: 5, type: 'dark', color: 'bg-zinc-900', label: '분노' },
+        { id: 6, type: 'light', color: 'bg-cyan-400', label: '자유' },
+        { id: 7, type: 'light', color: 'bg-emerald-400', label: '안식' },
+    ];
+    const [colors, setColors] = useState(initialColors);
 
-const colors = ['#EC4899', '#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#06B6D4'];
+    // Using a simpler click-based classification instead of complex framer-motion drag constraints 
+    // for multiple items, which can get messy on mobile. "터치하여 분류"
+    const handleSelect = (clr: typeof initialColors[0], correctType: 'dark'|'light') => {
+        if (clr.type === correctType) {
+            sound?.playSuccess();
+            setColors(c => c.filter(item => item.id !== clr.id));
+            if (colors.length === 1) setTimeout(onComplete, 1000);
+        } else {
+            sound?.playError();
+        }
+    };
+
+    if (colors.length === 0) return (
+        <div className="flex flex-col items-center justify-center">
+            <CheckCircle2 size={80} className="text-pink-400 mb-4 animate-pulse" />
+            <div className="text-2xl font-black text-pink-200">색채 캔버스 준비 완료</div>
+        </div>
+    );
+
+    return (
+        <div className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto p-4">
+            <h2 className="text-2xl font-black text-white mb-2">색채 정화</h2>
+            <p className="text-white/50 mb-12 text-center text-sm font-bold">
+                어두운 감정은 <span className="text-gray-400">블랙홀</span>로, 빛나는 감정은 <span className="text-pink-400">캔버스</span>로 보내주세요.
+            </p>
+
+            <div className="flex justify-between w-full max-w-lg mb-16 px-4">
+                <div className="flex flex-col items-center">
+                    <div className="w-24 h-24 rounded-full bg-black shadow-[0_0_30px_rgba(0,0,0,1)] border border-white/10 flex items-center justify-center overflow-hidden mb-4 relative">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-gray-900 to-black animate-spin" />
+                    </div>
+                    <span className="font-black text-gray-400">블랙홀 (버리기)</span>
+                </div>
+
+                <div className="flex flex-col items-center">
+                    <div className="w-24 h-24 rounded-2xl bg-white/10 backdrop-blur-md shadow-[0_0_30px_rgba(255,255,255,0.2)] border-2 border-white/40 flex items-center justify-center mb-4 relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/20 to-cyan-500/20" />
+                        <Brush className="text-white/50" />
+                    </div>
+                    <span className="font-black text-pink-300">내면 캔버스 (담기)</span>
+                </div>
+            </div>
+
+            <div className="flex justify-center gap-4 flex-wrap max-w-sm">
+                <AnimatePresence>
+                    {colors.map(clr => (
+                        <motion.div
+                            key={clr.id}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            exit={{ scale: 0 }}
+                            className={`flex flex-col items-center gap-2 cursor-pointer z-50`}
+                        >
+                            <div className="flex gap-2 bg-black/50 p-2 rounded-full border border-white/20 backdrop-blur-sm">
+                                <button onClick={() => handleSelect(clr, 'dark')} className="w-10 h-10 rounded-full bg-black border border-white/20 text-xs font-bold hover:bg-gray-800 transition-colors flex items-center justify-center">좌</button>
+                                <div className={`w-12 h-12 rounded-full ${clr.color} flex items-center justify-center shadow-lg border border-white/20`}>
+                                    <span className="text-xs font-black text-white/90 drop-shadow-md">{clr.label}</span>
+                                </div>
+                                <button onClick={() => handleSelect(clr, 'light')} className="w-10 h-10 rounded-full bg-white/20 border border-white/40 text-xs font-bold hover:bg-white/40 transition-colors flex items-center justify-center">우</button>
+                            </div>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
+            {colors.length > 0 && <p className="mt-8 text-xs text-white/30">(색상을 좌/우 버튼을 눌러 정확히 분류하세요)</p>}
+        </div>
+    );
+};
+
+// --- STAGE 2: 빛의 스크래치 ---
+const Stage2Scratch = ({ onComplete }: { onComplete: () => void }) => {
+    const GRID_SIZE = 64; // 8x8 grid
+    const [scratched, setScratched] = useState(new Set<number>());
+
+    const handleScratch = (index: number) => {
+        if (!scratched.has(index)) {
+            sound?.playTap();
+            setScratched(prev => {
+                const updated = new Set(prev).add(index);
+                if (updated.size === GRID_SIZE) {
+                    sound?.playSuccess();
+                    setTimeout(onComplete, 1000);
+                }
+                return updated;
+            });
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto px-4">
+            <h2 className="text-2xl font-black text-white mb-2">빛의 스크래치</h2>
+            <p className="text-white/50 mb-10 text-center text-sm font-bold">
+                마우스(또는 손가락)로 어둠을 모두 문질러 명화를 드러내세요.
+            </p>
+
+            <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-2xl overflow-hidden border-4 border-white/20 shadow-[0_0_50px_rgba(236,72,153,0.3)]">
+                {/* 배경 명화 (CSS Gradient + Abstract Shape) */}
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600 flex items-center justify-center p-8 text-center pt-20">
+                    <h3 className="text-3xl font-black text-white/90 drop-shadow-xl leading-relaxed">
+                        어둠이 걷히면<br/>빛이 드러난다
+                    </h3>
+                    <div className="absolute bottom-10 w-20 h-20 bg-yellow-300 rounded-full blur-3xl opacity-60" />
+                </div>
+
+                {/* 스크래치 레이어 (Grid) */}
+                <div className="absolute inset-0 grid grid-cols-8 grid-rows-8">
+                    {Array.from({ length: GRID_SIZE }).map((_, i) => (
+                        <div
+                            key={i}
+                            onMouseEnter={() => handleScratch(i)}
+                            onPointerMove={() => handleScratch(i)} // For touch
+                            className={`w-full h-full bg-[#111] transition-opacity duration-500 ${scratched.has(i) ? 'opacity-0' : 'opacity-100'}`}
+                        />
+                    ))}
+                </div>
+            </div>
+            
+            <div className="w-full max-w-sm mt-8 h-2 bg-white/10 rounded-full overflow-hidden">
+                <motion.div 
+                    className="h-full bg-pink-500"
+                    animate={{ width: `${(scratched.size / GRID_SIZE) * 100}%` }}
+                />
+            </div>
+        </div>
+    );
+};
+
+// --- STAGE 3: 만다라 명상 (대칭 캔버스) ---
+const Stage3Mandala = ({ onComplete }: { onComplete: () => void }) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [progress, setProgress] = useState(0);
+    const requiredProgress = 100; // 드로잉 이벤트가 100번 발생하면 완료
+    const isDrawing = useRef(false);
+
+    useEffect(() => {
+        sound?.startMeditationDrone(); 
+        return () => sound?.stopMeditationDrone();
+    }, []);
+
+    const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
+        if (!canvas || !isDrawing.current) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        const rect = canvas.getBoundingClientRect();
+        // Scale pointer pos to canvas scale
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
+        
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        
+        ctx.fillStyle = `hsl(${(progress * 3) % 360}, 80%, 60%)`;
+        const radius = 3;
+
+        // Draw 6-way symmetry
+        for (let i = 0; i < 6; i++) {
+            const angle = (i * Math.PI * 2) / 6;
+            ctx.save();
+            ctx.translate(cx, cy);
+            ctx.rotate(angle);
+            ctx.beginPath();
+            ctx.arc(x - cx, y - cy, radius, 0, Math.PI * 2);
+            ctx.fill();
+            // Mirrored
+            ctx.beginPath();
+            ctx.arc(-(x - cx), y - cy, radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        setProgress(p => {
+            if (p >= requiredProgress) return p;
+            if (p + 1 === requiredProgress) {
+                sound?.stopMeditationDrone();
+                sound?.playSuccess();
+                setTimeout(onComplete, 1500);
+            }
+            return p + 1;
+        });
+    };
+
+    return (
+        <div className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto px-4 touch-none">
+            <h2 className="text-2xl font-black text-white mb-2">만다라 균형 명상</h2>
+            <p className="text-white/50 mb-6 text-center text-sm font-bold">
+                검은 보드 위에 자유롭게 선을 그려 좌우 뇌의 균형을 맞추세요.
+            </p>
+
+            <div className="relative border border-white/20 rounded-full overflow-hidden shadow-[0_0_50px_rgba(236,72,153,0.2)]">
+                <canvas 
+                    ref={canvasRef}
+                    width={1000} 
+                    height={1000}
+                    onPointerDown={(e) => {
+                        isDrawing.current = true;
+                        draw(e);
+                    }}
+                    onPointerUp={() => isDrawing.current = false}
+                    onPointerLeave={() => isDrawing.current = false}
+                    onPointerMove={draw}
+                    className="w-72 h-72 md:w-96 md:h-96 bg-black touch-none cursor-crosshair"
+                />
+            </div>
+            
+            <div className="w-64 mt-8 h-2 bg-white/10 rounded-full overflow-hidden">
+                <motion.div 
+                    className="h-full bg-gradient-to-r from-pink-500 to-purple-500"
+                    animate={{ width: `${Math.min(100, (progress / requiredProgress) * 100)}%` }}
+                />
+            </div>
+        </div>
+    );
+};
+
+// --- STAGE 4: 주파수 시각화 (물결 공감각) ---
+const Stage4Waves = ({ onComplete }: { onComplete: () => void }) => {
+    const [waves, setWaves] = useState<{id: number, x: number, y: number}[]>([]);
+    const targetWaves = 10;
+    
+    const handleTap = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (waves.length >= targetWaves) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        sound?.playChime(); // 치유음
+        
+        const newWaves = [...waves, { id: Date.now(), x, y }];
+        setWaves(newWaves);
+
+        if (newWaves.length === targetWaves) {
+            setTimeout(onComplete, 2000);
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto px-4">
+            <h2 className="text-2xl font-black text-white mb-2">공감각 우주 물결</h2>
+            <p className="text-white/50 mb-8 text-center text-sm font-bold">
+                어둠 속 빈 공간을 터치하여 {targetWaves}개의 아름다운 생명의 파동을 만드세요.
+            </p>
+
+            <div 
+                onPointerDown={handleTap}
+                className="w-full max-w-lg h-96 border border-white/10 rounded-3xl bg-black/40 overflow-hidden relative cursor-pointer shadow-inner touch-none"
+            >
+                <AnimatePresence>
+                    {waves.map(wave => (
+                        <motion.div
+                            key={wave.id}
+                            initial={{ scale: 0, opacity: 1 }}
+                            animate={{ scale: 8, opacity: 0 }}
+                            transition={{ duration: 3, ease: "easeOut" }}
+                            className="absolute w-32 h-32 border-2 border-indigo-400 rounded-full -ml-16 -mt-16 pointer-events-none shadow-[0_0_30px_rgba(129,140,248,0.5)]"
+                            style={{ left: wave.x, top: wave.y }}
+                        />
+                    ))}
+                </AnimatePresence>
+                
+                {/* 잔상 효과 퍼지 (Pulse in center gently) */}
+                <div className="absolute inset-0 bg-indigo-500/5 pulse-slow pointer-events-none" />
+            </div>
+        </div>
+    );
+};
+
+// --- STAGE 5: 마스터피스 서명 ---
+const Stage5Masterpiece = ({ onComplete }: { onComplete: () => void }) => {
+    const [text, setText] = useState("");
+    const target = "나의 인생은 하나의 거대한 명작이다";
+
+    const checkMatch = (val: string, t: string) => val.replace(/\s+/g, '') === t.replace(/\s+/g, '');
+
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setText(e.target.value);
+        sound?.playTap();
+        if (checkMatch(e.target.value, target)) {
+            sound?.playSuccess();
+            setTimeout(onComplete, 1000);
+        }
+    };
+
+    return (
+        <div className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto px-4">
+            <h2 className="text-3xl font-black text-white mb-10 text-center leading-relaxed font-serif">
+                모든 캔버스가 채워졌습니다.<br/>
+                우아한 선언으로 서명을 남기세요.
+            </h2>
+
+            <div className="relative p-10 bg-[#fbf8f1] border-[16px] border-yellow-600/80 shadow-[0_0_50px_rgba(202,138,4,0.5)] max-w-2xl w-full text-center">
+                <div className="absolute inset-0 bg-yellow-900/5 mix-blend-multiply pointer-events-none" /> {/* 종이 질감 */}
+                
+                <h3 className="text-black/80 font-serif text-2xl md:text-4xl mb-12 italic leading-relaxed">
+                    "{target}"
+                </h3>
+  
+                <input 
+                    type="text"
+                    value={text}
+                    onChange={handleInput}
+                    placeholder="위 문장을 마음으로 새기며 입력하세요"
+                    className="w-full bg-transparent border-b-2 border-black/20 pb-4 text-center text-xl text-black font-serif outline-none focus:border-yellow-600 placeholder:text-black/30 placeholder:italic transition-colors"
+                />
+            </div>
+            {checkMatch(text, target) && <p className="mt-8 font-black text-yellow-400 animate-pulse text-xl">명작이 완성되었습니다.</p>}
+        </div>
+    );
+};
+
+const stageDescriptionsMap = [
+    "마음의 잿빛 캔버스에 남아있는 찌꺼기 감정들을 버리고, 화사하고 밝은 색의 물감만 남기는 정화 단계입니다.",
+    "우리 내면은 본래 빛으로 가득합니다. 아무리 짙은 그늘이 덮여있어도, 당신의 손끝으로 긁어내기만 하면 금세 아름다운 명화를 발견할 수 있습니다.",
+    "좌우뇌의 철저한 대칭 밸런스를 맞추는 만다라 명상입니다. 마음 가는 대로 캔버스에 그리면 대칭의 힘이 당신을 정렬시킵니다.",
+    "치유의 432Hz 차임 소리에 귀를 기울이며, 허공에 아름다운 생명의 파동을 여러 번 발생시키세요. 빈 공간이 진동 에너지로 꽉 찹니다.",
+    "아트 유니버스의 마지막 관문, 당신의 작품과 인생에 스스로 '명작'이라는 금빛 서명을 새깁니다."
+];
 
 function ArtGameContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const dayValue = searchParams.get('day');
-    const day = dayValue ? parseInt(dayValue) : 11;
-    
-    // Level calculation (1-5) based on 30-day (6 days per level)
-    const level = Math.floor((day - 1) / 6) + 1;
-    const levelNames = ['점묘화 기초', '선의 흐름', '색채의 조화', '빛의 폭발', '우주 걸작 완성'];
+    const day = dayValue ? parseInt(dayValue) : 1;
 
     const [isMounted, setIsMounted] = useState(false);
-    const [splats, setSplats] = useState<PaintSplat[]>([]);
-    const [score, setScore] = useState(0);
-    const [currentStage, setCurrentStage] = useState(1);
-    const [gameState, setGameState] = useState<'idle' | 'playing' | 'readyToNext' | 'readyToLaunch' | 'stageClear' | 'success' | 'clear'>('idle');
+    const [viewingStage, setViewingStage] = useState(1);
+    const [gameState, setGameState] = useState<'intro' | 'playing' | 'stageClear' | 'readyToLaunch' | 'flying' | 'success' | 'clear'>('intro');
     
-    const targetScore = 5 + (currentStage * 2);
+    const levelNames = ['색채 정화', '빛의 발현', '대칭 명상', '우주 파동', '명작의 탄생'];
+
+    useEffect(() => { setIsMounted(true); }, []);
 
     useEffect(() => {
-        setIsMounted(true);
-    }, []);
+        if (gameState === 'stageClear') {
+            const timer = setTimeout(() => handleNextStage(), 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [gameState, viewingStage]);
 
-    const startGame = () => {
-        setSplats([]);
-        setScore(0);
-        setCurrentStage(1);
-        setGameState('playing');
-    };
+    useEffect(() => {
+        if (gameState === 'success') {
+            sound?.playEngineHum();
+            const flyTimer = setTimeout(() => setGameState('flying'), 1500);
+            const clearTimer = setTimeout(() => setGameState('clear'), 4000);
+            return () => { clearTimeout(flyTimer); clearTimeout(clearTimer); };
+        }
+    }, [gameState]);
 
-    const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (gameState !== 'playing') return;
+    useEffect(() => {
+        if (gameState === 'clear') {
+            // STEP 3(미래 실험실)로 넘어간다
+            const timer = setTimeout(() => router.push(`/imagination/science?day=${day}`), 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [gameState, day, router]);
 
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        
-        // Dynamic colors based on stage
-        const stageColors = [
-            ['#EC4899', '#8B5CF6'], // 1: Pink/Purple
-            ['#3B82F6', '#06B6D4'], // 2: Blue/Cyan
-            ['#10B981', '#34D399'], // 3: Green
-            ['#F59E0B', '#EF4444'], // 4: Orange/Red
-            ['#EC4899', '#8B5CF6', '#3B82F6', '#10B981', '#F59E0B'] // 5: Rainbow
-        ];
-        
-        const palette = stageColors[currentStage - 1] || colors;
-        const color = palette[Math.floor(Math.random() * palette.length)];
-
-        // Enhanced confetti based on level and stage
-        confetti({
-            particleCount: 20 + (currentStage * 10),
-            spread: 40 + (currentStage * 10),
-            origin: { x: (e.clientX) / window.innerWidth, y: (e.clientY) / window.innerHeight },
-            colors: [color, '#ffffff']
-        });
-
-        const newSplat: PaintSplat = {
-            id: Date.now(),
-            x,
-            y,
-            color,
-            size: 60 + (currentStage * 20) + (Math.random() * 40),
-            rotation: Math.random() * 360,
-            scale: 0.8 + (currentStage * 0.1)
-        };
-
-        setSplats(prev => [...prev, newSplat]);
-        const newScore = score + 1;
-        setScore(newScore);
-
-        if (newScore >= targetScore) {
-            if (currentStage < 5) {
-                setGameState('readyToNext');
-            } else {
-                setGameState('readyToLaunch');
-            }
+    const handleStageComplete = () => {
+        if (viewingStage < 5) {
+            setGameState('stageClear');
+        } else {
+            setGameState('readyToLaunch');
         }
     };
 
+    const startGame = () => {
+        sound?.playTap();
+        setGameState('playing');
+    };
+
     const handleNextStage = () => {
-        if (gameState !== 'readyToNext') return;
-        setGameState('stageClear');
-        setTimeout(() => {
-            setCurrentStage(prev => prev + 1);
-            setScore(0);
-            setGameState('playing');
-        }, 800);
+        const nextStage = viewingStage + 1;
+        if (nextStage <= 5) {
+            setViewingStage(nextStage);
+            setGameState('intro');
+        }
     };
 
     const handleLaunch = () => {
         if (gameState !== 'readyToLaunch') return;
+        confetti({ particleCount: 300, spread: 160, origin: { y: 0.6 }, colors: ['#EC4899', '#D946EF', '#8B5CF6', '#FCD34D'] });
         setGameState('success');
-        const duration = 5000;
-        const end = Date.now() + duration;
-        const confettiColors = ['#EC4899', '#8B5CF6', '#3B82F6', '#10B981', '#F59E0B'];
-
-        (function frame() {
-            confetti({
-                particleCount: 5,
-                angle: 60,
-                spread: 55,
-                origin: { x: 0 },
-                colors: confettiColors
-            });
-            confetti({
-                particleCount: 5,
-                angle: 120,
-                spread: 55,
-                origin: { x: 1 },
-                colors: confettiColors
-            });
-            if (Date.now() < end) {
-                requestAnimationFrame(frame);
-            }
-        }());
-
-        setTimeout(() => {
-            setGameState('clear');
-        }, 4000);
-    };
-
-    const resetGame = () => {
-        setSplats([]);
-        setScore(0);
-        setGameState('idle');
     };
 
     if (!isMounted) return <div className="min-h-screen bg-black" />;
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white overflow-hidden relative font-sans">
-            <div 
-                className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
-                style={{
-                    background: `radial-gradient(circle at 50% 50%, rgba(255,255,255,${(score / targetScore) * 0.15}) 0%, transparent 70%)`
-                }}
-            />
+        <div className="min-h-screen bg-[#1c0f1f] text-white overflow-hidden relative font-sans flex flex-col items-center">
+            {/* 핑크/퍼플 별빛 앰비언트 */}
+            <div className="absolute inset-0 pointer-events-none opacity-30">
+                <div className="absolute top-10 left-10 w-96 h-96 bg-pink-600/20 rounded-full blur-[100px] animate-pulse" />
+                <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-600/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s'}} />
+            </div>
 
-            <div className="container mx-auto px-4 py-8 max-w-4xl relative z-10 h-screen flex flex-col pointer-events-none">
+            <div className="container mx-auto px-4 py-8 max-w-5xl relative z-10 flex-1 flex flex-col w-full h-[100dvh]">
                 <Link 
                     href="/imagination"
+                    onClick={() => sound?.playTap()}
                     className="flex items-center gap-2 text-white/40 hover:text-white transition-all mb-4 w-fit no-underline group z-50 pointer-events-auto"
                 >
-                    <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> 여정 지도로 돌아가기
+                    <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" /> 여정 지도로 복귀
                 </Link>
 
                 <div className="text-center mb-6 z-50 pointer-events-auto">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-pink-500/10 rounded-full text-pink-400 text-[10px] font-black uppercase tracking-widest mb-2 border border-pink-500/20">
-                        상상훈련 DAY {day} • {currentStage}단계/총 5단계
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-pink-500/10 rounded-full text-pink-400 text-xs font-black uppercase tracking-widest mb-4 border border-pink-500/20 shadow-inner">
+                         DAY {day} 심층 감성 테라피
                     </div>
-                    <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 mb-2">아트 유니버스</h1>
-                    <p className="text-gray-400 text-sm md:text-base">캔버스에 긍정의 색을 채우세요. 5개의 레이어를 완성해야 합니다.</p>
+                    <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-purple-400 mb-6 drop-shadow-md">
+                        아트 유니버스: {levelNames[viewingStage - 1]}
+                    </h1>
+                    
+                    <div className="w-full max-w-4xl mx-auto flex flex-col gap-4">
+                        <div className="flex bg-white/5 backdrop-blur-md border border-white/10 rounded-[1.5rem] p-2 overflow-hidden shadow-xl gap-1">
+                            {[1, 2, 3, 4, 5].map((stageNumber) => {
+                                const isCurrent = viewingStage === stageNumber;
+                                return (
+                                    <button
+                                        key={stageNumber}
+                                        onClick={() => {
+                                            if (gameState === 'flying' || gameState === 'clear') return;
+                                            sound?.playTap();
+                                            sound?.stopMeditationDrone(); 
+                                            setViewingStage(stageNumber);
+                                            setGameState('intro');
+                                        }}
+                                        className={`flex-1 flex flex-col items-center py-3 md:py-4 transition-all rounded-2xl relative ${
+                                            isCurrent ? 'bg-gradient-to-b from-pink-600 to-purple-700 shadow-[0_0_20px_rgba(219,39,119,0.5)] scale-105 z-10' : 
+                                            'hover:bg-white/10 cursor-pointer text-white/30'
+                                        }`}
+                                    >
+                                        <div className="flex flex-col items-center gap-1">
+                                            <span className={`text-[10px] md:text-xs font-black uppercase tracking-widest ${isCurrent ? 'text-pink-200' : ''}`}>STEP {stageNumber}</span>
+                                            <span className={`hidden md:block text-sm font-bold ${isCurrent ? 'text-white' : ''}`}>{levelNames[stageNumber-1]}</span>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
 
-                <div className={`flex-1 relative rounded-[3rem] overflow-hidden mb-8 border transition-all duration-700 pointer-events-auto cursor-crosshair ${
-                        gameState === 'success' || gameState === 'clear' ? 'border-pink-500/50 shadow-[0_0_50px_rgba(236,72,153,0.3)] bg-white/10' : 'border-white/10 bg-white/5'
-                    }`}
-                    onClick={handleCanvasClick}
-                >
-                    {gameState === 'idle' && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 z-20">
-                            <motion.div 
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="text-center"
-                            >
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); startGame(); }}
-                                    className="px-12 py-5 bg-gradient-to-r from-pink-600 to-purple-600 hover:scale-110 rounded-2xl font-black text-2xl shadow-lg transition-all active:scale-95"
-                                >
-                                    컬러 미션 시작
-                                </button>
-                                <p className="mt-6 text-white/40 text-sm italic">"색채는 영혼에 직접적인 영향을 미치는 수단이다."</p>
-                            </motion.div>
-                        </div>
-                    )}
+                <div className="flex-1 relative border border-white/10 rounded-[2.5rem] md:rounded-[3.5rem] bg-gradient-to-b from-white/10 to-transparent backdrop-blur-2xl overflow-hidden mb-8 z-30 pointer-events-auto shadow-[0_0_60px_rgba(0,0,0,0.5)] flex flex-col">
                     
-                    {gameState === 'stageClear' && (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 backdrop-blur-sm z-20 pointer-events-none">
-                            <motion.h3 
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="text-3xl font-black text-white drop-shadow-lg"
-                            >
-                                Stage {currentStage} 완료! 다음 레이어 준비...
-                            </motion.h3>
+                    {gameState === 'playing' && (
+                        <div className="absolute inset-0 flex items-center justify-center p-4">
+                            {viewingStage === 1 && <Stage1Colors onComplete={handleStageComplete} />}
+                            {viewingStage === 2 && <Stage2Scratch onComplete={handleStageComplete} />}
+                            {viewingStage === 3 && <Stage3Mandala onComplete={handleStageComplete} />}
+                            {viewingStage === 4 && <Stage4Waves onComplete={handleStageComplete} />}
+                            {viewingStage === 5 && <Stage5Masterpiece onComplete={handleStageComplete} />}
                         </div>
                     )}
 
                     <AnimatePresence>
-                        {splats.map(splat => (
-                            <motion.div
-                                key={splat.id}
-                                initial={{ opacity: 0, scale: 0, rotate: splat.rotation }}
-                                animate={{ 
-                                    opacity: 1, 
-                                    scale: [0, splat.scale * 1.5, splat.scale], 
-                                    rotate: splat.rotation + (currentStage > 2 ? 20 : 0) 
-                                }}
-                                transition={{ duration: 0.6, type: 'spring' }}
-                                className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-full mix-blend-screen pointer-events-none ${currentStage >= 4 ? 'animate-pulse' : ''}`}
-                                style={{
-                                    left: `${splat.x}%`,
-                                    top: `${splat.y}%`,
-                                    width: `${splat.size}px`,
-                                    height: `${splat.size}px`,
-                                    background: `radial-gradient(circle, ${splat.color} 0%, transparent 80%)`,
-                                    filter: `blur(${8 - currentStage}px) brightness(${1 + currentStage * 0.1})`,
-                                    boxShadow: currentStage >= 3 ? `0 0 ${20 + currentStage * 10}px ${splat.color}44` : 'none'
-                                }}
-                            />
-                        ))}
+                        {gameState !== 'playing' && gameState !== 'flying' && gameState !== 'clear' && (
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-[100] backdrop-blur-xl pointer-events-auto"
+                            >
+                                <motion.div 
+                                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    className="text-center p-8 bg-[#1a0f1d] border border-white/10 rounded-[3rem] shadow-2xl flex flex-col items-center max-w-lg w-[90%]"
+                                >
+                                    {gameState === 'intro' && (
+                                        <>
+                                            <div className="w-24 h-24 bg-gradient-to-br from-pink-500/30 to-purple-600/30 rounded-full flex items-center justify-center mb-6 border border-white/10">
+                                                <Brush className="text-pink-400" size={40} />
+                                            </div>
+                                            <h3 className="text-3xl font-black text-white mb-4 tracking-tighter">감성 테라피 {viewingStage}</h3>
+                                            <p className="mb-10 text-pink-100 text-sm md:text-base leading-relaxed font-bold bg-white/5 p-6 rounded-2xl border border-white/5">
+                                                {stageDescriptionsMap[viewingStage - 1]}
+                                            </p>
+                                            <button 
+                                                onClick={startGame}
+                                                className="w-full py-6 bg-gradient-to-r from-pink-600 to-purple-600 rounded-[1.5rem] font-black text-xl md:text-2xl shadow-[0_0_50px_rgba(219,39,119,0.4)] transition-all hover:scale-105 active:scale-95 text-white"
+                                            >
+                                                마음의 붓을 들기
+                                            </button>
+                                        </>
+                                    )}
+
+                                    {gameState === 'stageClear' && (
+                                        <>
+                                            <div className="w-24 h-24 bg-pink-500/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_40px_rgba(236,72,153,0.3)]">
+                                                <CheckCircle2 className="text-pink-400" size={50} />
+                                            </div>
+                                            <h3 className="text-4xl font-black text-white mb-6 tracking-tighter">
+                                                아름답습니다!
+                                            </h3>
+                                            <p className="text-white/60 mb-8 text-lg font-bold">감성이 한 층 더 짙어졌습니다.<br/>다음 아트 룸으로 이동합니다.</p>
+                                            <div className="w-10 h-10 border-4 border-white/10 border-t-pink-400 rounded-full animate-spin" />
+                                        </>
+                                    )}
+
+                                    {gameState === 'readyToLaunch' && (
+                                        <>
+                                            <div className="w-32 h-32 bg-gradient-to-br from-yellow-400/20 to-pink-500/20 rounded-full flex items-center justify-center mb-8 shadow-inner border border-pink-500/30">
+                                                <ImageIcon className="text-yellow-400 drop-shadow-md" size={60} />
+                                            </div>
+                                            <h3 className="text-5xl font-black text-yellow-400 mb-6 tracking-tighter drop-shadow-[0_0_20px_rgba(250,204,21,0.5)]">
+                                                전시 완료
+                                            </h3>
+                                            <p className="text-white/80 mb-12 text-lg leading-relaxed font-bold">당신 내면의 아름다움이 완벽한 예술로 승화되었습니다.<br/>이 눈부신 명작을 우주에 공개하세요!</p>
+                                            <button 
+                                                onClick={handleLaunch}
+                                                className="w-full py-6 bg-gradient-to-r from-yellow-400 to-pink-500 rounded-3xl font-black text-2xl shadow-[0_0_50px_rgba(250,204,21,0.6)] transition-all hover:scale-105 active:scale-95 text-[#050510]"
+                                            >
+                                                거대한 걸작 전시하기
+                                            </button>
+                                        </>
+                                    )}
+                                    
+                                    {gameState === 'success' && (
+                                        <>
+                                            <h3 className="text-5xl font-black text-white mb-10 tracking-tighter animate-pulse drop-shadow-lg">
+                                                갤러리 오픈 중...
+                                            </h3>
+                                            <div className="w-20 h-20 border-8 border-transparent border-t-pink-400 border-r-purple-500 rounded-full animate-spin drop-shadow-[0_0_40px_rgba(219,39,119,0.8)]" />
+                                        </>
+                                    )}
+                                </motion.div>
+                            </motion.div>
+                        )}
                     </AnimatePresence>
 
-                    {/* Next Stage Button Overlay */}
-                    <AnimatePresence>
-                        {gameState === 'readyToNext' && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-30">
-                                <motion.button
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    onClick={(e) => { e.stopPropagation(); handleNextStage(); }}
-                                    className="px-10 py-5 bg-white text-black rounded-2xl font-black text-xl flex items-center gap-3 hover:scale-110 active:scale-95 transition-all shadow-2xl"
+                    {/* 백그라운드 아트 우주선 그래픽 */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 pointer-events-none z-[10]">
+                        <AnimatePresence>
+                            {(gameState !== 'flying' && gameState !== 'clear') ? (
+                                <motion.div
+                                    animate={{ 
+                                        y: (gameState === 'success' || gameState === 'readyToLaunch' || gameState === 'stageClear') ? -20 : [0, -8, 0],
+                                        scale: (gameState === 'success' || gameState === 'readyToLaunch') ? 1.1 : 1
+                                    }}
+                                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                                 >
-                                    <Sparkles className="text-pink-500" /> {currentStage}단계 예술 완성: 다음 단계로
-                                </motion.button>
-                            </div>
-                        )}
-                        {gameState === 'readyToLaunch' && (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm z-30">
-                                <motion.button
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    onClick={(e) => { e.stopPropagation(); handleLaunch(); }}
-                                    className="px-12 py-6 bg-pink-600 text-white rounded-2xl font-black text-2xl flex items-center gap-3 hover:scale-110 active:scale-95 transition-all shadow-[0_0_50px_rgba(236,72,153,0.5)]"
+                                    <Star fill="currentColor" size={120} className={`${(gameState === 'success' || gameState === 'readyToLaunch') ? 'text-yellow-400 drop-shadow-[0_0_50px_rgba(250,204,21,0.6)]' : 'text-pink-500/20'} transition-colors duration-1000`} />
+                                </motion.div>
+                            ) : gameState === 'flying' ? (
+                                <motion.div
+                                    initial={{ y: 0, opacity: 1, scale: 1.1 }}
+                                    animate={{ y: -1500, opacity: 0, scale: 0.5 }}
+                                    transition={{ duration: 2, ease: "easeIn" }}
                                 >
-                                    <Star className="fill-white" /> 우주 걸작 최종 완성!
-                                </motion.button>
-                            </div>
-                        )}
-                    </AnimatePresence>
+                                    <Star fill="currentColor" size={140} className="text-yellow-400 drop-shadow-[0_0_80px_rgba(250,204,21,0.8)]" />
+                                </motion.div>
+                            ) : null}
+                        </AnimatePresence>
+                    </div>
 
-                    {gameState === 'success' && (
-                        <motion.div 
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black/20 z-10"
-                        >
-                            <Sparkles className="text-yellow-400 animate-pulse mb-4" size={80} />
-                            <h2 className="text-4xl md:text-6xl font-black text-white drop-shadow-lg text-center leading-tight">
-                                마음의 우주가 <br/> 빛나기 시작합니다!
-                            </h2>
-                        </motion.div>
-                    )}
-
-                    {/* Mission Clear Screen */}
+                    {/* 최종 클리어 모달 (미래 과학실 자동 이동) */}
                     <AnimatePresence>
                         {gameState === 'clear' && (
                             <motion.div
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 backdrop-blur-xl p-10 text-center"
+                                className="absolute inset-0 z-[150] flex flex-col items-center justify-center bg-[#1c0f1f]/95 backdrop-blur-2xl p-10 text-center"
                             >
-                                <div className="w-24 h-24 bg-pink-500 rounded-full flex items-center justify-center mb-6 shadow-[0_0_50px_rgba(236,72,153,0.5)]">
-                                    <Star size={50} className="text-white" />
+                                <div className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-10 shadow-[0_0_80px_rgba(16,185,129,0.6)]">
+                                    <Droplet size={60} className="text-white" />
                                 </div>
-                                <h2 className="text-5xl font-black text-white mb-4 tracking-tighter">Day {day} 예술 완성!</h2>
-                                <p className="text-white/60 text-lg mb-10">당신의 상상력이 우주를 아름답게 물들였습니다.<br/>이제 마지막 관문인 미래 과학 실험실로 이동할 준비가 되었습니다.</p>
-                                <div className="flex flex-col md:flex-row gap-4">
-                                    <button 
-                                        onClick={() => router.push(`/imagination/science?day=${day}`)}
-                                        className="px-12 py-5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-2xl font-black text-xl flex items-center gap-3 hover:scale-105 transition-all shadow-[0_0_30px_rgba(16,185,129,0.3)]"
-                                    >
-                                        STEP 3: 미래 과학 실험실로 <ArrowRight />
-                                    </button>
-                                    <button 
-                                        onClick={() => router.push('/imagination')}
-                                        className="px-10 py-5 bg-white/10 text-white border border-white/20 rounded-2xl font-bold text-lg hover:bg-white/20 transition-all"
-                                    >
-                                        지도 확인하기
-                                    </button>
-                                </div>
+                                <h2 className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tighter drop-shadow-md">예술적 치유 완성</h2>
+                                <p className="text-pink-200 text-xl md:text-2xl mb-16 font-bold leading-relaxed max-w-lg">
+                                    당신의 감성이 한계 없이 폭발했습니다.<br/>이제 논리와 긍정이 결합된 마법의 공간으로 이동합니다.<br/><br/>
+                                    <span className="text-white opacity-50 text-base">잠시 후 미래 과학 실험실로 넘어갑니다...</span>
+                                </p>
                             </motion.div>
                         )}
                     </AnimatePresence>
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-6 items-center justify-between pointer-events-auto bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[2.5rem] mb-10 z-50">
-                    <div className="w-full flex-1">
-                        <div className="flex justify-between items-center mb-2">
-                            <span className="text-pink-400 font-black uppercase text-xs tracking-widest leading-none flex items-center gap-2">
-                                <Palette size={16} /> 마음의 캔버스 충전도
-                            </span>
-                            <span className="text-white font-black">{Math.min(100, Math.round((score / targetScore) * 100))}%</span>
-                        </div>
-                        <div className="w-full bg-black/50 rounded-full h-4 border border-white/5 overflow-hidden relative shadow-inner">
-                            <motion.div 
-                                className="bg-gradient-to-r from-pink-600 via-purple-600 to-blue-500 h-full rounded-full"
-                                initial={{ width: '0%' }}
-                                animate={{ width: `${Math.min(100, (score / targetScore) * 100)}%` }}
-                                transition={{ type: 'spring', bounce: 0.2 }}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex gap-4">
-                        <button onClick={resetGame} className="p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white transition-all cursor-pointer">
-                            <RefreshCcw size={24} />
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -338,7 +603,7 @@ function ArtGameContent() {
 
 export default function ArtGamePage() {
     return (
-        <Suspense fallback={<div className="min-h-screen bg-black" />}>
+        <Suspense fallback={<div className="min-h-screen bg-[#1c0f1f]" />}>
             <ArtGameContent />
         </Suspense>
     );
