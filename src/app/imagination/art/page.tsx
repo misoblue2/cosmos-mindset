@@ -244,91 +244,137 @@ const Stage3Mandala = ({ onComplete }: { onComplete: () => void }) => {
     );
 };
 
-// --- STAGE 4: 음악 심상 훈련 (GIM - Guided Imagery and Music) ---
+// --- STAGE 4: 공감각 별빛 저널링 (Synesthesia Journaling) ---
 const Stage4MusicReflection = ({ onComplete }: { onComplete: () => void }) => {
     const [text, setText] = useState("");
+    const [ripples, setRipples] = useState<{id: number, x: number, y: number, color: string}[]>([]);
     const [submitted, setSubmitted] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
-        // 백그라운드에서 웅장하고 치유적인 432Hz 앰비언스를 재생
         sound?.startMeditationDrone();
         return () => sound?.stopMeditationDrone();
     }, []);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (text.trim().length < 5) {
-            sound?.playError();
-            setErrorMsg("조금 더 깊이 느끼고 적어주세요. (최소 5글자 이상)");
-            return;
-        }
-        setErrorMsg("");
+    const spawnRipple = () => {
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const colors = ['border-pink-400', 'border-indigo-400', 'border-cyan-400', 'border-purple-400'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        
+        sound?.playTap();
+        const id = Date.now() + Math.random();
+        setRipples(prev => [...prev, { id, x, y, color }]);
+        setTimeout(() => {
+            setRipples(prev => prev.filter(r => r.id !== id));
+        }, 2000);
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        if (submitted) return;
+        if (e.target.value.length > text.length) spawnRipple(); // 글자가 추가될 때만 파문 시각화
+        setText(e.target.value);
+    };
+
+    const handleSubmit = () => {
+        if (text.replace(/\s/g,'').length < 5) return;
         sound?.playSuccess();
         setSubmitted(true);
         setTimeout(() => {
             sound?.stopMeditationDrone();
             onComplete();
-        }, 3000); // 텍스트가 빛으로 날아가는 카타르시스 여운 대기
+        }, 4000); 
     };
 
     return (
-        <div className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto px-4">
-            <h2 className="text-2xl font-black text-white mb-2">음악 심상 훈련</h2>
-            <p className="text-white/70 mb-8 text-center text-sm md:text-base font-bold max-w-md leading-relaxed">
-                현재 흘러나오는 432Hz 힐링 주파수를 깊게 느껴보세요.<br/>이 음악이 당신의 마음에 어떤 풍경이나 어떤 감정을 그려주고 있나요?<br/>억눌린 감정도 좋습니다. 떠오르는 대로 자유롭게 적어내려가세요.
-            </p>
+        <div 
+            className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto px-4 overflow-hidden top-0 left-0"
+            onClick={() => textareaRef.current?.focus()}
+        >
+            {/* 투명 텍스트 박스 (실제 입력용) */}
+            <textarea 
+                ref={textareaRef}
+                value={text}
+                onChange={handleChange}
+                disabled={submitted}
+                autoFocus
+                className="absolute inset-0 opacity-0 z-[100] resize-none overflow-hidden touch-none"
+            />
 
-            <AnimatePresence mode="wait">
-                {!submitted ? (
-                    <motion.form 
-                        key="form"
-                        initial={{ opacity: 1 }}
-                        exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-                        onSubmit={handleSubmit} 
-                        className="w-full max-w-lg flex flex-col gap-4"
-                    >
-                        <textarea 
-                            value={text}
-                            onChange={(e) => {
-                                setText(e.target.value);
-                                if (errorMsg) setErrorMsg("");
-                            }}
-                            placeholder="이 음악을 들으니..."
-                            className="w-full h-40 bg-white/5 border border-white/20 rounded-2xl p-6 text-white text-lg outline-none focus:border-indigo-400 focus:bg-white/10 transition-all font-serif resize-none shadow-inner"
+            {!submitted && text.length === 0 && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute text-center pointer-events-none z-10 flex flex-col items-center">
+                    <h2 className="text-2xl font-black text-white mb-2 font-serif italic">내면의 소리를 듣다</h2>
+                    <p className="text-white/40 text-sm font-bold">허공에 키보드를 두드려보세요.<br/>생각나는 아무 말이나 적어내려가도 좋습니다.</p>
+                </motion.div>
+            )}
+
+            {/* 타이핑되는 글자의 시각화 */}
+            <div className={`relative z-20 max-w-3xl text-center p-8 pointer-events-none transition-all duration-1000 ${submitted ? 'scale-150 blur-xl opacity-0' : 'opacity-100'}`}>
+                <p className="text-3xl md:text-5xl font-serif text-white/90 leading-normal tracking-wide drop-shadow-[0_0_20px_rgba(255,255,255,0.5)] flex flex-wrap justify-center gap-x-2 gap-y-4">
+                    {text.split('').map((char, i) => (
+                        <motion.span 
+                            key={i} 
+                            initial={{ opacity: 0, scale: 2, filter: "blur(10px)" }}
+                            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                            className={char === ' ' ? 'w-4' : ''}
+                        >
+                            {char}
+                        </motion.span>
+                    ))}
+                    {!submitted && (
+                        <motion.span 
+                            animate={{ opacity: [1, 0] }}
+                            transition={{ repeat: Infinity, duration: 0.8 }}
+                            className="inline-block w-1 h-10 md:h-12 bg-white/50 ml-1 box-border align-middle"
                         />
-                        {errorMsg && <p className="text-red-400 font-bold text-sm text-center animate-pulse">{errorMsg}</p>}
-                        <button type="submit" className="w-full py-4 bg-indigo-600/80 hover:bg-indigo-500 rounded-xl font-black text-lg transition-colors border border-indigo-400/50">
-                            감정 흘려보내기
-                        </button>
-                    </motion.form>
-                ) : (
+                    )}
+                </p>
+            </div>
+
+            {/* 제출되면 글자들이 빛으로 승화되는 연출 */}
+            <AnimatePresence>
+                {submitted && (
                     <motion.div 
-                        key="submitted"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: -50, scale: 1.1 }}
-                        transition={{ duration: 2, ease: "easeOut" }}
-                        className="text-center"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
                     >
-                        <div className="text-indigo-300 font-serif text-xl italic mb-4 opacity-50">"{text}"</div>
-                        <h3 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400 animate-pulse">
-                            당신의 감정이 아스라이 정화되었습니다.
+                        <h3 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-t from-pink-400 to-indigo-300 drop-shadow-[0_0_40px_rgba(219,39,119,0.8)]">
+                            모든 상념이 에테르로 흩어집니다.
                         </h3>
                     </motion.div>
                 )}
             </AnimatePresence>
-            
-            {/* 시각적 오디오 파동 (가짜) */}
-            <div className="absolute bottom-10 flex gap-2 opacity-30 pointer-events-none">
-                {[1,2,3,4,5].map(i => (
-                    <motion.div 
-                        key={i}
-                        animate={{ height: ["10px", "40px", "10px"] }}
-                        transition={{ duration: Math.random() * 1 + 0.5, repeat: Infinity, ease: "easeInOut" }}
-                        className="w-2 bg-indigo-400 rounded-full"
+
+            {/* 무작위 파문 효과 */}
+            <AnimatePresence>
+                {ripples.map(r => (
+                    <motion.div
+                        key={r.id}
+                        initial={{ scale: 0, opacity: 1 }}
+                        animate={{ scale: 10, opacity: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 2, ease: "easeOut" }}
+                        className={`absolute w-10 h-10 border-2 rounded-full pointer-events-none -ml-5 -mt-5 ${r.color}`}
+                        style={{ left: `${r.x}%`, top: `${r.y}%` }}
                     />
                 ))}
-            </div>
+            </AnimatePresence>
+
+            {/* 완료 버튼 (최소 5글자 이상) */}
+            <AnimatePresence>
+                {!submitted && text.replace(/\s/g,'').length >= 5 && (
+                    <motion.button 
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        onClick={handleSubmit}
+                        className="absolute z-[110] bottom-10 px-10 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/30 text-white font-black tracking-widest shadow-[0_0_30px_rgba(255,255,255,0.2)] transition-all hover:scale-105"
+                    >
+                        우주로 띄워 보내기
+                    </motion.button>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
@@ -380,7 +426,7 @@ const stageDescriptionsMap = [
     "마음의 잿빛 캔버스에 남아있는 찌꺼기 감정들을 버리고, 화사하고 밝은 색의 물감만 남기는 정화 단계입니다.",
     "우리 내면은 본래 빛으로 가득합니다. 아무리 짙은 그늘이 덮여있어도, 당신의 손끝으로 긁어내기만 하면 금세 아름다운 명화를 발견할 수 있습니다.",
     "좌우뇌의 철저한 대칭 밸런스를 맞추는 만다라 명상입니다. 마음 가는 대로 캔버스에 그리면 대칭의 힘이 당신을 정렬시킵니다.",
-    "세계적인 심리치료 기법인 GIM(Guided Imagery and Music)을 활용합니다. 432Hz 치유 주파수를 들으며 글로 감정을 모두 뿜어내고 정화하세요.",
+    "세계적인 심리치료 기법인 GIM(Guided Imagery and Music)을 활용합니다. 허공에 타이핑하는 모든 감정의 조각들이 시각적 파문과 융합되어 공감각적 카타르시스를 선사합니다.",
     "아트 유니버스의 마지막 관문, 당신의 작품과 인생에 스스로 '명작'이라는 금빛 서명을 새깁니다."
 ];
 
@@ -394,7 +440,7 @@ function ArtGameContent() {
     const [viewingStage, setViewingStage] = useState(1);
     const [gameState, setGameState] = useState<'intro' | 'playing' | 'stageClear' | 'readyToLaunch' | 'flying' | 'success' | 'clear'>('intro');
     
-    const levelNames = ['색채 정화', '빛의 발현', '대칭 명상', '음악 심상 훈련', '명작의 탄생'];
+    const levelNames = ['색채 정화', '빛의 발현', '대칭 명상', '공감각 저널링', '명작의 탄생'];
 
     useEffect(() => { setIsMounted(true); }, []);
 
