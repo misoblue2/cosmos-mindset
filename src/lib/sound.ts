@@ -62,15 +62,38 @@ export class AudioSystem {
         this.droneOsc = this.ctx.createOscillator();
         this.droneGain = this.ctx.createGain();
 
+        // 432Hz 우주적/자연적 치유 주파수 (사인파의 부드러움)
         this.droneOsc.type = 'sine';
-        this.droneOsc.frequency.setValueAtTime(77, this.ctx.currentTime); // 77Hz base
+        this.droneOsc.frequency.setValueAtTime(432 / 2, this.ctx.currentTime); // 한 옥타브 낮춰서 베이스(216Hz) 형태의 더 짙고 안정감 있는 소리
         
         this.droneGain.gain.setValueAtTime(0, this.ctx.currentTime);
-        this.droneGain.gain.linearRampToValueAtTime(0.2, this.ctx.currentTime + 2); // Fade in over 2 sec
+        this.droneGain.gain.linearRampToValueAtTime(0.08, this.ctx.currentTime + 3); // 3초간 서서히 부드럽게 페이드인
 
         this.droneOsc.connect(this.droneGain);
         this.droneGain.connect(this.ctx.destination);
         this.droneOsc.start();
+    }
+
+    // 맑은 싱잉볼/차임벨 소리 (호흡 페이즈가 바뀔 때 알림)
+    playChime() {
+        this.init();
+        if (!this.ctx) return;
+        
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        
+        // 432Hz 기반의 높은 맑은 소리 (약 864Hz)
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(864, this.ctx.currentTime);
+        
+        gain.gain.setValueAtTime(0, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 4.0); // 4초에 걸쳐 깊은 잔향 소멸
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 4.5);
     }
 
     stopMeditationDrone() {

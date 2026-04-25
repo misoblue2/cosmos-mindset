@@ -260,100 +260,89 @@ const Stage3Puzzle = ({ onComplete }: { onComplete: () => void }) => {
     );
 };
 
-// --- STAGE 4: 동기화 호흡 명상 (오래 걸림) ---
-const Stage4Slider = ({ onComplete }: { onComplete: () => void }) => {
-    const [userValue, setUserValue] = useState(50);
-    const [targetValue, setTargetValue] = useState(50);
-    const [syncProgress, setSyncProgress] = useState(0); 
-    const requiredSyncTicks = 50; // 총 50틱 (대략 1분 가까이 집중해야 함, 테스트를 위해 50틱 = 5초, 10초 명상)
-    // 실제 3분은 너무 지루하므로 20초 정도 집중으로 조정. (0.1초마다 틱 체크, 1초에 10틱, 50틱 = 5초 연속 동기화!)
-    // 3분간 숨쉬기엔 웹상에서 이탈 위험. "최소 20초 완전 집중" 모델 채택
+// --- STAGE 4: 시각적 호흡 유도 명상 (5-5-5 호흡법, 432Hz 치유) ---
+const Stage4Breathing = ({ onComplete }: { onComplete: () => void }) => {
+    const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
+    const [cycle, setCycle] = useState(1);
+    const maxCycles = 10;
+    
+    // 호흡 페이즈 시간 (5초씩 = 5000ms)
+    const phaseTime = 5000;
 
     useEffect(() => {
         sound?.startMeditationDrone();
         return () => sound?.stopMeditationDrone();
     }, []);
 
-    // 들이쉬고 내쉬는 사인파 목표 생성 (8초 주기)
     useEffect(() => {
-        let t = 0;
-        const interval = setInterval(() => {
-            t += 0.05;
-            // 30 ~ 70 사이를 왕복
-            const nextTarget = 50 + Math.sin(t) * 20;
-            setTargetValue(nextTarget);
-        }, 50);
-        return () => clearInterval(interval);
-    }, []);
-
-    // 매칭 체크 루프
-    useEffect(() => {
-        const interval = setInterval(() => {
-            // 오차가 5 이내면 동기화 상승, 아니면 하락
-            if (Math.abs(userValue - targetValue) <= 7) {
-                setSyncProgress(p => {
-                    if (p >= requiredSyncTicks) {
-                        clearInterval(interval);
-                        sound?.stopMeditationDrone();
-                        onComplete();
-                        return p;
-                    }
-                    return p + 1;
-                });
+        // 단계 시작 시 맑은 차임벨 소리
+        sound?.playChime();
+        
+        const timer = setTimeout(() => {
+            if (phase === 'inhale') {
+                setPhase('hold');
+            } else if (phase === 'hold') {
+                setPhase('exhale');
             } else {
-                setSyncProgress(p => Math.max(0, p - 2)); // 틀리면 빠르게 떨어짐 (집중 유도)
+                // exhale 완료 시 1주기 추가
+                if (cycle < maxCycles) {
+                    setCycle(c => c + 1);
+                    setPhase('inhale');
+                } else {
+                    sound?.stopMeditationDrone();
+                    onComplete();
+                }
             }
-        }, 100);
-        return () => clearInterval(interval);
-    }, [userValue, targetValue, onComplete]);
-
-    const isMatched = Math.abs(userValue - targetValue) <= 7;
-    const progressPercent = Math.min(100, Math.max(0, (syncProgress / requiredSyncTicks) * 100));
+        }, phaseTime);
+        return () => clearTimeout(timer);
+    }, [phase, cycle, onComplete]);
 
     return (
         <div className="flex flex-col items-center w-full h-full justify-center relative z-50 pointer-events-auto px-4">
-            <Radio size={60} className={`mb-8 transition-colors duration-300 ${isMatched ? 'text-green-400 drop-shadow-[0_0_30px_rgba(74,222,128,0.5)]' : 'text-blue-500/30'}`} />
-            
-            <h2 className="text-2xl font-black text-center mb-2">호흡 동기화 (심화 명상)</h2>
-            <p className="text-white/50 text-center text-sm md:text-base font-bold mb-12 max-w-sm leading-relaxed">
-                바의 움직임은 당신의 숨결입니다.<br/>
-                위의 파란 점(목표)에 부드럽게 원형 슬라이더를 맞추어 20초간 완전한 평온을 유지하세요.
+            <h2 className="text-3xl font-black text-center mb-4 tracking-widest text-blue-200">빛의 호흡 명상</h2>
+            <p className="text-white/60 text-center font-bold mb-16 text-lg max-w-md leading-relaxed">
+                바라보고 숨만 쉬세요. 조작은 필요 없습니다.<br/>빛의 크기에 맞춰 호흡하세요. (진행: {cycle}/{maxCycles} 세트)
             </p>
 
-            {/* Custom Slider View */}
-            <div className="relative w-full max-w-xl h-12 bg-white/5 rounded-full border border-white/10 mb-12 shadow-inner overflow-hidden">
-                {/* Target Marker */}
-                <div 
-                    className="absolute top-0 w-8 h-full bg-blue-500/50 rounded-full transition-all ease-linear"
-                    style={{ left: `calc(${targetValue}% - 16px)` }}
-                />
-                <input 
-                    type="range" 
-                    min="0" max="100" 
-                    value={userValue} 
-                    onChange={e => setUserValue(parseInt(e.target.value))}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                />
-                {/* User thumb virtual visual */}
-                <div 
-                    className={`absolute top-1 w-10 h-10 rounded-full shadow-xl transition-colors z-10 pointer-events-none flex items-center justify-center ${isMatched ? 'bg-green-400 scale-110' : 'bg-white'}`}
-                    style={{ left: `calc(${userValue}% - 20px)` }}
-                >
-                    <div className="w-2 h-2 bg-black rounded-full opacity-30" />
+            <div className="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center mb-12">
+                {/* 텍스트 가이드 */}
+                <div className="absolute z-20 text-center pointer-events-none">
+                    <AnimatePresence mode="wait">
+                        {phase === 'inhale' && <motion.div key="inhale" initial={{ opacity: 0}} animate={{ opacity: 1}} exit={{ opacity: 0}} className="text-4xl font-black text-white drop-shadow-[0_0_20px_rgba(255,255,255,1)] tracking-widest">들이쉬기 (5초)</motion.div>}
+                        {phase === 'hold' && <motion.div key="hold" initial={{ opacity: 0}} animate={{ opacity: 1}} exit={{ opacity: 0}} className="text-4xl font-black text-yellow-300 drop-shadow-[0_0_20px_rgba(253,224,71,1)] tracking-widest">머금기 (5초)</motion.div>}
+                        {phase === 'exhale' && <motion.div key="exhale" initial={{ opacity: 0}} animate={{ opacity: 1}} exit={{ opacity: 0}} className="text-4xl font-black text-blue-300 drop-shadow-[0_0_20px_rgba(147,197,253,1)] tracking-widest">내쉬기 (5초)</motion.div>}
+                    </AnimatePresence>
                 </div>
+                
+                {/* 팽창/수축 구체 (시각화) */}
+                <motion.div 
+                    animate={{ 
+                        scale: phase === 'inhale' ? 1.5 : phase === 'hold' ? 1.5 : 0.6,
+                        opacity: phase === 'hold' ? 1 : 0.6,
+                        backgroundColor: phase === 'inhale' ? 'rgba(96, 165, 250, 0.4)' : phase === 'hold' ? 'rgba(250, 204, 21, 0.6)' : 'rgba(59, 130, 246, 0.2)'
+                    }}
+                    transition={{ duration: 5, ease: "linear" }}
+                    className="absolute w-40 h-40 rounded-full blur-2xl z-10"
+                />
+                {/* 외곽선 링 */}
+                <motion.div 
+                    animate={{ 
+                        scale: phase === 'inhale' ? 1.5 : phase === 'hold' ? 1.5 : 0.6,
+                        borderColor: phase === 'hold' ? 'rgba(250, 204, 21, 0.9)' : 'rgba(96, 165, 250, 0.5)'
+                    }}
+                    transition={{ duration: 5, ease: "linear" }}
+                    className="absolute w-40 h-40 rounded-full border-[6px] z-10 pointer-events-none"
+                />
             </div>
-
-            <div className="w-full max-w-sm">
-                <div className="flex justify-between text-xs font-black text-white/30 mb-2 uppercase tracking-widest">
-                    <span>안정화율</span>
-                    <span className={isMatched ? 'text-green-400' : 'text-white'}>{Math.floor(progressPercent)}%</span>
-                </div>
-                <div className="h-3 bg-black/50 rounded-full overflow-hidden border border-white/10">
-                    <motion.div 
-                        className={`h-full ${isMatched ? 'bg-gradient-to-r from-green-500 to-emerald-400' : 'bg-blue-500'} rounded-full`}
-                        style={{ width: `${progressPercent}%` }}
-                    />
-                </div>
+            
+            {/* 전체 10세트 진행바 */}
+            <div className="w-full max-w-md h-3 bg-white/10 rounded-full overflow-hidden border border-white/20">
+                <motion.div 
+                    className="h-full bg-gradient-to-r from-blue-400 to-indigo-400"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${(cycle / maxCycles) * 100}%` }}
+                    transition={{ duration: 1 }}
+                />
             </div>
         </div>
     );
