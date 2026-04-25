@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cosmic Mind | 무한한 가능성의 시작",
-  description: "우주의 마음으로 세상을 바라봅니다. AI 자서전, 오리지널 북, 그리고 어린이 상상학교를 만나보세요.",
+  title: "우주마인드스쿨 | 생각을 물질로, 출판 SaaS",
+  description: "당신의 마인드가 현실의 책이 되는 곳. 가치토커의 뇌과학 마인드셋 스쿨과 AI 기반의 출판 기능을 경험하세요.",
 };
 
 export default function RootLayout({

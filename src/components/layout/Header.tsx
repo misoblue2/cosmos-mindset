@@ -56,19 +56,16 @@ export function Header() {
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
                 <GlobalCounter />
                 <div className="container mx-auto flex h-16 items-center justify-between px-4 relative">
-                    <Link href="/" className="text-xl font-bold font-serif text-primary hover:text-accent transition-colors z-50">
-                        Cosmic Mind
+                    <Link href="/" className="text-xl font-black tracking-tight text-white hover:text-purple-400 transition-colors z-50 flex items-center gap-2">
+                        <span className="text-2xl">🌌</span> 우주마인드스쿨
                     </Link>
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-6">
-                        <NavLink href="/">홈</NavLink>
-                        <NavLink href="/healing" accent className="font-serif text-amber-500/80 hover:text-amber-500">마음 상담소</NavLink>
-                        <NavLink href="/originals">우주의 서재</NavLink>
-                        <NavLink href="/imagination" accent className="font-serif text-orange-500/80 hover:text-orange-500">상상학교</NavLink>
-                        <NavLink href="/pricing" accent className="font-serif text-purple-500/80 hover:text-purple-500">가격표</NavLink>
-                        <NavLink href="/graduation">졸업장</NavLink>
-                        <NavLink href="/shop">Shop</NavLink>
+                        <NavLink href="/school" accent className="text-white hover:text-blue-400 font-bold">코스 수강</NavLink>
+                        <NavLink href="/pdf-store" accent className="text-white hover:text-purple-400 font-bold">전자책 스토어</NavLink>
+                        <NavLink href="/my-book" accent className="text-white hover:text-amber-400 font-bold">내 책 만들기</NavLink>
+                        <NavLink href="/healing" accent className="text-white/60 hover:text-white font-medium text-xs">마음 상담소</NavLink>
                     </nav>
 
                     {/* Desktop Auth Buttons */}
@@ -126,14 +123,11 @@ export function Header() {
                         className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl pt-24 px-6 md:hidden flex flex-col h-screen overflow-y-auto"
                     >
                         <div className="flex flex-col space-y-6">
-                            <div className="space-y-4 flex flex-col items-start border-l-2 border-primary/20 pl-6">
-                                <MobileNavLink href="/" onClick={() => setIsMenuOpen(false)}>홈</MobileNavLink>
-                                <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-amber-500 font-serif">마음 상담소</MobileNavLink>
-                                <MobileNavLink href="/originals" onClick={() => setIsMenuOpen(false)}>우주의 서재</MobileNavLink>
-                                <MobileNavLink href="/imagination" onClick={() => setIsMenuOpen(false)} className="text-orange-500 font-serif">상상학교</MobileNavLink>
-                                <MobileNavLink href="/pricing" onClick={() => setIsMenuOpen(false)} className="text-purple-500 font-serif">💳 가격표</MobileNavLink>
-                                <MobileNavLink href="/graduation" onClick={() => setIsMenuOpen(false)}>🎓 졸업장</MobileNavLink>
-                                <MobileNavLink href="/shop" onClick={() => setIsMenuOpen(false)}>Shop</MobileNavLink>
+                            <div className="space-y-4 flex flex-col items-start border-l-2 border-purple-500/50 pl-6">
+                                <MobileNavLink href="/school" onClick={() => setIsMenuOpen(false)} className="text-white">코스 수강</MobileNavLink>
+                                <MobileNavLink href="/pdf-store" onClick={() => setIsMenuOpen(false)} className="text-purple-400">전자책 스토어</MobileNavLink>
+                                <MobileNavLink href="/my-book" onClick={() => setIsMenuOpen(false)} className="text-amber-400">내 책 만들기</MobileNavLink>
+                                <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-white/50 text-lg">마음 상담소</MobileNavLink>
                             </div>
 
                             <div className="w-full h-px bg-border my-6" />

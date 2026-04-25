@@ -1,110 +1,223 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Star } from "lucide-react";
+import { ArrowRight, Sparkles, BookOpen, PenTool, Brain, Zap, ChevronDown } from "lucide-react";
+
+// 양자 파티클이 모여드는 시각적 캔버스 효과
+const QuantumBookEffect = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    
+    const particles: any[] = [];
+    for (let i = 0; i < 200; i++) {
+        particles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: Math.random() * 2 + 1,
+            speedX: (Math.random() - 0.5) * 2,
+            speedY: (Math.random() - 0.5) * 2,
+            targetX: canvas.width / 2,
+            targetY: canvas.height / 2 + 50,
+        });
+    }
+
+    let animationFrameId: number;
+    let time = 0;
+
+    const render = () => {
+        time++;
+        ctx.fillStyle = 'rgba(5, 5, 16, 0.2)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 중앙에 책 형태의 거대한 빛 (물질화)
+        const bookGlow = ctx.createRadialGradient(
+            canvas.width/2, canvas.height/2 + 50, 10,
+            canvas.width/2, canvas.height/2 + 50, 300 + Math.sin(time*0.05)*50
+        );
+        bookGlow.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
+        bookGlow.addColorStop(0.5, 'rgba(59, 130, 246, 0.1)');
+        bookGlow.addColorStop(1, 'rgba(5, 5, 16, 0)');
+        
+        ctx.fillStyle = bookGlow;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 파티클들을 중앙(책)으로 끌어당김
+        particles.forEach((p) => {
+            const dx = p.targetX - p.x;
+            const dy = p.targetY - p.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // 중앙에 가까워질수록 속도가 빨라지며 빨려들어가는 효과
+            if (dist > 50) {
+                p.x += dx * 0.01 + p.speedX;
+                p.y += dy * 0.01 + p.speedY;
+            } else {
+                p.x = Math.random() * canvas.width;
+                p.y = Math.random() * canvas.height;
+            }
+
+            ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(1, 50/dist)})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        animationFrameId = requestAnimationFrame(render);
+    };
+    render();
+    
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 z-0 pointer-events-none opacity-60" />;
+}
 
 export default function Home() {
-  const [stars, setStars] = useState<{ id: number; style: { top: string; left: string }; size: number; duration: number; delay: number }[]>([]);
+  const { scrollYProgress } = useScroll();
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
 
-  useEffect(() => {
-    const newStars = Array.from({ length: 20 }).map((_, i) => ({
-      id: i,
-      style: { top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%` },
-      size: Math.random() * 4 + 2,
-      duration: 3 + Math.random() * 4,
-      delay: Math.random() * 5,
-    }));
-    setStars(newStars);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   return (
-    <div className="relative min-h-screen bg-black overflow-hidden flex flex-col justify-center items-center text-center">
-      {/* Background with Cosmic Image */}
-      <div className="absolute inset-0 z-0">
-        <motion.div
-          initial={{ scale: 1 }}
-          animate={{ scale: 1.1 }}
-          transition={{ duration: 40, repeat: Infinity, repeatType: "reverse" }}
-          className="w-full h-full bg-[url('/images/cosmic_main_hero.png')] bg-cover bg-center opacity-70"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-black/80" />
-      </div>
-
-      {/* Floating Stars Effect */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        {stars.map((star) => (
-          <motion.div
-            key={star.id}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0], y: -50 }}
-            transition={{ duration: star.duration, repeat: Infinity, delay: star.delay }}
-            className="absolute text-yellow-100"
-            style={star.style}
+    <div className="relative min-h-screen bg-[#050510] overflow-hidden text-white w-full">
+      
+      {/* 씬 1: 양자 파티클 인트로 */}
+      <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
+        <QuantumBookEffect />
+        
+        <motion.div 
+          style={{ y, opacity }}
+          className="relative z-10 flex flex-col items-center text-center px-4 max-w-5xl mx-auto"
+        >
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="mb-8"
           >
-            <Star size={star.size} fill="currentColor" />
+            <p className="text-purple-400 font-black tracking-[0.5em] text-sm md:text-base uppercase mb-6 drop-shadow-[0_0_15px_rgba(168,85,247,0.8)]">
+              당신의 잠재의식은 이미 알고 있다
+            </p>
+            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-[1.1]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-200 to-white">
+                우주마인드스쿨
+              </span>
+            </h1>
           </motion.div>
-        ))}
-      </div>
 
-      {/* Main Content */}
-      <div className="relative z-10 px-4 max-w-5xl mx-auto space-y-12">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="space-y-4"
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 text-white/80 text-sm font-light tracking-widest uppercase">
-            <Sparkles size={14} className="text-purple-300" />
-            <span>Cosmic Mind Universe</span>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: 1, duration: 1 }}
+            className="text-xl md:text-3xl font-medium text-white/50 max-w-3xl leading-relaxed mt-6"
+          >
+            생각을 물질로. 당신의 마인드가 현실의 책이 되는 곳.
+          </motion.p>
+          
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2, duration: 1 }}
+            className="absolute bottom-12 inset-x-0 flex justify-center animate-bounce text-white/30"
+          >
+            <ChevronDown size={32} />
+          </motion.div>
+        </motion.div>
+      </section>
+
+      {/* 씬 2: 양대 핵심 기능 하이라이트 (출판 / 교육) */}
+      <section className="relative z-20 bg-[#050510] py-32 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-24">
+            <h2 className="text-4xl md:text-5xl font-black mb-6">마인드셋 교육과 자동 출판의 완벽한 결합</h2>
+            <p className="text-xl text-white/40">오직 가치토커의 철학을 기반으로 설계된 국내 최초의 통합 플랫폼입니다.</p>
           </div>
 
-          <h1 className="text-5xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-pink-200 font-serif leading-tight drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]">
-            Starting<br />Infinite Possibilities
-          </h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
+            
+            {/* 교육 코스 제안 */}
+            <motion.div 
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="group relative p-1 bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-[3rem] overflow-hidden hover:from-blue-500/50 hover:to-purple-500/50 transition-all duration-500"
+            >
+              <div className="h-full bg-[#0a0a1a] p-12 md:p-16 rounded-[2.9rem] flex flex-col">
+                <Brain className="w-16 h-16 text-blue-400 mb-8" />
+                <h3 className="text-3xl font-black mb-4">마인드셋 코스 수강 🚀</h3>
+                <p className="text-lg text-white/50 mb-12 flex-1 leading-relaxed">
+                  유튜브 영상을 넘어선 압도적인 깊이. 조셉 머피, 네빌 고다드 등 10명의 세계적인 거장들의 철학을 바탕으로 AI가 즉시 생성한 200페이지의 신경 필사 워크북을 통해 뇌 회로를 완전히 재배선합니다.
+                </p>
+                <Link href="/school" className="inline-flex items-center justify-between w-full p-6 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 rounded-2xl font-black text-xl transition-all border border-blue-500/20 group-hover:border-blue-400/50">
+                  코스 입장하기 <ArrowRight />
+                </Link>
+              </div>
+            </motion.div>
 
-          <p className="text-lg md:text-2xl text-stone-300 font-light max-w-2xl mx-auto leading-relaxed">
-            꿈과 환상, 그리고 새로운 시작.<br />
-            당신의 무한한 가능성이 열리는 문 앞에 서 있습니다.
-          </p>
-        </motion.div>
+            {/* 자가 출판 제안 */}
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="group relative p-1 bg-gradient-to-br from-amber-500/30 to-orange-500/30 rounded-[3rem] overflow-hidden hover:from-amber-500/50 hover:to-orange-500/50 transition-all duration-500"
+            >
+              <div className="h-full bg-[#0a0a1a] p-12 md:p-16 rounded-[2.9rem] flex flex-col">
+                <PenTool className="w-16 h-16 text-amber-400 mb-8" />
+                <h3 className="text-3xl font-black mb-4">나만의 책 출판하기 ✍️</h3>
+                <p className="text-lg text-white/50 mb-12 flex-1 leading-relaxed">
+                  작성하신 초안 원고만 업로드하세요. 우주마인드스쿨의 AI 고스트라이터가 가치토커 특유의 확언을 더해 200페이지 분량으로 채우고, 교보문고와 부크크에 즉시 등록 가능한 출판용 파일 3종을 자동 생성합니다.
+                </p>
+                <Link href="/my-book" className="inline-flex items-center justify-between w-full p-6 bg-amber-600/10 hover:bg-amber-600/20 text-amber-400 rounded-2xl font-black text-xl transition-all border border-amber-500/20 group-hover:border-amber-400/50">
+                  출판 시스템 열기 <ArrowRight />
+                </Link>
+              </div>
+            </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="flex flex-col md:flex-row items-center justify-center gap-6"
-        >
-          <Link href="/pricing" className="group relative px-8 py-4 bg-gradient-to-r from-purple-500/30 to-blue-500/30 backdrop-blur-md border border-purple-400/40 rounded-full overflow-hidden hover:from-purple-500/40 hover:to-blue-500/40 transition-all shadow-[0_0_30px_rgba(168,85,247,0.2)]">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <span className="relative flex items-center gap-3 text-white font-black tracking-wide">
-              💳 긍정마인드셋 학교 입학하기 <ArrowRight size={18} className="translate-x-0 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Link>
-
-          <Link href="/imagination" className="group relative px-8 py-4 bg-white/10 backdrop-blur-md border border-white/30 rounded-full overflow-hidden hover:bg-white/20 transition-all">
-            <span className="relative flex items-center gap-3 text-white font-medium tracking-wide">
-              🚀 상상학교 무료 체험 <ArrowRight size={18} className="translate-x-0 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Link>
-
-          <div className="flex gap-4 items-center">
-            <Link href="/graduation" className="text-amber-300 hover:text-amber-200 transition-colors font-bold text-sm tracking-wide">
-              🎓 졸업장 발급
-            </Link>
-            <span className="text-white/10">|</span>
-            <Link href="/shop" className="text-stone-400 hover:text-white transition-colors font-light text-sm tracking-widest uppercase">
-              Shop
-            </Link>
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </section>
 
-      <div className="absolute bottom-10 left-0 w-full text-center">
-        <p className="text-[10px] text-white/20 uppercase tracking-[0.3em]">Designed by Cosmic Mind</p>
-      </div>
+      {/* 씬 3: PDF 전자책 스토어 미리보기 */}
+      <section className="relative z-20 bg-white/[0.02] py-24 border-t border-white/5">
+         <div className="max-w-6xl mx-auto px-4 text-center">
+            <h2 className="text-3xl font-black mb-4">우주서재 (PDF Store)</h2>
+            <p className="text-white/40 mb-12">가치토커의 영상 철학이 200페이지의 워크북 실물책으로 물질화된 곳입니다.</p>
+            
+            <div className="flex justify-center mb-12">
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
+                  {/* 단행본 목업 */}
+                  {["잠재의식의 비밀", "양자도약 마인드", "끌어당김 실전 워크북"].map((book, i) => (
+                    <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left hover:border-purple-500/50 transition-all">
+                       <div className="h-40 bg-gradient-to-br from-purple-600/50 to-indigo-900/50 rounded-xl mb-4 flex items-center justify-center">
+                          <BookOpen className="text-white/30" size={40} />
+                       </div>
+                       <h4 className="font-bold mb-2">{book}</h4>
+                       <p className="text-white/40 text-xs">A5 실물 규격 / 200페이지 PDF 전자책</p>
+                    </div>
+                  ))}
+               </div>
+            </div>
+
+            <Link href="/pdf-store" className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 font-bold transition-all">
+               우주서재 전체보기 <ArrowRight size={16} />
+            </Link>
+         </div>
+      </section>
+
+      <footer className="relative z-20 py-12 text-center border-t border-white/10 bg-[#020205]">
+        <p className="text-white/20 text-xs font-bold tracking-widest uppercase">
+          © 2025 우주마인드스쿨 | Cosmic Mindset School
+        </p>
+      </footer>
     </div>
   );
 }
