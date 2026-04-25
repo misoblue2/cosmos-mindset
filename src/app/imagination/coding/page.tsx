@@ -614,7 +614,7 @@ function CodingGameContent() {
                             {viewingStage === 1 && <Stage1Swipe onComplete={handleStageComplete} />}
                             {viewingStage === 2 && <Stage2Typing onComplete={handleStageComplete} />}
                             {viewingStage === 3 && <Stage3Puzzle onComplete={handleStageComplete} />}
-                            {viewingStage === 4 && <Stage4Slider onComplete={handleStageComplete} />}
+                            {viewingStage === 4 && <Stage4Breathing onComplete={handleStageComplete} />}
                             {viewingStage === 5 && <Stage5Ignition onComplete={handleStageComplete} />}
                         </div>
                     )}
