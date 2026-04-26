@@ -56,16 +56,17 @@ export function Header() {
             <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
                 <GlobalCounter />
                 <div className="container mx-auto flex h-16 items-center justify-between px-4 relative">
-                    <Link href="/" className="text-xl font-black tracking-tight text-white hover:text-purple-400 transition-colors z-50 flex items-center gap-2">
-                        <span className="text-2xl">🌌</span> 우주마인드스쿨
+                    <Link href="/" className="text-xl font-bold tracking-widest text-[#c8a84b] hover:text-white transition-all z-50 flex items-center gap-2">
+                        <span className="text-2xl">✦</span> Cosmosmindset ✦
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <nav className="hidden md:flex items-center gap-6">
-                        <NavLink href="/school" accent className="text-white hover:text-blue-400 font-bold">코스 수강</NavLink>
-                        <NavLink href="/pdf-store" accent className="text-white hover:text-purple-400 font-bold">전자책 스토어</NavLink>
-                        <NavLink href="/my-book" accent className="text-white hover:text-amber-400 font-bold">내 책 만들기</NavLink>
-                        <NavLink href="/healing" accent className="text-white/60 hover:text-white font-medium text-xs">마음 상담소</NavLink>
+                    <nav className="hidden md:flex items-center gap-8">
+                        <NavLink href="/training" accent className="text-white hover:text-[#c8a84b] font-bold">훈련소</NavLink>
+                        <NavLink href="/pricing" accent className="text-white hover:text-[#c8a84b] font-bold">수강 플랜</NavLink>
+                        <NavLink href="/healing" accent className="text-white hover:text-[#c8a84b] font-bold">마음상담소</NavLink>
+                        <NavLink href="/library" accent className="text-white hover:text-[#c8a84b] font-bold">우주서재</NavLink>
+                        <NavLink href="/certificate" accent className="text-white/60 hover:text-[#c8a84b] font-medium text-xs">나의 증명</NavLink>
                     </nav>
 
                     {/* Desktop Auth Buttons */}
@@ -124,10 +125,11 @@ export function Header() {
                     >
                         <div className="flex flex-col space-y-6">
                             <div className="space-y-4 flex flex-col items-start border-l-2 border-purple-500/50 pl-6">
-                                <MobileNavLink href="/school" onClick={() => setIsMenuOpen(false)} className="text-white">코스 수강</MobileNavLink>
-                                <MobileNavLink href="/pdf-store" onClick={() => setIsMenuOpen(false)} className="text-purple-400">전자책 스토어</MobileNavLink>
-                                <MobileNavLink href="/my-book" onClick={() => setIsMenuOpen(false)} className="text-amber-400">내 책 만들기</MobileNavLink>
-                                <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-white/50 text-lg">마음 상담소</MobileNavLink>
+                                <MobileNavLink href="/training" onClick={() => setIsMenuOpen(false)} className="text-white">훈련소</MobileNavLink>
+                                <MobileNavLink href="/pricing" onClick={() => setIsMenuOpen(false)} className="text-[#c8a84b]">수강 플랜</MobileNavLink>
+                                <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-[#9b7fd4]">마음 상담소</MobileNavLink>
+                                <MobileNavLink href="/library" onClick={() => setIsMenuOpen(false)} className="text-amber-200">우주서재</MobileNavLink>
+                                <MobileNavLink href="/certificate" onClick={() => setIsMenuOpen(false)} className="text-white/50 text-lg">나의 증명</MobileNavLink>
                             </div>
 
                             <div className="w-full h-px bg-border my-6" />

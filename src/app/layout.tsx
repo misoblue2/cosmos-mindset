@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "우주마인드스쿨 | 생각을 물질로, 출판 SaaS",
-  description: "당신의 마인드가 현실의 책이 되는 곳. 가치토커의 뇌과학 마인드셋 스쿨과 AI 기반의 출판 기능을 경험하세요.",
+  title: "코스믹마인드 | 긍정마인드셋 학교",
+  description: "손끝으로 새기는 뇌 회로 재배선 훈련소. 30일간의 신경 필사와 432Hz 명상으로 당신의 마인드를 혁명하세요.",
 };
 
 export default function RootLayout({

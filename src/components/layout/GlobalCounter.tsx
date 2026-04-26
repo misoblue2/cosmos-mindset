@@ -4,33 +4,29 @@ import { motion } from "framer-motion";
 
 export default function GlobalCounter() {
     return (
-        <div className="w-full bg-gradient-to-r from-purple-900 via-indigo-900 to-purple-900 text-white overflow-hidden py-3 border-b border-white/10 relative z-50">
-            <div className="absolute inset-0 opacity-20">
-                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-            </div>
-
+        <div className="w-full bg-[#0a0a1a] text-white overflow-hidden py-2 border-b border-white/5 relative z-50">
             <div className="container mx-auto px-4 flex justify-between items-center relative z-10">
                 <div className="flex items-center gap-3">
-                    <span className="flex h-2 w-2 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    <span className="flex h-1.5 w-1.5 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8a84b] opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#c8a84b]"></span>
                     </span>
-                    <span className="font-bold text-sm tracking-wide text-green-300">LIVE</span>
+                    <span className="font-black text-[10px] tracking-widest text-[#c8a84b]">LIVE SESSION</span>
                 </div>
 
                 <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                     className="flex items-center gap-2"
                 >
-                    <span className="text-xs md:text-sm font-light text-white/80">
-                        여러분의 상상이 <b className="text-white font-bold">현실</b>이 되는 곳
+                    <span className="text-[10px] font-bold text-white/30 tracking-tight">
+                        현재 <b className="text-[#c8a84b]">1,284명</b>의 마스터들이 뇌 회로를 재배선 중입니다
                     </span>
                 </motion.div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-[10px] md:text-xs font-mono text-white/50 bg-white/10 px-2 py-1 rounded">
-                        BETA
+                    <span className="text-[8px] font-black text-[#c8a84b] border border-[#c8a84b]/30 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                        v2.0 alpha
                     </span>
                 </div>
             </div>
