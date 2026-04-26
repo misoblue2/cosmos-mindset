@@ -8,10 +8,10 @@ export default function GlobalCounter() {
             <div className="container mx-auto px-4 flex justify-between items-center relative z-10">
                 <div className="flex items-center gap-2">
                     <span className="flex h-1.5 w-1.5 relative">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c8a84b] opacity-40"></span>
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#c8a84b]"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
                     </span>
-                    <span className="font-bold text-[9px] tracking-[0.2em] text-[#c8a84b] uppercase opacity-80">Live Session</span>
+                    <span className="font-bold text-[9px] tracking-[0.2em] text-white/50 uppercase">Live Session</span>
                 </div>
 
                 <motion.div
@@ -20,12 +20,12 @@ export default function GlobalCounter() {
                     className="flex items-center gap-2"
                 >
                     <span className="text-[10px] font-medium text-white/30 tracking-tight">
-                        <span className="hidden md:inline">현재</span> <b className="text-white/60 font-black">1,284명</b>의 마스터들이 접속 중
+                        <span className="hidden md:inline">현재</span> <b className="text-white font-black">1,284명</b>의 마스터들이 접속 중
                     </span>
                 </motion.div>
 
                 <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-black text-[#c8a84b]/60 hover:text-[#c8a84b] transition-colors cursor-default tracking-tighter">
+                    <span className="text-[9px] font-black text-white/20 hover:text-white transition-colors cursor-default tracking-tighter">
                         V2.0 ALPHA
                     </span>
                 </div>

@@ -60,11 +60,10 @@ const PLANS = [
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-[#07070f] text-white pt-24 pb-32 px-6 overflow-hidden">
-      {/* 배경 장식 */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#c8a84b]/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-900/5 rounded-full blur-[100px]" />
+    <div className="min-h-screen bg-black text-white pt-24 pb-32 px-6 overflow-hidden">
+      {/* 배경 장식 - 블랙&화이트 심플 라인 컨셉 */}
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
 
       <div className="max-w-6xl mx-auto relative z-10">
@@ -72,11 +71,11 @@ export default function PricingPage() {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c8a84b]/10 border border-[#c8a84b]/20 text-[#c8a84b] text-[10px] font-black tracking-widest uppercase"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black tracking-widest uppercase"
           >
             <Zap size={14} /> membership plans
           </motion.div>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tighter">코스믹마인드 플랜 선택</h1>
+          <h1 className="text-4xl md:text-6xl font-black tracking-tighter">코스믹마인드 플랜</h1>
           <p className="text-white/40 text-lg max-w-xl mx-auto leading-relaxed">
             매일 20분. 30일이면 완전히 다른 뇌가 됩니다.<br/>
             당신의 변화에 가장 적합한 플랜을 선택하세요.
@@ -92,30 +91,30 @@ export default function PricingPage() {
               transition={{ delay: i * 0.1 }}
               className={`relative flex flex-col p-10 rounded-[2.5rem] border transition-all duration-500 overflow-hidden group ${
                 plan.highlight 
-                  ? 'bg-white/[0.06] border-[#c8a84b] shadow-[0_30px_100px_rgba(200,168,75,0.1)]' 
-                  : 'bg-white/[0.03] border-white/10 hover:border-white/20'
+                  ? 'bg-white text-black border-white shadow-[0_30px_100px_rgba(255,255,255,0.1)]' 
+                  : 'bg-white/[0.03] border-white/10 hover:border-white/20 text-white'
               }`}
             >
               {plan.badge && (
-                <div className="absolute top-0 left-0 right-0 h-10 bg-gradient-to-r from-[#c8a84b] to-[#ffd700] text-black text-[10px] font-black flex items-center justify-center tracking-widest uppercase">
+                <div className="absolute top-0 left-0 right-0 h-10 bg-white text-black border-b border-black/5 text-[10px] font-black flex items-center justify-center tracking-widest uppercase">
                    {plan.badge}
                 </div>
               )}
 
               <div className="mt-4 mb-10">
-                <div className="text-[10px] font-black tracking-widest text-white/30 uppercase mb-2">{plan.name}</div>
+                <div className="text-[10px] font-black tracking-widest opacity-40 uppercase mb-2">{plan.name}</div>
                 <h3 className="text-2xl font-black mb-6">{plan.duration}</h3>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-5xl font-black text-[#c8a84b] tracking-tighter">{plan.price}</span>
-                  <span className="text-lg text-white/30 font-bold">원</span>
+                  <span className={`text-5xl font-black tracking-tighter ${plan.highlight ? 'text-black' : 'text-white'}`}>{plan.price}</span>
+                  <span className="text-lg opacity-40 font-bold">원</span>
                 </div>
-                <div className="text-xs text-white/40 mt-3 font-medium">{plan.billing}</div>
+                <div className="text-xs opacity-40 mt-3 font-medium">{plan.billing}</div>
               </div>
 
               <ul className="space-y-4 mb-12 flex-1">
                 {plan.features.map((f, fi) => (
-                  <li key={fi} className="flex items-center gap-3 text-sm font-medium text-white/60 group-hover:text-white transition-colors">
-                    <Check size={16} className="text-[#c8a84b] shrink-0" />
+                  <li key={fi} className={`flex items-center gap-3 text-sm font-medium transition-colors ${plan.highlight ? 'text-black/70' : 'text-white/60 group-hover:text-white'}`}>
+                    <Check size={16} className={`${plan.highlight ? 'text-black' : 'text-white'} shrink-0`} />
                     {f}
                   </li>
                 ))}
@@ -123,7 +122,7 @@ export default function PricingPage() {
 
               <button className={`w-full py-5 rounded-2xl font-black text-sm tracking-widest transition-all ${
                 plan.highlight
-                  ? 'bg-gradient-to-r from-[#c8a84b] to-[#ffd700] text-black hover:scale-[1.02] shadow-xl'
+                  ? 'bg-black text-white hover:scale-[1.02] shadow-xl'
                   : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
               }`}>
                 {plan.btnText}
@@ -133,8 +132,8 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-20 text-center space-y-6">
-           <p className="text-white/30 text-sm">
-             결제 없이 먼저 체험하고 싶다면, <Link href="/training/day1" className="text-[#c8a84b] font-bold border-b border-[#c8a84b]/30 pb-0.5">Day 1 무료 체험하기 →</Link>
+           <p className="text-white/30 text-sm font-bold">
+             결제 없이 먼저 체험하고 싶다면, <Link href="/training/day1" className="text-white border-b border-white/30 pb-0.5">Day 1 무료 체험하기 →</Link>
            </p>
            <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black text-white/20 tracking-[0.2em] uppercase">
               <span className="flex items-center gap-2"><ShieldCheck size={14} /> 7일 환불 보장</span>

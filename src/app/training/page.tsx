@@ -33,13 +33,13 @@ const PHASES = [
 
 export default function TrainingDashboard() {
   return (
-    <div className="min-h-screen bg-[#07070f] text-white pt-24 pb-48 px-6">
+    <div className="min-h-screen bg-black text-white pt-24 pb-48 px-6">
       <div className="max-w-6xl mx-auto">
         <header className="mb-16 text-center">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c8a84b]/10 border border-[#c8a84b]/20 text-[#c8a84b] text-xs font-bold tracking-widest mb-6"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold tracking-widest mb-6"
           >
             <Sparkles size={14} /> MINDSET TRAINING CENTER
           </motion.div>
@@ -58,7 +58,7 @@ export default function TrainingDashboard() {
               <div className="flex items-end justify-between mb-10 pb-4 border-b border-white/10">
                 <div>
                   <h2 className="text-2xl font-black text-white mb-1">{phase.title}</h2>
-                  <p className="text-[#c8a84b] font-bold text-sm tracking-widest uppercase">{phase.subtitle}</p>
+                  <p className="text-white/40 font-bold text-sm tracking-widest uppercase">{phase.subtitle}</p>
                 </div>
                 <div className="text-xs text-white/30 font-mono">0 / {phase.days.length} COMPLETED</div>
               </div>
@@ -70,8 +70,8 @@ export default function TrainingDashboard() {
                     href={day.status === 'open' ? `/training/day${day.day}` : '#'}
                     className={`group relative p-8 rounded-[2rem] border transition-all ${
                       day.status === 'open' 
-                        ? 'bg-white/5 border-white/10 hover:border-[#c8a84b]/50 hover:bg-white/10' 
-                        : 'bg-black/40 border-white/5 opacity-50 cursor-not-allowed'
+                        ? 'bg-white/5 border-white/10 hover:border-white/50 hover:bg-white/10' 
+                        : 'bg-black border-white/5 opacity-50 cursor-not-allowed'
                     }`}
                   >
                     <div className="flex items-center justify-between mb-6">
@@ -79,20 +79,20 @@ export default function TrainingDashboard() {
                         {String(day.day).padStart(2, '0')}
                       </span>
                       {day.status === 'open' ? (
-                        <PlayCircle className="text-[#c8a84b] group-hover:scale-110 transition-transform" />
+                        <PlayCircle className="text-white group-hover:scale-110 transition-transform" />
                       ) : (
                         <Lock size={20} className="text-white/20" />
                       )}
                     </div>
                     <div>
-                      <h3 className="text-xl font-black mb-2 group-hover:text-[#c8a84b] transition-colors">{day.title}</h3>
+                      <h3 className="text-xl font-black mb-2 group-hover:text-white transition-colors">{day.title}</h3>
                       <div className="flex items-center gap-2 text-xs font-bold text-white/40">
                          <Brain size={14} /> 멘토: {day.mentor}
                       </div>
                     </div>
 
                     {day.status === 'open' && (
-                      <div className="absolute bottom-6 right-8 text-[10px] font-black tracking-widest text-[#c8a84b] opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="absolute bottom-6 right-8 text-[10px] font-black tracking-widest text-white opacity-0 group-hover:opacity-100 transition-opacity">
                         훈련 시작하기 →
                       </div>
                     )}
@@ -113,20 +113,20 @@ export default function TrainingDashboard() {
         {/* 하단 통계 바 */}
         <div className="fixed bottom-12 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-4xl bg-black/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 flex flex-wrap items-center justify-around gap-8 z-50">
            <div className="text-center">
-             <div className="text-2xl font-black text-[#c8a84b]">0</div>
+             <div className="text-2xl font-black text-white">0</div>
              <div className="text-[10px] font-bold text-white/40 tracking-widest uppercase">누적 타이핑</div>
            </div>
            <div className="w-px h-8 bg-white/10 hidden md:block" />
            <div className="text-center">
-             <div className="text-2xl font-black text-[#c8a84b]">0</div>
+             <div className="text-2xl font-black text-white">0</div>
              <div className="text-[10px] font-bold text-white/40 tracking-widest uppercase">연속 출석</div>
            </div>
            <div className="w-px h-8 bg-white/10 hidden md:block" />
            <div className="text-center">
-             <div className="text-2xl font-black text-[#c8a84b]">0 / 30</div>
+             <div className="text-2xl font-black text-white">0 / 30</div>
              <div className="text-[10px] font-bold text-white/40 tracking-widest uppercase">진행률</div>
            </div>
-           <Link href="/pricing" className="px-8 py-3 bg-[#c8a84b] text-black font-black text-sm rounded-xl hover:scale-105 transition-transform">
+           <Link href="/pricing" className="px-8 py-3 bg-white text-black font-black text-sm rounded-xl hover:scale-105 transition-transform">
              전체 잠금 해제하기
            </Link>
         </div>

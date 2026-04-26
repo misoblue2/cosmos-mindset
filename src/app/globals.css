@@ -67,19 +67,19 @@
   --muted: #1A1A1A;
   --muted-foreground: #A1A1A1;
 
-  --accent: #D4AF37;
+  --accent: #FFFFFF;
   --accent-foreground: #000000;
 
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --border: #262626;
-  --input: #262626;
+  --border: #1A1A1A;
+  --input: #1A1A1A;
   --ring: #FFFFFF;
 
   --chart-1: #FFFFFF;
-  --chart-2: #D4AF37;
-  --chart-3: #5A7C74;
+  --chart-2: #A1A1A1;
+  --chart-3: #525252;
   --chart-4: #1A1A1A;
   --chart-5: #000000;
 
@@ -94,14 +94,14 @@
 }
 
 .dark {
-  /* In Dark mode, we keep it Black focus, maybe slightly lighter or deep gray */
+  /* Dark mode is pure black context */
   --background: #000000;
   --foreground: #FFFFFF;
 
   --card: #0A0A0A;
   --card-foreground: #FFFFFF;
 
-  --primary: #D4AF37; /* Gold points in dark */
+  --primary: #FFFFFF;
   --primary-foreground: #000000;
 }
 

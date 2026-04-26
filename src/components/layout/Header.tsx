@@ -56,17 +56,17 @@ export function Header() {
             <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/90 backdrop-blur-md">
                 <GlobalCounter />
                 <div className="container mx-auto flex h-16 items-center justify-between px-4 relative">
-                    <Link href="/" className="text-xl font-black tracking-widest text-[#c8a84b] hover:text-white transition-all z-50 flex items-center gap-2">
+                    <Link href="/" className="text-xl font-black tracking-widest text-white hover:opacity-70 transition-all z-50 flex items-center gap-2">
                         <span className="text-2xl">✦</span> 우주마인드스쿨
                     </Link>
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-8">
-                        <NavLink href="/training" accent className="text-white hover:text-[#c8a84b] font-bold">훈련소</NavLink>
-                        <NavLink href="/pricing" accent className="text-white hover:text-[#c8a84b] font-bold">수강 플랜</NavLink>
-                        <NavLink href="/healing" accent className="text-white hover:text-[#c8a84b] font-bold">마음상담소</NavLink>
-                        <NavLink href="/library" accent className="text-white hover:text-[#c8a84b] font-bold">우주서재</NavLink>
-                        <NavLink href="/certificate" accent className="text-white/60 hover:text-[#c8a84b] font-medium text-xs">나의 증명</NavLink>
+                        <NavLink href="/training" accent className="text-white/40 hover:text-white font-bold">훈련소</NavLink>
+                        <NavLink href="/pricing" accent className="text-white/40 hover:text-white font-bold">수강 플랜</NavLink>
+                        <NavLink href="/healing" accent className="text-white/40 hover:text-white font-bold">마음상담소</NavLink>
+                        <NavLink href="/library" accent className="text-white/40 hover:text-white font-bold">우주서재</NavLink>
+                        <NavLink href="/certificate" accent className="text-white/20 hover:text-white font-medium text-xs">나의 증명</NavLink>
                     </nav>
 
                     {/* Desktop Auth Buttons */}
@@ -124,12 +124,12 @@ export function Header() {
                         className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl pt-24 px-6 md:hidden flex flex-col h-screen overflow-y-auto"
                     >
                         <div className="flex flex-col space-y-6">
-                            <div className="space-y-4 flex flex-col items-start border-l-2 border-purple-500/50 pl-6">
+                            <div className="space-y-4 flex flex-col items-start border-l-2 border-white/20 pl-6">
                                 <MobileNavLink href="/training" onClick={() => setIsMenuOpen(false)} className="text-white">훈련소</MobileNavLink>
-                                <MobileNavLink href="/pricing" onClick={() => setIsMenuOpen(false)} className="text-[#c8a84b]">수강 플랜</MobileNavLink>
-                                <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-[#9b7fd4]">마음 상담소</MobileNavLink>
-                                <MobileNavLink href="/library" onClick={() => setIsMenuOpen(false)} className="text-amber-200">우주서재</MobileNavLink>
-                                <MobileNavLink href="/certificate" onClick={() => setIsMenuOpen(false)} className="text-white/50 text-lg">나의 증명</MobileNavLink>
+                                <MobileNavLink href="/pricing" onClick={() => setIsMenuOpen(false)} className="text-white/60">수강 플랜</MobileNavLink>
+                                <MobileNavLink href="/healing" onClick={() => setIsMenuOpen(false)} className="text-white/60">마음 상담소</MobileNavLink>
+                                <MobileNavLink href="/library" onClick={() => setIsMenuOpen(false)} className="text-white/60">우주서재</MobileNavLink>
+                                <MobileNavLink href="/certificate" onClick={() => setIsMenuOpen(false)} className="text-white/20 text-lg">나의 증명</MobileNavLink>
                             </div>
 
                             <div className="w-full h-px bg-border my-6" />
