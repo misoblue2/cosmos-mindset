@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Moon, Zap, CloudMoon, Wind, PenTool, Sparkles, Thermo } from 'lucide-react';
 
@@ -79,20 +80,24 @@ export default function HealingPage() {
              { id: 'sleep', label: '잠을 못 자겠어', icon: <CloudMoon />, color: 'rgba(59,130,246,0.12)', borderColor: 'rgba(59,130,246,0.3)' },
              { id: 'anger', label: '화가 가라앉지 않아', icon: <Wind />, color: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.3)' }
            ].map(btn => (
-             <button 
+             <Link 
                key={btn.id}
+               href={`/healing/${btn.id}`}
                className="p-8 rounded-3xl flex flex-col items-center gap-4 transition-all hover:scale-[1.03] active:scale-[0.97]"
                style={{ background: btn.color, border: `1px solid ${btn.borderColor}` }}
              >
                 <div className="text-white/80">{btn.icon}</div>
                 <span className="text-xs md:text-sm font-black whitespace-nowrap">{btn.label}</span>
-             </button>
+             </Link>
            ))}
         </div>
 
-        <button className="w-full py-5 bg-white/5 border border-white/10 rounded-2xl text-white/40 font-bold text-sm tracking-widest hover:bg-white/10 transition-colors">
+        <Link 
+          href="/healing/silence"
+          className="w-full block py-5 text-center bg-white/5 border border-white/10 rounded-2xl text-white/40 font-bold text-sm tracking-widest hover:bg-white/10 transition-colors"
+        >
           🤫 그냥 조용히 있고 싶어
-        </button>
+        </Link>
 
         {/* 저널링 */}
         <section className="bg-white/5 border border-white/10 rounded-[2.5rem] p-10 md:p-12">

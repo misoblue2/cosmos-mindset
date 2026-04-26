@@ -18,15 +18,20 @@ const QuantumMindEffect = () => {
     canvas.height = window.innerHeight;
     
     const particles: any[] = [];
-    for (let i = 0; i < 200; i++) {
+    const bookWidth = 300;
+    const bookHeight = 400;
+
+    for (let i = 0; i < 400; i++) {
         particles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
             size: Math.random() * 1.5 + 0.5,
             speedX: (Math.random() - 0.5) * 1.5,
             speedY: (Math.random() - 0.5) * 1.5,
-            targetX: canvas.width / 2,
-            targetY: canvas.height / 2,
+            // 책 형태의 랜덤 구역을 타겟으로 설정
+            targetX: (canvas.width / 2 - bookWidth / 2) + Math.random() * bookWidth,
+            targetY: (canvas.height / 2 - bookHeight / 2) + Math.random() * bookHeight,
+            opacity: Math.random() * 0.5 + 0.2
         });
     }
 
@@ -35,16 +40,15 @@ const QuantumMindEffect = () => {
 
     const render = () => {
         time++;
-        ctx.fillStyle = 'rgba(7, 7, 15, 0.15)';
+        ctx.fillStyle = 'rgba(7, 7, 15, 0.2)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
         // 중앙에 황금빛 에너지 (잠재의식/뇌 구체)
         const centerGlow = ctx.createRadialGradient(
             canvas.width/2, canvas.height/2, 5,
-            canvas.width/2, canvas.height/2, 250 + Math.sin(time*0.04)*40
+            canvas.width/2, canvas.height/2, 350 + Math.sin(time*0.04)*40
         );
-        centerGlow.addColorStop(0, 'rgba(200, 168, 75, 0.3)');
-        centerGlow.addColorStop(0.5, 'rgba(200, 168, 75, 0.05)');
+        centerGlow.addColorStop(0, 'rgba(200, 168, 75, 0.15)');
         centerGlow.addColorStop(1, 'rgba(7, 7, 15, 0)');
         
         ctx.fillStyle = centerGlow;
@@ -55,18 +59,23 @@ const QuantumMindEffect = () => {
             const dy = p.targetY - p.y;
             const dist = Math.sqrt(dx*dx + dy*dy);
             
-            p.x += dx * 0.005 + p.speedX;
-            p.y += dy * 0.005 + p.speedY;
+            // 물질화 효과: 타겟으로 부드럽게 수렴
+            p.x += dx * 0.02 + p.speedX;
+            p.y += dy * 0.02 + p.speedY;
 
-            if (dist < 10) {
-               p.x = Math.random() * canvas.width;
-               p.y = Math.random() * canvas.height;
-            }
+            // 경계면에서 은은하게 반짝임
+            const drawOpacity = dist < 50 ? p.opacity * (dist/50) : p.opacity;
 
-            ctx.fillStyle = `rgba(200, 168, 75, ${Math.min(0.8, 100/dist)})`;
+            ctx.fillStyle = `rgba(200, 168, 75, ${drawOpacity})`;
             ctx.beginPath();
             ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
             ctx.fill();
+
+            // 가끔씩 원래 위치로 튕겨나가게 하여 변화 무쌍한 양자 상태 표현
+            if (Math.random() < 0.001) {
+                p.x = Math.random() * canvas.width;
+                p.y = Math.random() * canvas.height;
+            }
         });
         
         animationFrameId = requestAnimationFrame(render);
