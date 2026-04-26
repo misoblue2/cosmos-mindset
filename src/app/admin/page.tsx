@@ -89,7 +89,20 @@ function NavItem({ active, onClick, icon, label }: any) {
 
 // ── 컴포넌트: 관리자 로그인 ──
 function AdminLogin({ onLogin }: any) {
+  const [id, setId] = useState('');
   const [pw, setPw] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (id === 'selina' && pw === 'cosmosmind2025') {
+      onLogin();
+    } else {
+      setError('인증 정보가 올바르지 않습니다.');
+      setPw('');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-6">
       <motion.div 
@@ -101,21 +114,43 @@ function AdminLogin({ onLogin }: any) {
         <h1 className="text-3xl font-black mb-2 tracking-tighter">OWNER LOGIN</h1>
         <p className="text-white/40 text-sm mb-12">시스템 접근을 위해 관리자 인증이 필요합니다.</p>
         
-        <div className="space-y-4">
-          <input 
-            type="password" 
-            placeholder="관리자 인증키" 
-            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-white transition-all text-center tracking-widest font-black"
-            value={pw}
-            onChange={(e) => setPw(e.target.value)}
-          />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-3">
+            <input 
+              type="text" 
+              placeholder="관리자 아이디" 
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-white transition-all text-center font-bold text-white"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              required
+            />
+            <input 
+              type="password" 
+              placeholder="관리자 인증키" 
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-white transition-all text-center tracking-widest font-black text-white"
+              value={pw}
+              onChange={(e) => setPw(e.target.value)}
+              required
+            />
+          </div>
+
+          {error && (
+            <motion.p 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              className="text-red-500 text-xs font-bold"
+            >
+              {error}
+            </motion.p>
+          )}
+
           <button 
-            onClick={() => pw === 'cosmosmind2025' && onLogin()}
-            className="w-full bg-white text-black font-black py-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl"
+            type="submit"
+            className="w-full bg-white text-black font-black py-5 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all shadow-xl mt-4"
           >
             ENTER SYSTEM
           </button>
-        </div>
+        </form>
       </motion.div>
     </div>
   );
