@@ -1,10 +1,12 @@
 "use client";
 import { motion } from 'framer-motion';
-import { Check, Sparkles, Star, Zap, ShieldCheck } from 'lucide-react';
+import { Check, Sparkles, Star, Zap, ShieldCheck, CreditCard, Apple, Wallet } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 const PLANS = [
   {
+    id: "monthly",
     name: "입문 코스",
     duration: "1개월",
     price: "10,000",
@@ -21,6 +23,7 @@ const PLANS = [
     btnText: "지금 시작하기"
   },
   {
+    id: "sixMonth",
     name: "창조자 코스",
     duration: "6개월",
     price: "60,000",
@@ -39,6 +42,7 @@ const PLANS = [
     btnText: "6개월 시작하기"
   },
   {
+    id: "annual",
     name: "그랜드 마스터",
     duration: "12개월",
     price: "120,000",
@@ -59,9 +63,21 @@ const PLANS = [
 ];
 
 export default function PricingPage() {
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const handleCheckout = async (planId: string) => {
+    setLoading(planId);
+    // 실제 구현 시 여기에 /api/create-checkout-session 호출 로직 추가
+    console.log(`Processing checkout for ${planId}`);
+    setTimeout(() => {
+      alert("결제 시스템 연동을 위해 Stripe API 키 설정이 필요합니다. 전송해주신 기획서의 로직을 백엔드에 안전하게 이식하겠습니다.");
+      setLoading(null);
+    }, 1000);
+  };
+
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-32 px-6 overflow-hidden">
-      {/* 배경 장식 - 블랙&화이트 심플 라인 컨셉 */}
+      {/* 배경 라인 컨셉 */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
@@ -75,8 +91,8 @@ export default function PricingPage() {
           >
             <Zap size={14} /> membership plans
           </motion.div>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tighter">코스믹마인드 플랜</h1>
-          <p className="text-white/40 text-lg max-w-xl mx-auto leading-relaxed">
+          <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-4">코스믹마인드 플랜</h1>
+          <p className="text-white/40 text-lg md:text-xl max-w-xl mx-auto leading-relaxed font-medium">
             매일 20분. 30일이면 완전히 다른 뇌가 됩니다.<br/>
             당신의 변화에 가장 적합한 플랜을 선택하세요.
           </p>
@@ -91,54 +107,68 @@ export default function PricingPage() {
               transition={{ delay: i * 0.1 }}
               className={`relative flex flex-col p-10 rounded-[2.5rem] border transition-all duration-500 overflow-hidden group ${
                 plan.highlight 
-                  ? 'bg-white text-black border-white shadow-[0_30px_100px_rgba(255,255,255,0.1)]' 
-                  : 'bg-white/[0.03] border-white/10 hover:border-white/20 text-white'
+                  ? 'bg-white text-black border-white shadow-[0_50px_100px_rgba(255,255,255,0.08)]' 
+                  : 'bg-white/[0.03] border-white/10 hover:border-white/30 text-white'
               }`}
             >
               {plan.badge && (
-                <div className="absolute top-0 left-0 right-0 h-10 bg-white text-black border-b border-black/5 text-[10px] font-black flex items-center justify-center tracking-widest uppercase">
+                <div className="absolute top-0 left-0 right-0 h-10 bg-black text-white text-[10px] font-black flex items-center justify-center tracking-[0.3em] uppercase">
                    {plan.badge}
                 </div>
               )}
 
-              <div className="mt-4 mb-10">
-                <div className="text-[10px] font-black tracking-widest opacity-40 uppercase mb-2">{plan.name}</div>
-                <h3 className="text-2xl font-black mb-6">{plan.duration}</h3>
-                <div className="flex items-baseline gap-1">
-                  <span className={`text-5xl font-black tracking-tighter ${plan.highlight ? 'text-black' : 'text-white'}`}>{plan.price}</span>
-                  <span className="text-lg opacity-40 font-bold">원</span>
+              <div className="mt-8 mb-10">
+                <div className={`text-[10px] font-black tracking-[0.2em] uppercase mb-4 ${plan.highlight ? 'text-black/40' : 'text-white/40'}`}>
+                  {plan.name}
                 </div>
-                <div className="text-xs opacity-40 mt-3 font-medium">{plan.billing}</div>
+                <h3 className="text-3xl font-black mb-8 tracking-tight">{plan.duration}</h3>
+                <div className="flex items-baseline gap-1">
+                  <span className={`text-6xl font-black tracking-tighter ${plan.highlight ? 'text-black' : 'text-white'}`}>
+                    {plan.price}
+                  </span>
+                  <span className="text-xl opacity-40 font-black">원</span>
+                </div>
+                <div className="text-xs opacity-40 mt-4 font-bold tracking-tight">{plan.billing}</div>
               </div>
 
-              <ul className="space-y-4 mb-12 flex-1">
+              <ul className="space-y-5 mb-14 flex-1">
                 {plan.features.map((f, fi) => (
-                  <li key={fi} className={`flex items-center gap-3 text-sm font-medium transition-colors ${plan.highlight ? 'text-black/70' : 'text-white/60 group-hover:text-white'}`}>
-                    <Check size={16} className={`${plan.highlight ? 'text-black' : 'text-white'} shrink-0`} />
+                  <li key={fi} className={`flex items-start gap-3 text-sm font-bold leading-tight transition-colors ${plan.highlight ? 'text-black/60' : 'text-white/40 group-hover:text-white'}`}>
+                    <Check size={16} className={`${plan.highlight ? 'text-black' : 'text-white'} shrink-0 mt-0.5`} />
                     {f}
                   </li>
                 ))}
               </ul>
 
-              <button className={`w-full py-5 rounded-2xl font-black text-sm tracking-widest transition-all ${
+              <button 
+                onClick={() => handleCheckout(plan.id)}
+                disabled={loading !== null}
+                className={`w-full py-6 rounded-2xl font-black text-sm tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-2 ${
                 plan.highlight
-                  ? 'bg-black text-white hover:scale-[1.02] shadow-xl'
-                  : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
+                  ? 'bg-black text-white hover:scale-[1.03] active:scale-95 shadow-2xl'
+                  : 'bg-white/10 border border-white/20 text-white hover:bg-white hover:text-black hover:scale-[1.03] active:scale-95'
               }`}>
-                {plan.btnText}
+                {loading === plan.id ? "연결 중..." : plan.btnText}
               </button>
             </motion.div>
           ))}
         </div>
 
-        <div className="mt-20 text-center space-y-6">
+        <div className="mt-32 text-center space-y-10">
+           <div className="flex items-center justify-center gap-10 opacity-30 invert brightness-0">
+             <CreditCard size={24} />
+             <Apple size={24} />
+             <Wallet size={24} />
+           </div>
+           
            <p className="text-white/30 text-sm font-bold">
-             결제 없이 먼저 체험하고 싶다면, <Link href="/training/day1" className="text-white border-b border-white/30 pb-0.5">Day 1 무료 체험하기 →</Link>
+             결제 없이 먼저 체험하고 싶다면, <Link href="/training/day1" className="text-white border-b border-white/30 pb-0.5 hover:text-white/80 transition-colors">Day 1 무료 체험하기 →</Link>
            </p>
-           <div className="flex flex-wrap justify-center gap-8 text-[10px] font-black text-white/20 tracking-[0.2em] uppercase">
-              <span className="flex items-center gap-2"><ShieldCheck size={14} /> 7일 환불 보장</span>
-              <span className="flex items-center gap-2"><ShieldCheck size={14} /> 언제든지 해지 가능</span>
-              <span className="flex items-center gap-2"><ShieldCheck size={14} /> 보안 결제 시스템</span>
+           
+           <div className="flex flex-wrap justify-center gap-12 text-[10px] font-black text-white/20 tracking-[0.4em] uppercase">
+              <span className="flex items-center gap-2"><ShieldCheck size={14} /> 7-Day Guarantee</span>
+              <span className="flex items-center gap-2"><ShieldCheck size={14} /> Secure Payment</span>
+              <span className="flex items-center gap-2"><ShieldCheck size={14} /> Cancel Anytime</span>
            </div>
         </div>
       </div>
