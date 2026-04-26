@@ -219,7 +219,7 @@ export default function InboxPage() {
                                             {session.content}
                                         </h3>
                                         <p className="text-xs text-stone-600 font-light">
-                                            {session.status === 'replied' ? '답장이 도착했습니다. 클릭해서 확인하세요.' : '가치토커가 답장을 준비하고 있습니다.'}
+                                            {session.status === 'replied' ? '답장이 도착했습니다. 클릭해서 확인하세요.' : '코스믹마스터가 답장을 준비하고 있습니다.'}
                                         </p>
                                     </div>
                                 </div>

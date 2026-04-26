@@ -8,7 +8,7 @@ export default function OriginalsPage() {
             <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
                 <h1 className="text-4xl font-serif font-bold text-primary">Originals</h1>
                 <p className="text-muted-foreground">
-                    가치토커의 철학과 통찰이 담긴 오리지널 시리즈.<br />
+                    코스믹마스터의 철학과 통찰이 담긴 오리지널 시리즈.<br />
                     종이책의 물성과 디지털의 편리함을 모두 만나보세요.
                 </p>
             </div>

@@ -8,7 +8,7 @@ const BOOKS = [
     id: "book1",
     title: "잠재의식의 거대한 파도",
     subtitle: "30일간의 신경 재배선 프로젝트 가이드",
-    desc: "가치토커의 뇌과학 마인드셋 핵심 이론이 총망라된 1개월 입문 바이블입니다.",
+    desc: "코스믹마스터의 뇌과학 마인드셋 핵심 이론이 총망라된 1개월 입문 바이블입니다.",
     price_ebook: "15,000",
     price_physical: "18,000",
     price_bundle: "28,000",
@@ -91,7 +91,7 @@ export default function LibraryPage() {
                      <label className="mt-6 flex items-center gap-3 cursor-pointer group/label">
                         <input type="checkbox" className="w-4 h-4 bg-transparent border-white/20 rounded accent-[#c8a84b]" />
                         <span className="text-[10px] font-bold text-white/30 group-hover/label:text-white/50 transition-colors">
-                          가치토커 친필 사인 포함 (+3,000원 / 배송 3일 추가)
+                          코스믹마스터 친필 사인 포함 (+3,000원 / 배송 3일 추가)
                         </span>
                      </label>
                   </div>

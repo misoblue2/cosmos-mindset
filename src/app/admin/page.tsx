@@ -212,7 +212,7 @@ function CounselingManager() {
         // Mock Email Sending Simulation
         if (session.userEmail && session.emailConsent) {
             console.log(`[Mock Email Sent] To: ${session.userEmail}`);
-            console.log(`Subject: [마음 상담소] ${session.userName}님, 가치토커의 답장이 도착했습니다.`);
+            console.log(`Subject: [마음 상담소] ${session.userName}님, 코스믹마스터의 답장이 도착했습니다.`);
             console.log(`Body Request: \n${replyContent}`);
         }
 
@@ -315,7 +315,7 @@ function CounselingManager() {
 
                                         {session.adminReply && (
                                             <div className="pl-4 border-l-2 border-primary/30 bg-primary/5 p-3 rounded-r-xl">
-                                                <p className="text-xs font-bold text-primary mb-1">가치토커 답장</p>
+                                                <p className="text-xs font-bold text-primary mb-1">코스믹마스터 답장</p>
                                                 <p className="text-sm text-foreground whitespace-pre-wrap">{session.adminReply}</p>
                                             </div>
                                         )}

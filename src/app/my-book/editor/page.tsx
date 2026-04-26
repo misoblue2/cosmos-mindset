@@ -8,7 +8,7 @@ const CHAPTERS = [
   { id: 1, title: '프롤로그: 마음의 스위치를 켜다', status: 'completed' },
   { id: 2, title: '당신의 잠재의식은 명령만을 기다린다', status: 'completed' },
   { id: 3, title: '[AI 보강] 뇌신경 회로의 물리적 변화 기전', status: 'editing' },
-  { id: 4, title: '[추가] 가치토커 확언 워크북 파트', status: 'pending' },
+  { id: 4, title: '[추가] 코스믹마스터 확언 워크북 파트', status: 'pending' },
   { id: 5, title: '결론: 내가 창조한 현실로의 도약', status: 'pending' }
 ];
 
@@ -119,7 +119,7 @@ export default function BookEditorPage() {
               <button className="w-full p-3 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl flex items-center gap-3 transition-colors text-sm text-left">
                 <PenTool size={16} className="text-purple-400 shrink-0" />
                 <div>
-                  <div className="font-bold">어조 변경 (가치토커 톤)</div>
+                  <div className="font-bold">어조 변경 (코스믹마스터 톤)</div>
                   <div className="text-[10px] text-white/40">더 확고하고 직설적인 문장으로</div>
                 </div>
               </button>

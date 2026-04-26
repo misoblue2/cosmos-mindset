@@ -83,7 +83,7 @@ export const BOOKS: Product[] = [
     options: ['physical', 'pdf'],
     images: ['https://images.unsplash.com/photo-1512820790803-83ca734da794?w=600&q=80'],
     price: 29000,
-    description: '현실의 경계에서 마주하는 새로운 차원의 통찰. 지은이 가치토커.',
+    description: '현실의 경계에서 마주하는 새로운 차원의 통찰. 지은이 코스믹마스터.',
     externalLink: 'https://pod.kyobobook.co.kr/',
     category: 'physical',
     createdAt: Date.now()

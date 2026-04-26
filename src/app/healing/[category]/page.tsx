@@ -20,7 +20,7 @@ const CATEGORY_DATA: Record<string, any> = {
     desc: "잠든 거인을 깨우는 강력한 확언과 열정의 주파수입니다.",
     color: "#c8a84b",
     items: [
-      { type: "audio", title: "부를 끌어당기는 주문", duration: "08:00", mentor: "가치토커" },
+      { type: "audio", title: "부를 끌어당기는 주문", duration: "08:00", mentor: "코스믹마스터" },
       { type: "audio", title: "한계를 부수는 용기", duration: "12:00", mentor: "얼 나이팅게일" },
       { type: "text", title: "당신은 이미 승자입니다", author: "나폴레온 힐" }
     ]

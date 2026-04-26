@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { BookOpen, Download, Search, Star, ChevronLeft } from 'lucide-react';
 
 const PDFS = [
-  { id: 1, title: "잠재의식의 비밀: 마음의 문을 여는 법", author: "가치토커", pages: 200, price: 20000, category: "잠재의식", color: "from-purple-600 to-indigo-800", rating: 4.9 },
-  { id: 2, title: "양자도약: 현실을 창조하는 마인드셋", author: "가치토커", pages: 100, price: 10000, category: "양자역학", color: "from-blue-600 to-cyan-800", rating: 4.8 },
-  { id: 3, title: "끌어당김의 법칙 실전 워크북", author: "가치토커", pages: 100, price: 10000, category: "끌어당김", color: "from-amber-600 to-orange-800", rating: 4.7 },
-  { id: 4, title: "뇌과학으로 증명된 확언의 힘", author: "가치토커", pages: 200, price: 20000, category: "뇌과학", color: "from-emerald-600 to-green-800", rating: 4.9 },
-  { id: 5, title: "네빌 고다드의 상상 현실화 기법", author: "가치토커", pages: 100, price: 10000, category: "상상력", color: "from-pink-600 to-rose-800", rating: 4.6 },
-  { id: 6, title: "조셉 머피의 잠재의식 프로그래밍", author: "가치토커", pages: 200, price: 20000, category: "잠재의식", color: "from-violet-600 to-purple-800", rating: 4.8 },
+  { id: 1, title: "잠재의식의 비밀: 마음의 문을 여는 법", author: "코스믹마스터", pages: 200, price: 20000, category: "잠재의식", color: "from-purple-600 to-indigo-800", rating: 4.9 },
+  { id: 2, title: "양자도약: 현실을 창조하는 마인드셋", author: "코스믹마스터", pages: 100, price: 10000, category: "양자역학", color: "from-blue-600 to-cyan-800", rating: 4.8 },
+  { id: 3, title: "끌어당김의 법칙 실전 워크북", author: "코스믹마스터", pages: 100, price: 10000, category: "끌어당김", color: "from-amber-600 to-orange-800", rating: 4.7 },
+  { id: 4, title: "뇌과학으로 증명된 확언의 힘", author: "코스믹마스터", pages: 200, price: 20000, category: "뇌과학", color: "from-emerald-600 to-green-800", rating: 4.9 },
+  { id: 5, title: "네빌 고다드의 상상 현실화 기법", author: "코스믹마스터", pages: 100, price: 10000, category: "상상력", color: "from-pink-600 to-rose-800", rating: 4.6 },
+  { id: 6, title: "조셉 머피의 잠재의식 프로그래밍", author: "코스믹마스터", pages: 200, price: 20000, category: "잠재의식", color: "from-violet-600 to-purple-800", rating: 4.8 },
 ];
 
 export default function PdfStorePage() {
@@ -32,7 +32,7 @@ export default function PdfStorePage() {
             <BookOpen size={14} /> PDF E-Book Store
           </div>
           <h1 className="text-4xl md:text-5xl font-black mb-4">PDF 전자책 스토어</h1>
-          <p className="text-white/40 max-w-lg mx-auto">가치토커의 영상 철학을 AI로 확장한 워크북 포함 공식 가이드북</p>
+          <p className="text-white/40 max-w-lg mx-auto">코스믹마스터의 영상 철학을 AI로 확장한 워크북 포함 공식 가이드북</p>
         </div>
 
         <div className="max-w-md mx-auto mb-12">

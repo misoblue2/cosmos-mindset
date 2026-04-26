@@ -20,7 +20,7 @@ export default function AdminCreateBookPage() {
       <div className="w-64 bg-[#0a0a0f] border-r border-white/10 hidden lg:block shrink-0 h-screen sticky top-0">
         <div className="p-6 border-b border-white/10">
           <Link href="/" className="text-xl font-black flex items-center gap-2 mb-2"><span className="text-2xl">🌌</span> 우주마인드스쿨</Link>
-          <div className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded inline-block">가치토커 전용 (ADMIN)</div>
+          <div className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2 py-1 rounded inline-block">코스믹마스터 전용 (ADMIN)</div>
         </div>
         <div className="p-4 space-y-2">
           <button className="w-full text-left px-4 py-3 bg-white/10 text-white font-bold rounded-xl flex items-center gap-3">

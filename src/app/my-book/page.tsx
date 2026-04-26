@@ -80,7 +80,7 @@ export default function MyBookLandingPage() {
             <div className="text-4xl font-black mb-6 text-amber-400">₩1,000,000</div>
             <p className="text-white/40 text-sm mb-6 pb-6 border-b border-white/5">
               원고 기준: A4 60페이지 이상 (약 72,000자)<br/>
-              * 가치토커 스타일의 확언 파트 무제한 삽입.
+              * 코스믹마스터 스타일의 확언 파트 무제한 삽입.
             </p>
             <ul className="space-y-4 mb-8 flex-1">
               {['100페이지 플랜의 모든 기능', '심층 이론 배경 (뇌과학/심리학) 자동 보강', '거장 명언 큐레이션 매 챕터 삽입', '독자 참여 유도 워크북 페이지 생성', '우주마인드스쿨 공식 도서 등록 기회'].map((text, i) => (

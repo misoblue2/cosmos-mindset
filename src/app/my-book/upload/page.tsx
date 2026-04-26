@@ -110,7 +110,7 @@ export default function UploadPage() {
                       업로드된 원고량이 목표치(200p)에 도달하기 부족합니다. 
                       우주마인드스쿨 AI가 각 챕터 사이에 <strong className="text-white">심층 심리학 이론 배경</strong>과 
                       <strong className="text-white">거장(네빌 고다드 등)의 명언 큐레이션</strong>, 그리고 
-                      <strong className="text-white">가치토커 워크북 섹션</strong>을 추가하여 완벽한 책으로 확장 구축할 것을 권장합니다.
+                      <strong className="text-white">코스믹마스터 워크북 섹션</strong>을 추가하여 완벽한 책으로 확장 구축할 것을 권장합니다.
                     </p>
                   </div>
                 </div>
