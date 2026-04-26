@@ -1,7 +1,7 @@
 "use client";
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Lock, CheckCircle2, PlayCircle, Star, Brain, Heart, Sparkles } from 'lucide-react';
+import { Lock, CheckCircle2, PlayCircle, Star, Brain, Heart, Sparkles, Zap } from 'lucide-react';
 
 const PHASES = [
   {
@@ -26,7 +26,6 @@ const PHASES = [
     color: "purple",
     days: [
       { day: 10, title: "잠재의식 비밀", mentor: "조셉 머피", status: "locked" },
-      // ... 생략 (실제 데이터는 스크롤로 유도)
     ]
   }
 ];
@@ -35,99 +34,97 @@ export default function TrainingDashboard() {
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-48 px-6">
       <div className="max-w-6xl mx-auto">
-        <header className="mb-16 text-center">
+        <header className="mb-24 text-center">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold tracking-widest mb-6"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black tracking-widest mb-8 uppercase"
           >
-            <Sparkles size={14} /> MINDSET TRAINING CENTER
+            <Zap size={14} /> neural modification training center
           </motion.div>
-          <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tighter">
-            30일 뇌 개조 커리큘럼
+          <h1 className="text-4xl md:text-7xl font-black mb-8 tracking-tighter">
+            30일 인간 개조 루틴
           </h1>
-          <p className="text-white/40 text-lg max-w-2xl mx-auto leading-relaxed">
-            영상 시청이 아닙니다. 직접 타이핑하며 당신의 신경 회로를 물리적으로 재배선하세요.
-            매일 20분, 30일 후 당신은 다른 사람이 되어 있을 것입니다.
+          <p className="text-white/40 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
+            보는 것으로는 바뀌지 않습니다. 직접 새겨야 바뀝니다.<br/>
+            매일 20분, 30일 후 당신은 완전히 다른 뇌를 갖게 됩니다.
           </p>
         </header>
 
-        <div className="space-y-24">
+        <div className="space-y-32">
           {PHASES.map((phase, pIdx) => (
-            <section key={pIdx}>
-              <div className="flex items-end justify-between mb-10 pb-4 border-b border-white/10">
+            <section key={pIdx} className="relative">
+              <div className="flex items-end justify-between mb-12 pb-6 border-b border-white/10">
                 <div>
-                  <h2 className="text-2xl font-black text-white mb-1">{phase.title}</h2>
-                  <p className="text-white/40 font-bold text-sm tracking-widest uppercase">{phase.subtitle}</p>
+                  <h2 className="text-2xl md:text-3xl font-black text-white mb-2">{phase.title}</h2>
+                  <p className="text-white/40 font-black text-[10px] tracking-[0.4em] uppercase">{phase.subtitle}</p>
                 </div>
-                <div className="text-xs text-white/30 font-mono">0 / {phase.days.length} COMPLETED</div>
+                <div className="text-[10px] text-white/20 font-black tracking-widest">0 / {phase.days.length} COMPLETED</div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {phase.days.map((day) => (
-                  <Link 
-                    key={day.day} 
-                    href={day.status === 'open' ? `/training/day${day.day}` : '#'}
-                    className={`group relative p-8 rounded-[2rem] border transition-all ${
-                      day.status === 'open' 
-                        ? 'bg-white/5 border-white/10 hover:border-white/50 hover:bg-white/10' 
-                        : 'bg-black border-white/5 opacity-50 cursor-not-allowed'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-6">
-                      <span className={`text-4xl font-black ${day.status === 'open' ? 'text-white' : 'text-white/20'}`}>
-                        {String(day.day).padStart(2, '0')}
-                      </span>
-                      {day.status === 'open' ? (
-                        <PlayCircle className="text-white group-hover:scale-110 transition-transform" />
-                      ) : (
-                        <Lock size={20} className="text-white/20" />
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-black mb-2 group-hover:text-white transition-colors">{day.title}</h3>
-                      <div className="flex items-center gap-2 text-xs font-bold text-white/40">
-                         <Brain size={14} /> 멘토: {day.mentor}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {phase.days.map((day) => {
+                  const isDay1 = day.day === 1;
+                  return (
+                    <Link 
+                      key={day.day} 
+                      href={isDay1 ? `/training/day1` : '#'}
+                      className={`group relative p-10 rounded-[2.5rem] border transition-all duration-500 overflow-hidden ${
+                        isDay1
+                          ? 'bg-white/[0.04] border-white/20 hover:border-white shadow-[0_30px_60px_rgba(255,255,255,0.05)] hover:-translate-y-2' 
+                          : 'bg-black border-white/5 opacity-30 cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-10">
+                        <span className={`text-5xl font-black italic tracking-tighter ${isDay1 ? 'text-white' : 'text-white/10'}`}>
+                          {String(day.day).padStart(2, '0')}
+                        </span>
+                        {isDay1 ? (
+                          <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xl">
+                             <PlayCircle size={24} fill="black" />
+                          </div>
+                        ) : (
+                          <Lock size={20} className="text-white/20" />
+                        )}
                       </div>
-                    </div>
+                      <div>
+                        <h3 className="text-2xl font-black mb-3 group-hover:text-white transition-colors tracking-tight">{day.title}</h3>
+                        <div className="flex items-center gap-2 text-[10px] font-black text-white/30 uppercase tracking-widest">
+                           <Brain size={14} /> 멘토: {day.mentor}
+                        </div>
+                      </div>
 
-                    {day.status === 'open' && (
-                      <div className="absolute bottom-6 right-8 text-[10px] font-black tracking-widest text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                        훈련 시작하기 →
-                      </div>
-                    )}
-                  </Link>
-                ))}
-                
-                {/* 커밍순 카드 (Phase 2 예시용) */}
-                {pIdx === 0 && (
-                   <div className="p-8 rounded-[2rem] border border-white/5 bg-black/40 flex items-center justify-center text-white/10 italic font-bold">
-                     Next Phase Unlocks on Day 10
-                   </div>
-                )}
+                      {isDay1 && (
+                        <div className="mt-8 opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0 text-[10px] font-black tracking-widest text-white uppercase bg-white/10 inline-block px-4 py-2 rounded-full">
+                          Train Now →
+                        </div>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
             </section>
           ))}
         </div>
 
-        {/* 하단 통계 바 */}
-        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-4xl bg-black/60 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 flex flex-wrap items-center justify-around gap-8 z-50">
+        {/* 하단 플로팅 통계 바 */}
+        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-4xl bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[2rem] p-8 flex flex-wrap items-center justify-around gap-8 z-50 shadow-[0_50px_100px_rgba(0,0,0,0.5)]">
            <div className="text-center">
-             <div className="text-2xl font-black text-white">0</div>
-             <div className="text-[10px] font-bold text-white/40 tracking-widest uppercase">누적 타이핑</div>
+             <div className="text-3xl font-black text-white italic tracking-tighter">0</div>
+             <div className="text-[10px] font-black text-white/30 tracking-[0.2em] uppercase mt-1">Typing Total</div>
            </div>
-           <div className="w-px h-8 bg-white/10 hidden md:block" />
+           <div className="w-px h-10 bg-white/10 hidden md:block" />
            <div className="text-center">
-             <div className="text-2xl font-black text-white">0</div>
-             <div className="text-[10px] font-bold text-white/40 tracking-widest uppercase">연속 출석</div>
+             <div className="text-3xl font-black text-white italic tracking-tighter">0</div>
+             <div className="text-[10px] font-black text-white/30 tracking-[0.2em] uppercase mt-1">Con. Days</div>
            </div>
-           <div className="w-px h-8 bg-white/10 hidden md:block" />
+           <div className="w-px h-10 bg-white/10 hidden md:block" />
            <div className="text-center">
-             <div className="text-2xl font-black text-white">0 / 30</div>
-             <div className="text-[10px] font-bold text-white/40 tracking-widest uppercase">진행률</div>
+             <div className="text-3xl font-black text-white italic tracking-tighter">0%</div>
+             <div className="text-[10px] font-black text-white/30 tracking-[0.2em] uppercase mt-1">Success Rate</div>
            </div>
-           <Link href="/pricing" className="px-8 py-3 bg-white text-black font-black text-sm rounded-xl hover:scale-105 transition-transform">
-             전체 잠금 해제하기
+           <Link href="/pricing" className="px-10 py-4 bg-white text-black font-black text-xs rounded-2xl hover:scale-[1.03] active:scale-95 transition-all shadow-2xl tracking-[0.2em] uppercase">
+             Unlock Course
            </Link>
         </div>
       </div>
