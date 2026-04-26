@@ -53,11 +53,11 @@ export function Header() {
 
     return (
         <>
-            <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+            <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-black/90 backdrop-blur-md">
                 <GlobalCounter />
                 <div className="container mx-auto flex h-16 items-center justify-between px-4 relative">
-                    <Link href="/" className="text-xl font-bold tracking-widest text-[#c8a84b] hover:text-white transition-all z-50 flex items-center gap-2">
-                        <span className="text-2xl">✦</span> Cosmosmindset ✦
+                    <Link href="/" className="text-xl font-black tracking-widest text-[#c8a84b] hover:text-white transition-all z-50 flex items-center gap-2">
+                        <span className="text-2xl">✦</span> 우주마인드스쿨
                     </Link>
 
                     {/* Desktop Navigation */}

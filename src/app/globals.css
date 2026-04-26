@@ -48,101 +48,61 @@
 :root {
   --radius: 0.625rem;
 
-  /* Brand Colors */
-  /* Primary: Deep Forest Green #1A3C34 */
-  /* Background: Cream Beige #F9F9F2 */
-  /* Accent: Antique Gold #D4AF37 */
+  /* Black & White Premium Theme */
+  --background: #000000;
+  --foreground: #FFFFFF;
 
-  --background: #F9F9F2;
-  --foreground: #1A3C34;
-  /* Text is Deep Forest Green */
+  --card: #0A0A0A;
+  --card-foreground: #FFFFFF;
 
-  --card: #FFFFFF;
-  --card-foreground: #1A3C34;
+  --popover: #0A0A0A;
+  --popover-foreground: #FFFFFF;
 
-  --popover: #FFFFFF;
-  --popover-foreground: #1A3C34;
+  --primary: #FFFFFF;
+  --primary-foreground: #000000;
 
-  --primary: #1A3C34;
-  --primary-foreground: #F9F9F2;
+  --secondary: #1A1A1A;
+  --secondary-foreground: #FFFFFF;
 
-  --secondary: #F0F0E8;
-  --secondary-foreground: #1A3C34;
-
-  --muted: #E4E4D9;
-  --muted-foreground: #5A7C74;
+  --muted: #1A1A1A;
+  --muted-foreground: #A1A1A1;
 
   --accent: #D4AF37;
-  --accent-foreground: #1A3C34;
+  --accent-foreground: #000000;
 
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
 
-  --border: #E4E4D9;
-  --input: #E4E4D9;
-  --ring: #1A3C34;
+  --border: #262626;
+  --input: #262626;
+  --ring: #FFFFFF;
 
-  --chart-1: #1A3C34;
+  --chart-1: #FFFFFF;
   --chart-2: #D4AF37;
   --chart-3: #5A7C74;
-  --chart-4: #F0F0E8;
-  --chart-5: #E4E4D9;
+  --chart-4: #1A1A1A;
+  --chart-5: #000000;
 
-  --sidebar: #1A3C34;
-  --sidebar-foreground: #F9F9F2;
-  --sidebar-primary: #D4AF37;
-  --sidebar-primary-foreground: #1A3C34;
-  --sidebar-accent: #2A4C44;
-  --sidebar-accent-foreground: #F9F9F2;
-  --sidebar-border: #2A4C44;
-  --sidebar-ring: #D4AF37;
+  --sidebar: #050505;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #FFFFFF;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #1A1A1A;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: #1A1A1A;
+  --sidebar-ring: #FFFFFF;
 }
 
 .dark {
-  --background: #0D1F1B;
-  /* Darker than primary */
-  --foreground: #F9F9F2;
+  /* In Dark mode, we keep it Black focus, maybe slightly lighter or deep gray */
+  --background: #000000;
+  --foreground: #FFFFFF;
 
-  --card: #1A3C34;
-  --card-foreground: #F9F9F2;
+  --card: #0A0A0A;
+  --card-foreground: #FFFFFF;
 
-  --popover: #1A3C34;
-  --popover-foreground: #F9F9F2;
-
-  --primary: #D4AF37;
-  /* Gold becomes primary */
-  --primary-foreground: #1A3C34;
-
-  --secondary: #2A4C44;
-  --secondary-foreground: #F9F9F2;
-
-  --muted: #2A4C44;
-  --muted-foreground: #A0B0A8;
-
-  --accent: #D4AF37;
-  --accent-foreground: #1A3C34;
-
-  --destructive: #7f1d1d;
-  --destructive-foreground: #ffffff;
-
-  --border: #2A4C44;
-  --input: #2A4C44;
-  --ring: #D4AF37;
-
-  --chart-1: #D4AF37;
-  --chart-2: #F9F9F2;
-  --chart-3: #A0B0A8;
-  --chart-4: #2A4C44;
-  --chart-5: #1A3C34;
-
-  --sidebar: #0A1916;
-  --sidebar-foreground: #F9F9F2;
-  --sidebar-primary: #D4AF37;
-  --sidebar-primary-foreground: #1A3C34;
-  --sidebar-accent: #1A3C34;
-  --sidebar-accent-foreground: #F9F9F2;
-  --sidebar-border: #1A3C34;
-  --sidebar-ring: #D4AF37;
+  --primary: #D4AF37; /* Gold points in dark */
+  --primary-foreground: #000000;
 }
 
 @layer base {
